@@ -253,6 +253,34 @@
         .card-header { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .card-header h3 { font-size: 1.1rem; color: #444; }
 
+        /* --- Semester Tabs (Statistik Kehadiran Siswa) --- */
+        .semester-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: nowrap;
+        }
+        .semester-tab-btn {
+            flex: 1 1 0;
+            border: 1px solid #e2e8f0;
+            background: #f8f9fa;
+            color: #555;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 7px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .semester-tab-btn:hover { background-color: #eef1f5; }
+        .semester-tab-btn.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
         /* Tables */
         .table-responsive { overflow-x: auto; }
         .custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -615,6 +643,138 @@
                 height: 2.6em;
             }
         }
+
+        /* --- Bottom Menu Bar & Menu Sheet (mobile-only quick menu access) --- */
+        .bottom-menu-bar {
+            display: none;
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 1500;
+            background: white;
+            box-shadow: 0 -3px 14px rgba(102,126,234,0.18);
+            padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+            justify-content: center;
+        }
+
+        .bottom-menu-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 5px 26px;
+            border-radius: 14px;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+        .bottom-menu-btn i { font-size: 1.35rem; }
+        .bottom-menu-btn span {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .bottom-menu-btn:hover,
+        .bottom-menu-btn.active {
+            background: rgba(102,126,234,0.12);
+            transform: translateY(-2px);
+        }
+
+        .menu-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1900;
+            background: rgba(15,23,42,0.55);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+        }
+        .menu-sheet-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.35s ease, visibility 0s linear 0s;
+        }
+
+        .menu-sheet {
+            background: white;
+            width: 100%;
+            max-width: 640px;
+            max-height: 82vh;
+            border-radius: 22px 22px 0 0;
+            box-shadow: 0 -14px 44px rgba(0,0,0,0.32);
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            will-change: transform;
+            transition: transform 0.42s cubic-bezier(.32,.72,0,1);
+        }
+        .menu-sheet-overlay.active .menu-sheet {
+            transform: translateY(0);
+        }
+
+        .menu-sheet-handle {
+            width: 42px; height: 5px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 10px auto 2px;
+            flex-shrink: 0;
+        }
+
+        .menu-sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 20px 14px;
+            border-bottom: 1px solid #eef2ff;
+            flex-shrink: 0;
+        }
+        .menu-sheet-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-sheet-close {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+        .menu-sheet-close:hover { background: #fee2e2; color: #dc2626; }
+
+        .menu-sheet-body {
+            padding: 6px 20px calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .menu-sheet-body::-webkit-scrollbar { display: none; }
+        .menu-sheet-body .accordion-item:last-child { margin-bottom: 0; }
+
+        /* Tampil hanya di mode smartphone; tampilan desktop tetap
+           seperti semula (tanpa bottom bar/menu sheet). */
+        @media (max-width: 768px) {
+            .bottom-menu-bar { display: flex; }
+            .main-content { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+            #pilihMenuCard { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -640,22 +800,15 @@
                 <h2>Selamat Datang, Admin</h2>
                 <p style="color: #666; margin-top: 10px;">Ini adalah halaman dashboard utama aplikasi sekolah.</p>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3 id="totalSiswa">0</h3>
-                    <p>Siswa Aktif</p>
-                </div>
-                <i class="fas fa-user-graduate stat-icon" style="color: var(--primary-color);"></i>
-            </div>
         </div>
 
         <!-- Accordion Container -->
-        <div class="dashboard-card">
+        <div class="dashboard-card" id="pilihMenuCard">
             <div class="card-header">
                 <h3><i class="fas fa-info-circle" style="color: var(--primary-color);"></i> Pilih Menu</h3>
             </div>
             
+            <div class="accordion-body-wrapper" id="pilihMenuBody">
             <div class="accordion-item">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span class="accordion-title">Menu Sistem</span>
@@ -856,6 +1009,7 @@
                     </div>
                 </div>
             </div>
+            </div>
 
         </div>
         <!-- Statistik Jumlah Siswa Per Tahun Ajaran -->
@@ -925,7 +1079,11 @@
         <div class="charts-grid">
             <div class="chart-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-chart-bar"></i> Statistik Kehadiran Siswa (Semester Genap)</h3>
+                    <h3><i class="fas fa-chart-bar"></i> Statistik Kehadiran Siswa</h3>
+                </div>
+                <div class="semester-tabs" id="semesterTabs">
+                    <button type="button" class="semester-tab-btn" data-semester="genap" onclick="switchSemesterTab('genap')">Semester Genap</button>
+                    <button type="button" class="semester-tab-btn" data-semester="ganjil" onclick="switchSemesterTab('ganjil')">Semester Ganjil</button>
                 </div>
                 <div style="position: relative; height: 300px;">
                     <canvas id="attendanceChart"></canvas>
@@ -992,10 +1150,31 @@
 
         <!-- Footer -->
         <footer class="main-footer">
-            <p>&copy; 2026 SMKN 1 SIMPANG TERITIP.</p>
-            <p>CopyRight Kenji Studio Developer.</p>
+            <p>CopyRight Kenji Studio Developer,2026</p>
         </footer>
     </main>
+
+    <!-- Bottom Menu Bar (mobile only) -->
+    <div class="bottom-menu-bar">
+        <button type="button" class="bottom-menu-btn" id="btnBottomMenu" onclick="openMenuSheet()">
+            <i class="fas fa-th-large"></i>
+            <span>Menu</span>
+        </button>
+    </div>
+
+    <!-- Menu Sheet (slide up dari bawah, mobile only) -->
+    <div class="menu-sheet-overlay" id="menuSheetOverlay">
+        <div class="menu-sheet" id="menuSheet">
+            <div class="menu-sheet-handle"></div>
+            <div class="menu-sheet-header">
+                <h3><i class="fas fa-th"></i> Pilih Menu</h3>
+                <button type="button" class="menu-sheet-close" onclick="closeMenuSheet()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="menu-sheet-body" id="menuSheetBody"></div>
+        </div>
+    </div>
 
     <!-- Modal Keuangan Sekolah -->
     <div class="modal-overlay" id="keuanganModal" onclick="if(event.target === this) closeKeuanganModal();">
@@ -1063,6 +1242,57 @@
             }
         }
 
+        // =============================================
+        // Menu Sheet (slide up dari bawah) — khusus mode smartphone.
+        // Isi sheet adalah salinan (clone) dari container "Pilih Menu"
+        // yang sudah ada di halaman (accordion Menu Sistem/Laporan/
+        // Tata Usaha), supaya semua link & fungsinya tetap sama persis
+        // tanpa perlu menduplikasi kode.
+        // =============================================
+        function buildMenuSheetGrid() {
+            const sheetBody = document.getElementById('menuSheetBody');
+            const originalBody = document.getElementById('pilihMenuBody');
+            if (!sheetBody || !originalBody || sheetBody.dataset.filled) return;
+
+            const clone = originalBody.cloneNode(true);
+            clone.removeAttribute('id');
+
+            // Buka accordion pertama secara default di dalam sheet supaya
+            // pengguna langsung melihat isi menu tanpa harus klik dulu.
+            const firstHeader = clone.querySelector('.accordion-header');
+            const firstContent = clone.querySelector('.accordion-content');
+            if (firstHeader && firstContent) {
+                firstHeader.classList.add('active');
+                firstContent.classList.add('active');
+            }
+
+            Array.from(clone.children).forEach(child => sheetBody.appendChild(child));
+            sheetBody.dataset.filled = '1';
+        }
+
+        function openMenuSheet() {
+            buildMenuSheetGrid();
+            document.getElementById('menuSheetOverlay').classList.add('active');
+            document.getElementById('btnBottomMenu').classList.add('active');
+        }
+
+        function closeMenuSheet() {
+            document.getElementById('menuSheetOverlay').classList.remove('active');
+            document.getElementById('btnBottomMenu').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuSheetOverlay = document.getElementById('menuSheetOverlay');
+            if (menuSheetOverlay) {
+                menuSheetOverlay.addEventListener('click', function(e) {
+                    if (e.target === this) closeMenuSheet();
+                });
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMenuSheet();
+            });
+        });
+
         // --- Supabase Integration for Navbar ---
         const supabaseUrl = 'https://ttorwlqsoioiwhscbqfu.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0b3J3bHFzb2lvaXdoc2NicWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODUyMjMsImV4cCI6MjEwMDI2MTIyM30.-wBFkSoUpvGS6UT0CQgJ-lOZqaV3GgnSY1xZVOx2enM';
@@ -1104,10 +1334,6 @@
                     const { count: siswaCount, error: siswaError } = await supabaseClient
                         .from('datasiswa')
                         .select('*', { count: 'exact', head: true });
-                    
-                    if (!siswaError) {
-                        document.getElementById('totalSiswa').textContent = (siswaCount || 0).toLocaleString();
-                    }
 
                     // 1b. Jumlah Laki-laki & Perempuan (dari kolom jenis_kelamin tabel datasiswa)
                     const { count: lakiCount, error: lakiError } = await supabaseClient
@@ -1324,6 +1550,25 @@
                     const warnaTeks = '#d1d5db';
                     const warnaGrid = 'rgba(148, 163, 184, 0.15)';
 
+                    // Helper: memecah teks panjang menjadi beberapa baris pendek
+                    // agar tooltip tidak terpotong di layar HP (mobile)
+                    function wrapTooltipText(text, maxLength = window.innerWidth < 480 ? 20 : 28) {
+                        const words = text.split(' ');
+                        const lines = [];
+                        let currentLine = '';
+                        words.forEach(word => {
+                            const testLine = currentLine ? currentLine + ' ' + word : word;
+                            if (testLine.length > maxLength) {
+                                if (currentLine) lines.push(currentLine);
+                                currentLine = word;
+                            } else {
+                                currentLine = testLine;
+                            }
+                        });
+                        if (currentLine) lines.push(currentLine);
+                        return lines;
+                    }
+
                     studentYearChartInstance = new Chart(ctx, {
                         type: 'bar',
                         data: {
@@ -1369,17 +1614,17 @@
                                                     const persen = Math.abs((selisih / nilaiSebelumnya) * 100).toFixed(1);
 
                                                     if (selisih > 0) {
-                                                        lines.push(`Terjadi Kenaikan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${selisih} siswa`);
+                                                        lines.push(...wrapTooltipText(`Terjadi Kenaikan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${selisih} siswa`));
                                                     } else if (selisih < 0) {
-                                                        lines.push(`Terjadi Penurunan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${Math.abs(selisih)} siswa`);
+                                                        lines.push(...wrapTooltipText(`Terjadi Penurunan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${Math.abs(selisih)} siswa`));
                                                     } else {
-                                                        lines.push('Tidak ada perubahan jumlah siswa dibanding tahun ajaran sebelumnya');
+                                                        lines.push(...wrapTooltipText('Tidak ada perubahan jumlah siswa dibanding tahun ajaran sebelumnya'));
                                                     }
                                                 } else {
-                                                    lines.push('Belum ada data pembanding yang valid untuk tahun ajaran sebelumnya');
+                                                    lines.push(...wrapTooltipText('Belum ada data pembanding yang valid untuk tahun ajaran sebelumnya'));
                                                 }
                                             } else {
-                                                lines.push('Belum ada data tahun ajaran sebelumnya sebagai pembanding');
+                                                lines.push(...wrapTooltipText('Belum ada data tahun ajaran sebelumnya sebagai pembanding'));
                                             }
 
                                             return lines;
@@ -1408,13 +1653,17 @@
             }
 
 
-            async function loadAttendanceChart() {
+            async function loadAttendanceChart(semester) {
                 const ctx = document.getElementById('attendanceChart').getContext('2d');
-                
-                // Semester Genap: Jan - Jun
-                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'];
+
+                // Tentukan rentang bulan berdasarkan semester yang dipilih:
+                // Genap = Januari-Juni (getMonth() 0-5), Ganjil = Juli-Desember (getMonth() 6-11)
+                const isGanjil = semester === 'ganjil';
+                const months = isGanjil
+                    ? ['Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                    : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'];
                 const currentYear = new Date().getFullYear();
-                
+
                 // Inisialisasi data statistik
                 const stats = {
                     Hadir: [0, 0, 0, 0, 0, 0],
@@ -1424,10 +1673,10 @@
                 };
 
                 try {
-                    // Ambil data dari tabel absensiswa untuk periode Jan-Jun tahun ini
-                    const startDate = `${currentYear}-01-01`;
-                    const endDate = `${currentYear}-06-30`;
-                    
+                    // Ambil data dari tabel absensiswa untuk periode semester terpilih tahun ini
+                    const startDate = isGanjil ? `${currentYear}-07-01` : `${currentYear}-01-01`;
+                    const endDate = isGanjil ? `${currentYear}-12-31` : `${currentYear}-06-30`;
+
                     const { data, error } = await absensiClient
                         .from('absensiswa')
                         .select('tanggal, status_kehadiran')
@@ -1439,8 +1688,10 @@
                     if (data) {
                         data.forEach(item => {
                             const date = new Date(item.tanggal);
-                            const monthIndex = date.getMonth(); // 0 = Jan, 5 = Jun
-                            
+                            // 0-5 untuk Genap (Jan-Jun), 6-11 untuk Ganjil (Jul-Des) -> di-normalkan ke index 0-5
+                            const rawMonth = date.getMonth();
+                            const monthIndex = isGanjil ? rawMonth - 6 : rawMonth;
+
                             if (monthIndex >= 0 && monthIndex <= 5) {
                                 const status = item.status_kehadiran;
                                 
@@ -1496,6 +1747,21 @@
                 } catch (err) {
                     console.error("Error loading chart data:", err);
                 }
+            }
+
+            // Ganti tab semester (Genap/Ganjil) pada kartu Statistik Kehadiran Siswa
+            function switchSemesterTab(semester) {
+                document.querySelectorAll('#semesterTabs .semester-tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.semester === semester);
+                });
+                loadAttendanceChart(semester);
+            }
+
+            // Tentukan semester berjalan berdasarkan bulan saat ini:
+            // Januari-Juni -> Genap, Juli-Desember -> Ganjil
+            function semesterBerjalan() {
+                const bulan = new Date().getMonth(); // 0 = Januari ... 11 = Desember
+                return bulan <= 5 ? 'genap' : 'ganjil';
             }
 
             async function loadClassAttendanceChart() {
@@ -1679,7 +1945,7 @@
             document.addEventListener('DOMContentLoaded', loadSchoolIdentity);
             document.addEventListener('DOMContentLoaded', loadDashboardStats);
             document.addEventListener('DOMContentLoaded', loadStudentYearChart);
-            document.addEventListener('DOMContentLoaded', loadAttendanceChart);
+            document.addEventListener('DOMContentLoaded', () => switchSemesterTab(semesterBerjalan()));
             document.addEventListener('DOMContentLoaded', loadClassAttendanceChart);
             document.addEventListener('DOMContentLoaded', loadLowestGrades);
             document.addEventListener('DOMContentLoaded', loadRecentCases);
@@ -1704,4 +1970,3 @@
         
     </script>
 </body>
-</html>
