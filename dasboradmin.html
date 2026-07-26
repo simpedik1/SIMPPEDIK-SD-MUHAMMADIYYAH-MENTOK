@@ -125,6 +125,117 @@
         .stat-info p { color: #777; font-size: 0.9rem; }
         .stat-icon { font-size: 2.5rem; opacity: 0.2; }
 
+        /* --- Preview Cards: Total Siswa / Laki-laki / Perempuan --- */
+        .preview-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 22px;
+            margin-bottom: 20px;
+        }
+
+        .preview-stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            isolation: isolate;
+            transform: translateY(0);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .preview-stat-card::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            z-index: -1;
+        }
+
+        .preview-stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: -45px;
+            left: -25px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            z-index: -1;
+        }
+
+        .preview-stat-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .preview-stat-card .stat-info h3 {
+            color: #fff;
+            font-size: 2.3rem;
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .preview-stat-card .stat-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .preview-stat-card .preview-icon-wrap {
+            width: 58px;
+            height: 58px;
+            min-width: 58px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .preview-stat-card .preview-icon-wrap i {
+            font-size: 1.6rem;
+            color: #fff;
+        }
+
+        .preview-card-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.35), 0 6px 6px rgba(102, 126, 234, 0.25);
+        }
+        .preview-card-total:hover {
+            box-shadow: 0 16px 28px rgba(102, 126, 234, 0.45), 0 8px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-card-laki {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.35), 0 6px 6px rgba(59, 130, 246, 0.25);
+        }
+        .preview-card-laki:hover {
+            box-shadow: 0 16px 28px rgba(59, 130, 246, 0.45), 0 8px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .preview-card-perempuan {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            box-shadow: 0 10px 20px rgba(236, 72, 153, 0.35), 0 6px 6px rgba(236, 72, 153, 0.25);
+        }
+        .preview-card-perempuan:hover {
+            box-shadow: 0 16px 28px rgba(236, 72, 153, 0.45), 0 8px 10px rgba(236, 72, 153, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .preview-stat-card .stat-info h3 { font-size: 1.8rem; }
+        }
+
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -214,6 +325,29 @@
 
         .card-dark .custom-table tr:hover {
             background-color: #374151;
+        }
+
+        /* --- Growth Indicator (Statistik Jumlah Siswa Per Tahun Ajaran) --- */
+        .growth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .growth-badge.up { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35); }
+        .growth-badge.down { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.35); }
+        .growth-badge.flat { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(203, 213, 225, 0.35); }
+        .growth-badge.neutral { background: rgba(148, 163, 184, 0.1); color: #9ca3af; border: 1px solid rgba(148, 163, 184, 0.25); }
+
+        .growth-caption {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -724,6 +858,49 @@
             </div>
 
         </div>
+        <!-- Statistik Jumlah Siswa Per Tahun Ajaran -->
+        <div class="dashboard-card card-dark">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h3><i class="fas fa-chart-bar" style="color: #818cf8;"></i> Statistik Jumlah Siswa Per Tahun Ajaran</h3>
+                <span id="growthIndicator" class="growth-badge">Memuat data...</span>
+            </div>
+            <div style="position: relative; height: 300px;">
+                <canvas id="studentYearChart"></canvas>
+            </div>
+            <p id="growthCaption" class="growth-caption"></p>
+        </div>
+
+        <!-- Preview Jumlah Siswa (dari tabel datasiswa) -->
+        <div class="preview-stats-grid">
+            <div class="preview-stat-card preview-card-total">
+                <div class="stat-info">
+                    <h3 id="previewTotalSiswa">0</h3>
+                    <p>Total Siswa Aktif</p>
+                </div>
+                <div class="preview-icon-wrap">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+            <div class="preview-stat-card preview-card-laki">
+                <div class="stat-info">
+                    <h3 id="previewJumlahLaki">0</h3>
+                    <p>Jumlah Laki-laki</p>
+                </div>
+                <div class="preview-icon-wrap">
+                    <i class="fas fa-mars"></i>
+                </div>
+            </div>
+            <div class="preview-stat-card preview-card-perempuan">
+                <div class="stat-info">
+                    <h3 id="previewJumlahPerempuan">0</h3>
+                    <p>Jumlah Perempuan</p>
+                </div>
+                <div class="preview-icon-wrap">
+                    <i class="fas fa-venus"></i>
+                </div>
+            </div>
+        </div>
+
         <div class="dashboard-card card-dark">
             <div class="card-header">
                 <h3><i class="fas fa-layer-group" style="color: #60a5fa;"></i> Data Rombongan Belajar</h3>
@@ -932,6 +1109,24 @@
                         document.getElementById('totalSiswa').textContent = (siswaCount || 0).toLocaleString();
                     }
 
+                    // 1b. Jumlah Laki-laki & Perempuan (dari kolom jenis_kelamin tabel datasiswa)
+                    const { count: lakiCount, error: lakiError } = await supabaseClient
+                        .from('datasiswa')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('jenis_kelamin', 'Laki-laki');
+
+                    const { count: perempuanCount, error: perempuanError } = await supabaseClient
+                        .from('datasiswa')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('jenis_kelamin', 'Perempuan');
+
+                    document.getElementById('previewTotalSiswa').textContent = (siswaCount || 0).toLocaleString();
+                    document.getElementById('previewJumlahLaki').textContent = (!lakiError ? (lakiCount || 0) : 0).toLocaleString();
+                    document.getElementById('previewJumlahPerempuan').textContent = (!perempuanError ? (perempuanCount || 0) : 0).toLocaleString();
+
+                    if (lakiError) console.error('Error menghitung jumlah laki-laki:', lakiError);
+                    if (perempuanError) console.error('Error menghitung jumlah perempuan:', perempuanError);
+
                     // 2. Load Rombel Data
                     const { data: rombelData, error: rombelError } = await supabaseClient
                         .from('rombel')
@@ -960,7 +1155,258 @@
                 }
             }
 
+            let studentYearChartInstance = null;
             let attendanceChartInstance = null;
+
+            async function loadStudentYearChart() {
+                const ctx = document.getElementById('studentYearChart').getContext('2d');
+
+                try {
+                    // 1. Ambil Tahun Pelajaran aktif dari tabel identitassekolah
+                    const { data: identitasData, error: identitasError } = await supabaseClient
+                        .from('identitassekolah')
+                        .select('tahun_pelajaran')
+                        .limit(1)
+                        .single();
+
+                    if (identitasError) throw identitasError;
+
+                    const tahunPelajaranAktif = (identitasData && identitasData.tahun_pelajaran) ? String(identitasData.tahun_pelajaran).trim() : '';
+
+                    // 2. Hitung jumlah siswa saat ini (dari tabel datasiswa)
+                    const { count: siswaCountAktual, error: siswaError } = await supabaseClient
+                        .from('datasiswa')
+                        .select('*', { count: 'exact', head: true });
+
+                    if (siswaError) throw siswaError;
+
+                    const jumlahSiswaAktual = siswaCountAktual || 0;
+
+                    // 3. Cek apakah tahun ajaran aktif sudah ada datanya di tabel grafikpertumbuhan
+                    if (tahunPelajaranAktif) {
+                        const { data: existingRow, error: cekError } = await supabaseClient
+                            .from('grafikpertumbuhan')
+                            .select('id, jumlah_siswaa')
+                            .eq('tahun_pelajaran', tahunPelajaranAktif)
+                            .maybeSingle();
+
+                        if (cekError) throw cekError;
+
+                        if (!existingRow) {
+                            // Belum ada data tahun pelajaran ini -> insert otomatis
+                            const { error: insertError } = await supabaseClient
+                                .from('grafikpertumbuhan')
+                                .insert([{ tahun_pelajaran: tahunPelajaranAktif, jumlah_siswaa: jumlahSiswaAktual }]);
+
+                            if (insertError) throw insertError;
+                        } else {
+                            // Sudah ada -> cek apakah jumlah siswa berubah dibanding yang tersimpan
+                            const jumlahTersimpan = Number(existingRow.jumlah_siswaa) || 0;
+
+                            if (jumlahTersimpan !== jumlahSiswaAktual) {
+                                // Ada perubahan data siswa -> update berdasarkan id & tahun_pelajaran
+                                const { error: updateError } = await supabaseClient
+                                    .from('grafikpertumbuhan')
+                                    .update({ jumlah_siswaa: jumlahSiswaAktual })
+                                    .eq('id', existingRow.id)
+                                    .eq('tahun_pelajaran', tahunPelajaranAktif);
+
+                                if (updateError) throw updateError;
+                            }
+                            // Jika tidak ada perubahan, tidak melakukan apa-apa (skip update)
+                        }
+                    }
+
+                    // 4. Ambil semua data dari tabel grafikpertumbuhan untuk ditampilkan
+                    const { data: grafikData, error: grafikError } = await supabaseClient
+                        .from('grafikpertumbuhan')
+                        .select('tahun_pelajaran, jumlah_siswaa')
+                        .order('tahun_pelajaran', { ascending: true });
+
+                    if (grafikError) throw grafikError;
+
+                    // Ambil maksimal 5 tahun ajaran terbaru
+                    const dataTerbaru = (grafikData || []).slice(-5);
+                    const labels = dataTerbaru.map(row => row.tahun_pelajaran);
+                    const dataPerTahun = dataTerbaru.map(row => Number(row.jumlah_siswaa) || 0);
+                    // Palet warna cerah untuk tiap batang (gradasi atas -> bawah)
+                    const paletteWarna = [
+                        { atas: '#818cf8', bawah: '#4f46e5' }, // indigo
+                        { atas: '#38bdf8', bawah: '#0284c7' }, // sky
+                        { atas: '#34d399', bawah: '#059669' }, // emerald
+                        { atas: '#fbbf24', bawah: '#d97706' }, // amber
+                        { atas: '#fb7185', bawah: '#e11d48' }  // rose
+                    ];
+
+                    function hexToRgba(hex, alpha) {
+                        const bigint = parseInt(hex.replace('#', ''), 16);
+                        const r = (bigint >> 16) & 255;
+                        const g = (bigint >> 8) & 255;
+                        const b = bigint & 255;
+                        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    }
+
+                    function buatGradientBar(warna, opacity) {
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, hexToRgba(warna.atas, opacity));
+                        gradient.addColorStop(1, hexToRgba(warna.bawah, opacity));
+                        return gradient;
+                    }
+
+                    // Warna khusus merah terang untuk batang dengan jumlah siswa TERENDAH
+                    const warnaMerahTerendah = { atas: '#f87171', bawah: '#b91c1c' };
+                    const nilaiTerendah = dataPerTahun.length > 0 ? Math.min(...dataPerTahun) : null;
+
+                    function ambilWarnaUntukBar(idx) {
+                        // Kalau nilainya sama dengan nilai terendah di grafik, pakai warna merah
+                        if (nilaiTerendah !== null && dataPerTahun[idx] === nilaiTerendah) {
+                            return warnaMerahTerendah;
+                        }
+                        return paletteWarna[idx % paletteWarna.length];
+                    }
+
+                    const warnaBar = labels.map((label, idx) => {
+                        const warna = ambilWarnaUntukBar(idx);
+                        const opacity = label === tahunPelajaranAktif ? 1 : 0.55;
+                        return buatGradientBar(warna, opacity);
+                    });
+                    const warnaBorder = labels.map((label, idx) => {
+                        const warna = ambilWarnaUntukBar(idx);
+                        return label === tahunPelajaranAktif ? warna.atas : hexToRgba(warna.atas, 0.5);
+                    });
+
+                    // 4. Hitung persentase kenaikan/penurunan dibanding tahun ajaran sebelumnya
+                    const growthBadge = document.getElementById('growthIndicator');
+                    const growthCaption = document.getElementById('growthCaption');
+
+                    if (dataTerbaru.length >= 2) {
+                        const tahunIni = dataTerbaru[dataTerbaru.length - 1];
+                        const tahunLalu = dataTerbaru[dataTerbaru.length - 2];
+                        const nilaiIni = Number(tahunIni.jumlah_siswaa) || 0;
+                        const nilaiLalu = Number(tahunLalu.jumlah_siswaa) || 0;
+
+                        if (nilaiLalu === 0) {
+                            growthBadge.textContent = '— Belum bisa dihitung';
+                            growthBadge.className = 'growth-badge neutral';
+                            growthCaption.textContent = `Tahun ajaran sebelumnya (${tahunLalu.tahun_pelajaran}) belum memiliki data pembanding yang valid.`;
+                        } else {
+                            const persen = ((nilaiIni - nilaiLalu) / nilaiLalu) * 100;
+                            const persenBulat = Math.abs(persen).toFixed(1);
+
+                            if (persen > 0) {
+                                growthBadge.textContent = `▲ Naik ${persenBulat}%`;
+                                growthBadge.className = 'growth-badge up';
+                            } else if (persen < 0) {
+                                growthBadge.textContent = `▼ Turun ${persenBulat}%`;
+                                growthBadge.className = 'growth-badge down';
+                            } else {
+                                growthBadge.textContent = 'Stabil (0%)';
+                                growthBadge.className = 'growth-badge flat';
+                            }
+
+                            growthCaption.textContent = `${tahunIni.tahun_pelajaran}: ${nilaiIni} siswa, dibanding ${tahunLalu.tahun_pelajaran}: ${nilaiLalu} siswa.`;
+                        }
+                    } else if (dataTerbaru.length === 1) {
+                        growthBadge.textContent = 'Data pertama';
+                        growthBadge.className = 'growth-badge neutral';
+                        growthCaption.textContent = `Baru ada data untuk tahun ajaran ${dataTerbaru[0].tahun_pelajaran}. Persentase kenaikan/penurunan akan muncul mulai tahun ajaran berikutnya.`;
+                    } else {
+                        growthBadge.textContent = 'Belum ada data';
+                        growthBadge.className = 'growth-badge neutral';
+                        growthCaption.textContent = '';
+                    }
+
+                    if (studentYearChartInstance) {
+                        studentYearChartInstance.destroy();
+                    }
+
+                    // Warna teks & grid untuk tema gelap
+                    const warnaTeks = '#d1d5db';
+                    const warnaGrid = 'rgba(148, 163, 184, 0.15)';
+
+                    studentYearChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Jumlah Siswa',
+                                data: dataPerTahun,
+                                backgroundColor: warnaBar,
+                                borderColor: warnaBorder,
+                                borderWidth: 2,
+                                borderRadius: 8,
+                                maxBarThickness: 60,
+                                hoverBackgroundColor: labels.map((label, idx) => buatGradientBar(ambilWarnaUntukBar(idx), 1)),
+                                hoverBorderWidth: 2.5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#111827',
+                                    titleColor: '#f3f4f6',
+                                    bodyColor: '#e5e7eb',
+                                    borderColor: '#374151',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    callbacks: {
+                                        title: function(items) {
+                                            return `Tahun Pelajaran ${items[0].label}`;
+                                        },
+                                        label: function(context) {
+                                            const idx = context.dataIndex;
+                                            const nilaiSekarang = context.raw;
+                                            const lines = [`Jumlah Siswa: ${nilaiSekarang}`];
+
+                                            if (idx > 0) {
+                                                const nilaiSebelumnya = dataPerTahun[idx - 1];
+                                                if (nilaiSebelumnya > 0) {
+                                                    const selisih = nilaiSekarang - nilaiSebelumnya;
+                                                    const persen = Math.abs((selisih / nilaiSebelumnya) * 100).toFixed(1);
+
+                                                    if (selisih > 0) {
+                                                        lines.push(`Terjadi Kenaikan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${selisih} siswa`);
+                                                    } else if (selisih < 0) {
+                                                        lines.push(`Terjadi Penurunan jumlah siswa sebanyak ${persen}% yaitu sebanyak ${Math.abs(selisih)} siswa`);
+                                                    } else {
+                                                        lines.push('Tidak ada perubahan jumlah siswa dibanding tahun ajaran sebelumnya');
+                                                    }
+                                                } else {
+                                                    lines.push('Belum ada data pembanding yang valid untuk tahun ajaran sebelumnya');
+                                                }
+                                            } else {
+                                                lines.push('Belum ada data tahun ajaran sebelumnya sebagai pembanding');
+                                            }
+
+                                            return lines;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { precision: 0, color: warnaTeks },
+                                    grid: { color: warnaGrid },
+                                    title: { display: true, text: 'Jumlah Siswa', color: warnaTeks }
+                                },
+                                x: {
+                                    ticks: { color: warnaTeks },
+                                    grid: { color: warnaGrid },
+                                    title: { display: true, text: 'Tahun Ajaran', color: warnaTeks }
+                                }
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.error('Error loading student year chart:', err);
+                }
+            }
+
 
             async function loadAttendanceChart() {
                 const ctx = document.getElementById('attendanceChart').getContext('2d');
@@ -1232,6 +1678,7 @@
 
             document.addEventListener('DOMContentLoaded', loadSchoolIdentity);
             document.addEventListener('DOMContentLoaded', loadDashboardStats);
+            document.addEventListener('DOMContentLoaded', loadStudentYearChart);
             document.addEventListener('DOMContentLoaded', loadAttendanceChart);
             document.addEventListener('DOMContentLoaded', loadClassAttendanceChart);
             document.addEventListener('DOMContentLoaded', loadLowestGrades);
