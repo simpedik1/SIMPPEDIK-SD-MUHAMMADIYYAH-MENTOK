@@ -188,8 +188,8 @@
         
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: #666; font-size: 0.9rem; font-weight: 500; }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.3s; background-color: #fff; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
         .form-group textarea { resize: vertical; min-height: 80px; }
         
         /* Styling khusus untuk input date agar lebih menarik */
@@ -275,6 +275,7 @@
                             <th>Nama Siswa</th>
                             <th>Tempat Lahir</th>
                             <th>Tanggal Lahir</th>
+                            <th>Jenis Kelamin</th>
                             <th>Nama Ayah</th>
                             <th>Nama Ibu</th>
                             <th>Alamat</th>
@@ -283,7 +284,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="9" style="text-align: center; color: #888; padding: 20px;">Belum ada data siswa.</td>
+                            <td colspan="10" style="text-align: center; color: #888; padding: 20px;">Belum ada data siswa.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -324,6 +325,14 @@
                         <label for="tanggalLahir">Tanggal Lahir</label>
                         <input type="date" id="tanggalLahir" name="tanggalLahir">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="jenisKelamin">Jenis Kelamin</label>
+                    <select id="jenisKelamin" name="jenisKelamin">
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="namaAyah">Nama Ayah</label>
@@ -416,7 +425,7 @@
         // --- Load Data Siswa ---
         async function loadSiswaData() {
             const tableBody = document.querySelector('.custom-table tbody');
-            tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Memuat data...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Memuat data...</td></tr>';
 
             try {
                 const { data, error } = await supabaseClient
@@ -431,7 +440,7 @@
 
             } catch (err) {
                 console.error('Error loading siswa data:', err);
-                tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: #ef4444;">Gagal memuat data: ${err.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color: #ef4444;">Gagal memuat data: ${err.message}</td></tr>`;
             }
         }
 
@@ -441,7 +450,7 @@
             tableBody.innerHTML = '';
 
             if (!data || data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #888; padding: 20px;">Data tidak ditemukan.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #888; padding: 20px;">Data tidak ditemukan.</td></tr>';
                 return;
             }
 
@@ -453,6 +462,7 @@
                     <td>${siswa.nama_siswa}</td>
                     <td>${siswa.tempat_lahir || '-'}</td>
                     <td>${siswa.tanggal_lahir || '-'}</td>
+                    <td>${siswa.jenis_kelamin || '-'}</td>
                     <td>${siswa.nama_ayah || '-'}</td>
                     <td>${siswa.nama_ibu || '-'}</td>
                     <td>${siswa.alamat}</td>
@@ -485,6 +495,7 @@
                 document.getElementById('namaSiswa').value = siswa.nama_siswa;
                 document.getElementById('tempatLahir').value = siswa.tempat_lahir || '';
                 document.getElementById('tanggalLahir').value = siswa.tanggal_lahir || '';
+                document.getElementById('jenisKelamin').value = siswa.jenis_kelamin || '';
                 document.getElementById('namaAyah').value = siswa.nama_ayah || '';
                 document.getElementById('namaIbu').value = siswa.nama_ibu || '';
                 document.getElementById('alamat').value = siswa.alamat;
@@ -533,6 +544,7 @@
                 const namaVal = document.getElementById('namaSiswa').value;
                 const tempatLahirVal = document.getElementById('tempatLahir').value;
                 const tanggalLahirVal = document.getElementById('tanggalLahir').value || null;
+                const jenisKelaminVal = document.getElementById('jenisKelamin').value || null;
                 const namaAyahVal = document.getElementById('namaAyah').value;
                 const namaIbuVal = document.getElementById('namaIbu').value;
                 const alamatVal = document.getElementById('alamat').value;
@@ -542,6 +554,7 @@
                     nama_siswa: namaVal,
                     tempat_lahir: tempatLahirVal,
                     tanggal_lahir: tanggalLahirVal,
+                    jenis_kelamin: jenisKelaminVal,
                     nama_ayah: namaAyahVal,
                     nama_ibu: namaIbuVal,
                     alamat: alamatVal
@@ -638,9 +651,10 @@
                         cells[2].innerText, // Nama Siswa
                         cells[3].innerText, // Tempat Lahir
                         cells[4].innerText, // Tanggal Lahir
-                        cells[5].innerText, // Nama Ayah
-                        cells[6].innerText, // Nama Ibu
-                        cells[7].innerText  // Alamat
+                        cells[5].innerText, // Jenis Kelamin
+                        cells[6].innerText, // Nama Ayah
+                        cells[7].innerText, // Nama Ibu
+                        cells[8].innerText  // Alamat
                     ];
                     tableRows.push(rowData);
                 }
@@ -648,7 +662,7 @@
 
             // Generate Tabel PDF
             doc.autoTable({
-                head: [['No', 'NISN', 'Nama Siswa', 'Tempat Lahir', 'Tgl Lahir', 'Ayah', 'Ibu', 'Alamat']],
+                head: [['No', 'NISN', 'Nama Siswa', 'Tempat Lahir', 'Tgl Lahir', 'JK', 'Ayah', 'Ibu', 'Alamat']],
                 body: tableRows,
                 startY: yPos,
                 theme: 'grid',
