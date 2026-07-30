@@ -204,97 +204,6 @@
             margin-top: 20px;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem 5px;
-            }
-            .navbar {
-                padding: 0 5px;
-            }
-            .navbar-brand span {
-                font-size: 1rem;
-                max-width: 45vw;
-            }
-            .btn-back-dashboard {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
-            .preview-grid {
-                grid-template-columns: 1fr;
-            }
-            .preview-stats {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            /* Biodata Guru: foto di tengah atas, data mengalir di bawahnya */
-            .biodata-flex-wrapper {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            .biodata-photo-wrapper {
-                width: 100%;
-            }
-            .biodata-photo-wrapper img {
-                margin: 0 auto;
-            }
-            .biodata-info-wrapper {
-                width: 100%;
-                min-width: 0 !important;
-            }
-            /* Optimasi Tabel Biodata: label kiri, nilai kanan sejajar */
-            #biodataContainer table tr {
-                display: flex;
-                align-items: center;
-                margin-bottom: 12px;
-                padding-bottom: 10px;
-                border-bottom: 1px dashed #eee;
-                gap: 6px;
-            }
-            #biodataContainer table tr:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-            #biodataContainer table td:first-child {
-                flex: 0 0 105px;
-                width: 105px !important;
-                font-size: 0.85rem;
-                padding: 0 !important;
-            }
-            #biodataContainer table td:last-child {
-                flex: 1 1 auto;
-                width: auto !important;
-                min-width: 0;
-                padding: 0 !important;
-            }
-            .mobile-hide {
-                display: none;
-            }
-            .custom-select, .custom-input {
-                width: 100%;
-            }
-            /* Toolbar Input Nilai */
-            .input-nilai-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .actions-wrapper {
-                flex-direction: column;
-                width: 100%;
-            }
-            .export-dropdown, .export-dropdown .btn, .actions-wrapper .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .btn-tambah-mapel-text {
-                display: none;
-            }
-            .btn-tambah-mapel {
-                padding: 8px 10px;
-                gap: 0;
-            }
-        }
-
         .custom-select, .custom-input {
             width: 96%;
             padding: 10px 15px;
@@ -656,6 +565,108 @@
         .actions-wrapper {
             display: flex;
             gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem 5px;
+            }
+            .navbar {
+                padding: 0 5px;
+            }
+            .navbar-brand span {
+                font-size: 1rem;
+                max-width: 45vw;
+            }
+            .btn-back-dashboard {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            .preview-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            /* Biodata Guru: foto di tengah atas, data mengalir di bawahnya */
+            .biodata-flex-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .biodata-photo-wrapper {
+                width: 100%;
+            }
+            .biodata-photo-wrapper img {
+                margin: 0 auto;
+            }
+            .biodata-info-wrapper {
+                width: 100%;
+                min-width: 0 !important;
+            }
+            /* Optimasi Tabel Biodata: label kiri, nilai kanan sejajar, ukuran dipadatkan agar muat */
+            #biodataContainer table tr {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 1px dashed #eee;
+                gap: 4px;
+            }
+            #biodataContainer table tr:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            #biodataContainer table td:first-child {
+                flex: 0 0 80px;
+                width: 80px !important;
+                font-size: 0.78rem;
+                padding: 0 !important;
+            }
+            #biodataContainer table td:last-child {
+                flex: 1 1 auto;
+                width: auto !important;
+                min-width: 0;
+                padding: 0 !important;
+                font-size: 0.85rem;
+            }
+            .mobile-hide {
+                display: none;
+            }
+            .custom-select, .custom-input {
+                width: 100% !important;
+                font-size: 0.8rem !important;
+                padding: 8px 10px !important;
+            }
+            .custom-select {
+                padding-right: 26px !important;
+                background-size: 12px !important;
+                background-position: right 8px center !important;
+            }
+            .mapel-select-wrapper {
+                gap: 4px !important;
+            }
+            .btn-tambah-mapel-text {
+                display: none;
+            }
+            .btn-tambah-mapel {
+                padding: 6px 8px !important;
+                gap: 0 !important;
+                font-size: 0.75rem !important;
+            }
+            /* Toolbar Input Nilai */
+            .input-nilai-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .actions-wrapper {
+                flex-direction: column;
+                width: 100%;
+            }
+            .export-dropdown, .export-dropdown .btn, .actions-wrapper .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
