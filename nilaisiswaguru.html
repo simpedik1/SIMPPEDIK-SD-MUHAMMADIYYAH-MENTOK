@@ -206,10 +206,10 @@
 
         @media (max-width: 768px) {
             .main-content {
-                padding: 1rem;
+                padding: 1rem 5px;
             }
             .navbar {
-                padding: 0 0.75rem;
+                padding: 0 5px;
             }
             .navbar-brand span {
                 font-size: 1rem;
@@ -242,27 +242,30 @@
                 width: 100%;
                 min-width: 0 !important;
             }
-            /* Optimasi Tabel Biodata/Dropdown */
+            /* Optimasi Tabel Biodata: label kiri, nilai kanan sejajar */
             #biodataContainer table tr {
                 display: flex;
-                flex-direction: column;
-                margin-bottom: 14px;
+                align-items: center;
+                margin-bottom: 12px;
                 padding-bottom: 10px;
                 border-bottom: 1px dashed #eee;
+                gap: 6px;
             }
             #biodataContainer table tr:last-child {
                 border-bottom: none;
                 margin-bottom: 0;
             }
-            #biodataContainer table td {
-                width: 100% !important;
-                padding: 4px 0 !important;
-            }
             #biodataContainer table td:first-child {
-                border-bottom: none;
+                flex: 0 0 105px;
+                width: 105px !important;
                 font-size: 0.85rem;
-                color: #888 !important;
-                padding-bottom: 2px !important;
+                padding: 0 !important;
+            }
+            #biodataContainer table td:last-child {
+                flex: 1 1 auto;
+                width: auto !important;
+                min-width: 0;
+                padding: 0 !important;
             }
             .mobile-hide {
                 display: none;
@@ -729,10 +732,13 @@
                         </tr>
                         <tr>
                             <td style="padding: 12px 0; color: #666; font-weight: 600;">KKTP/KKM</td>
-                            <td style="padding: 8px 0; color: #333; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                <span style="margin-right: 5px;" class="mobile-hide">:</span>
+                            <td style="padding: 8px 0; color: #333;">:
                                 <input type="number" id="inputKKTP" class="custom-input" placeholder="0" style="width: 80px;">
-                                <span style="margin-right: 5px; font-weight: 600; color: #666;">Jml UH:</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px 0; color: #666; font-weight: 600;">Jumlah UH</td>
+                            <td style="padding: 8px 0; color: #333;">:
                                 <input type="number" id="inputJmlUH" class="custom-input" placeholder="0" min="0" max="7" style="width: 80px;">
                             </td>
                         </tr>
