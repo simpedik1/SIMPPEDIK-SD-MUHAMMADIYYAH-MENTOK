@@ -29,6 +29,11 @@
             padding: 0;
         }
 
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-light);
@@ -36,6 +41,10 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+        }
+
+        img {
+            max-width: 100%;
         }
 
         .navbar {
@@ -50,6 +59,8 @@
             top: 0;
             left: 0;
             right: 0;
+            overflow: hidden;
+            gap: 10px;
         }
 
         .navbar-brand {
@@ -58,11 +69,15 @@
             gap: 10px;
             text-decoration: none;
             color: white;
+            min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
         }
 
         .navbar-brand img {
             height: 40px;
-            width: auto;
+            width: 40px;
+            flex-shrink: 0;
             background-color: white;
             border-radius: 50%;
             padding: 2px;
@@ -72,10 +87,14 @@
             font-weight: 700;
             font-size: 1.1rem;
             color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .btn-back-dashboard {
             margin-left: auto;
+            flex-shrink: 0;
             background-color: transparent;
             border: 1px solid white;
             color: white;
@@ -85,6 +104,7 @@
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.3s;
+            white-space: nowrap;
         }
         .btn-back-dashboard:hover {
             background-color: white;
@@ -188,21 +208,64 @@
             .main-content {
                 padding: 1rem;
             }
+            .navbar {
+                padding: 0 0.75rem;
+            }
             .navbar-brand span {
                 font-size: 1rem;
+                max-width: 45vw;
+            }
+            .btn-back-dashboard {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            .preview-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            /* Biodata Guru: foto di tengah atas, data mengalir di bawahnya */
+            .biodata-flex-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .biodata-photo-wrapper {
+                width: 100%;
+            }
+            .biodata-photo-wrapper img {
+                margin: 0 auto;
+            }
+            .biodata-info-wrapper {
+                width: 100%;
+                min-width: 0 !important;
             }
             /* Optimasi Tabel Biodata/Dropdown */
             #biodataContainer table tr {
                 display: flex;
                 flex-direction: column;
-                margin-bottom: 10px;
+                margin-bottom: 14px;
+                padding-bottom: 10px;
+                border-bottom: 1px dashed #eee;
+            }
+            #biodataContainer table tr:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
             }
             #biodataContainer table td {
                 width: 100% !important;
                 padding: 4px 0 !important;
             }
             #biodataContainer table td:first-child {
-                border-bottom: 1px dashed #eee;
+                border-bottom: none;
+                font-size: 0.85rem;
+                color: #888 !important;
+                padding-bottom: 2px !important;
+            }
+            .mobile-hide {
+                display: none;
             }
             .custom-select, .custom-input {
                 width: 100%;
@@ -219,6 +282,13 @@
             .export-dropdown, .export-dropdown .btn, .actions-wrapper .btn {
                 width: 100%;
                 justify-content: center;
+            }
+            .btn-tambah-mapel-text {
+                display: none;
+            }
+            .btn-tambah-mapel {
+                padding: 8px 10px;
+                gap: 0;
             }
         }
 
@@ -252,6 +322,31 @@
 
         .custom-select:hover, .custom-input:hover {
             border-color: #cbd5e1;
+        }
+
+        .mapel-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        .mapel-select-wrapper .custom-select {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: auto;
+        }
+
+        .btn-tambah-mapel {
+            flex-shrink: 0;
+            white-space: nowrap;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+
+        .btn-tambah-mapel .fa-book {
+            margin-left: 2px;
         }
 
         #biodataContainer, #previewContainer, #inputNilaiContainer {
@@ -586,11 +681,11 @@
                     Biodata Guru
                 </h3>
             </div>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
-                <div style="flex: 0 0 auto; width: 120px; text-align: center;">
+            <div class="biodata-flex-wrapper" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+                <div class="biodata-photo-wrapper" style="flex: 0 0 auto; width: 120px; text-align: center;">
                     <img id="bioPhoto" src="" alt="Foto Guru" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 3px solid #eee; background: #f0f0f0;">
                 </div>
-                <div style="flex: 1; min-width: 250px;">
+                <div class="biodata-info-wrapper" style="flex: 1; min-width: 250px;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr>
                             <td style="padding: 8px 0; width: 140px; color: #666; font-weight: 600;">Nama Lengkap</td>
@@ -603,15 +698,22 @@
                         <tr>
                             <td style="padding: 12px 0; color: #666; font-weight: 600;">Mata Pelajaran</td>
                             <td style="padding: 8px 0; color: #333;">:
-                                <select id="pilihMapel" class="custom-select">
-                                    <option value="">-- Pilih Mata Pelajaran --</option>
-                                </select>
+                                <div class="mapel-select-wrapper">
+                                    <select id="pilihMapel" class="custom-select">
+                                        <option value="">-- Pilih Mata Pelajaran --</option>
+                                    </select>
+                                    <button type="button" id="btnTambahMapel" class="btn btn-primary btn-tambah-mapel">
+                                        <i class="fas fa-plus"></i><i class="fas fa-book"></i>
+                                        <span class="btn-tambah-mapel-text">Mata Pelajaran</span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 12px 0; color: #666; font-weight: 600;">Semester</td>
                             <td style="padding: 8px 0; color: #333;">:
                                 <select id="pilihSemester" class="custom-select">
+                                    <option value="">-- Pilih Semester --</option>
                                     <option value="Ganjil">Ganjil</option>
                                     <option value="Genap">Genap</option>
                                 </select>
@@ -753,6 +855,49 @@
         </div>
     </div>
 
+    <div id="modalTambahMapel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tambah Mata Pelajaran</h3>
+                <span class="close-modal" onclick="toggleModalTambahMapel()">&times;</span>
+            </div>
+            <form id="formTambahMapel">
+                <div class="form-group">
+                    <label for="inputNamaMapelBaru">Nama Mapel</label>
+                    <select id="inputNamaMapelBaru" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">-- Pilih Mata Pelajaran --</option>
+                        <option value="Bahasa Indonesia" data-kode="Bindo">Bahasa Indonesia (Bindo)</option>
+                        <option value="Bahasa Inggris" data-kode="Bing">Bahasa Inggris (Bing)</option>
+                        <option value="Teknologi Informasi & Komunikasi" data-kode="TIK">Teknologi Informasi & Komunikasi (TIK)</option>
+                        <option value="Matematika" data-kode="MTK">Matematika (MTK)</option>
+                        <option value="Pendidikan Agama Islam" data-kode="PAI">Pendidikan Agama Islam (PAI)</option>
+                        <option value="Projek IPAS" data-kode="IPAS">Projek IPAS (IPAS)</option>
+                        <option value="Seni Budaya" data-kode="SBK">Seni Budaya (SBK)</option>
+                        <option value="Pendidikan Pancasila" data-kode="PKN">Pendidikan Pancasila (PKN)</option>
+                        <option value="Pendidikan Jasmani Olahraga & Kesehatan" data-kode="PJOK">Pendidikan Jasmani Olahraga & Kesehatan (PJOK)</option>
+                        <option value="Koding & Kecerdasan Artifisial" data-kode="KKA">Koding & Kecerdasan Artifisial (KKA)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputKodeMapelBaru">Kode Mapel</label>
+                    <input type="text" id="inputKodeMapelBaru" readonly placeholder="Otomatis terisi setelah memilih Nama Mapel">
+                </div>
+                <div class="form-group">
+                    <label for="idMapelBaru">Id</label>
+                    <input type="text" id="idMapelBaru" readonly placeholder="Otomatis terisi (IDM....-...)">
+                </div>
+                <div class="form-group">
+                    <label for="guruMapelBaru">Guru Yang Mengajar</label>
+                    <select id="guruMapelBaru" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"><option value="">Pilih Guru</option></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="toggleModalTambahMapel()">Batal</button>
+                    <button type="submit" id="btnSimpanMapelBaru" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://ttorwlqsoioiwhscbqfu.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0b3J3bHFzb2lvaXdoc2NicWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODUyMjMsImV4cCI6MjEwMDI2MTIyM30.-wBFkSoUpvGS6UT0CQgJ-lOZqaV3GgnSY1xZVOx2enM';
@@ -872,6 +1017,122 @@
         }
         document.addEventListener('DOMContentLoaded', loadMapelDropdown);
 
+        const btnTambahMapel = document.getElementById('btnTambahMapel');
+        const modalTambahMapel = document.getElementById('modalTambahMapel');
+        const formTambahMapel = document.getElementById('formTambahMapel');
+        const idMapelBaru = document.getElementById('idMapelBaru');
+        const inputKodeMapelBaru = document.getElementById('inputKodeMapelBaru');
+        const inputNamaMapelBaru = document.getElementById('inputNamaMapelBaru');
+        const guruMapelBaru = document.getElementById('guruMapelBaru');
+
+        function toggleModalTambahMapel() {
+            modalTambahMapel.classList.toggle('active');
+        }
+
+        // --- Load Data Guru untuk Dropdown Guru Yang Mengajar ---
+        async function loadGuruOptionsMapelBaru() {
+            const session = JSON.parse(sessionStorage.getItem('guru_session'));
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('dataguru')
+                    .select('nama_guru')
+                    .order('nama_guru');
+
+                if (error) throw error;
+
+                guruMapelBaru.innerHTML = '<option value="">Pilih Guru</option>';
+                if (data) {
+                    data.forEach(guru => {
+                        const option = document.createElement('option');
+                        option.value = guru.nama_guru;
+                        option.textContent = guru.nama_guru;
+                        guruMapelBaru.appendChild(option);
+                    });
+                }
+
+                if (session && session.nama) {
+                    guruMapelBaru.value = session.nama;
+                }
+            } catch (err) {
+                console.error('Error loading guru options:', err);
+                guruMapelBaru.innerHTML = '<option value="">Gagal memuat data guru</option>';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadGuruOptionsMapelBaru);
+
+        btnTambahMapel.addEventListener('click', () => {
+            formTambahMapel.reset();
+            idMapelBaru.value = '';
+            inputKodeMapelBaru.value = '';
+            const session = JSON.parse(sessionStorage.getItem('guru_session'));
+            if (session && session.nama) {
+                guruMapelBaru.value = session.nama;
+            }
+            modalTambahMapel.classList.add('active');
+        });
+
+        // Auto-generate Kode Mapel & Id berdasarkan Nama Mapel yang dipilih
+        // Format: IDM.<singkatan>-<4 angka random>, contoh: IDM.Bindo-7485
+        inputNamaMapelBaru.addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const singkatan = selectedOption ? selectedOption.getAttribute('data-kode') : '';
+
+            if (!singkatan) {
+                inputKodeMapelBaru.value = '';
+                idMapelBaru.value = '';
+                return;
+            }
+
+            const randomDigits = Math.floor(1000 + Math.random() * 9000);
+            const generatedKode = `IDM.${singkatan}-${randomDigits}`;
+
+            inputKodeMapelBaru.value = generatedKode;
+            idMapelBaru.value = generatedKode;
+        });
+
+        formTambahMapel.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = idMapelBaru.value.trim();
+            const kodeMapel = inputKodeMapelBaru.value.trim();
+            const namaMapel = inputNamaMapelBaru.value.trim();
+            const guruMapel = guruMapelBaru.value;
+
+            if (!kodeMapel || !namaMapel || !guruMapel) {
+                alert('Nama Mapel dan Guru Yang Mengajar wajib diisi.');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            try {
+                const { error } = await absensiClient
+                    .from('matapelajaran')
+                    .upsert({
+                        id: id,
+                        kode_mapel: kodeMapel,
+                        nama_mapel: namaMapel,
+                        nama_guru: guruMapel
+                    });
+
+                if (error) throw error;
+
+                toggleModalTambahMapel();
+                formTambahMapel.reset();
+                await loadMapelDropdown();
+                alert('Mata pelajaran berhasil ditambahkan.');
+            } catch (err) {
+                console.error('Error menambahkan mapel:', err);
+                alert('Gagal menambahkan mata pelajaran: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan';
+            }
+        });
+
         async function loadKelasDropdown() {
             const select = document.getElementById('pilihKelas');
            
@@ -900,10 +1161,42 @@
 
         const pilihMapel = document.getElementById('pilihMapel');
         const pilihKelas = document.getElementById('pilihKelas');
+        const pilihSemester = document.getElementById('pilihSemester');
         const inputNilaiContainer = document.getElementById('inputNilaiContainer');
         const pengumumanNilaiContainer = document.getElementById('pengumumanNilaiContainer');
         const previewContainer = document.getElementById('previewContainer');
         const nilaiTableBody = document.querySelector('#nilaiTable tbody');
+
+        // --- Notifikasi Pemberitahuan (memakai modal notifikasi yang sudah tersedia) ---
+        function showNotification(message) {
+            document.getElementById('notificationMessage').textContent = message;
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        // Mencegah dropdown terbuka jika prasyarat belum dipilih, lalu menampilkan pemberitahuan
+        function guardSelectOpen(selectEl, getBlockMessage) {
+            const handler = function (e) {
+                const msg = getBlockMessage();
+                if (msg) {
+                    e.preventDefault();
+                    selectEl.blur();
+                    showNotification(msg);
+                }
+            };
+            selectEl.addEventListener('mousedown', handler);
+            selectEl.addEventListener('touchstart', handler, { passive: false });
+        }
+
+        guardSelectOpen(pilihSemester, () => {
+            if (!pilihMapel.value) return 'Silahkan Pilih Mata Pelajaran terlebih dahulu.';
+            return null;
+        });
+
+        guardSelectOpen(pilihKelas, () => {
+            if (!pilihMapel.value) return 'Silahkan Pilih Mata Pelajaran terlebih dahulu.';
+            if (!pilihSemester.value) return 'Silahkan Pilih Semester terlebih dahulu.';
+            return null;
+        });
 
         function updatePreview() {
             const rows = document.querySelectorAll('#nilaiTable tbody tr');
