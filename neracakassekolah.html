@@ -371,7 +371,7 @@
             opacity: 0.75;
         }
 
-        .btn-edit-saldo-awal {
+        .btn-view-saldo-history {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -385,7 +385,46 @@
             transition: background 0.2s;
             flex-shrink: 0;
         }
-        .btn-edit-saldo-awal:hover { background: rgba(255,255,255,0.36); }
+        .btn-view-saldo-history:hover { background: rgba(255,255,255,0.36); }
+
+        /* Popover tooltip (muncul di atas saat hover) */
+        .icon-tooltip { position: relative; }
+        .icon-tooltip::before,
+        .icon-tooltip::after {
+            position: absolute;
+            left: 50%;
+            bottom: 100%;
+            transform: translateX(-50%);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            pointer-events: none;
+            z-index: 30;
+        }
+        .icon-tooltip::after {
+            content: attr(data-tooltip);
+            margin-bottom: 8px;
+            background: #1e293b;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        .icon-tooltip::before {
+            content: '';
+            margin-bottom: 2px;
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .icon-tooltip:hover::after,
+        .icon-tooltip:hover::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-2px);
+        }
 
 
         /* Table */
@@ -824,6 +863,57 @@
             color: #94a3b8;
             margin-top: 4px;
         }
+        .saldo-box-wide { max-width: 620px; }
+        .saldo-history-scroll {
+            max-height: 380px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .saldo-history-empty {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            padding: 20px 0;
+        }
+        .history-tabel {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+        .history-tabel thead th {
+            position: sticky;
+            top: 0;
+            background: #f1f5fb;
+            color: #1e3a8a;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 1;
+        }
+        .history-tabel tbody td {
+            padding: 7px 10px;
+            border: 1px solid #eef1f6;
+            color: #374151;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .history-tabel tbody tr.is-latest td { background: #f5f8ff; }
+        .history-tabel tbody tr:hover td { background: #f8fafc; }
+        .history-tabel tbody tr.is-latest:hover td { background: #eef3ff; }
+        .sh-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            padding: 2px 7px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-left: 6px;
+        }
         .saldo-footer {
             display: flex;
             justify-content: flex-end;
@@ -952,8 +1042,8 @@
             <div class="saldo-item">
                 <div class="saldo-item-head">
                     <span class="saldo-label">Preview Saldo Awal</span>
-                    <button class="btn-edit-saldo-awal" onclick="openSaldoAwalModal()" title="Update Saldo Bank &amp; Saldo Tunai">
-                        <i class="fas fa-pen"></i>
+                    <button class="btn-view-saldo-history icon-tooltip" data-tooltip="Riwayat Record Saldo Awal:" onclick="openSaldoHistoryModal()" aria-label="Riwayat Record Saldo Awal">
+                        <i class="fas fa-eye"></i>
                     </button>
                 </div>
                 <div class="saldo-value" id="saldoAwal">Rp 0</div>
@@ -961,7 +1051,7 @@
                     <span><span class="saldo-dot saldo-dot-green"></span> Saldo Bank: <strong id="saldoBank">Rp 0</strong></span>
                     <span><span class="saldo-dot saldo-dot-purple"></span> Saldo Tunai: <strong id="saldoTunai">Rp 0</strong></span>
                 </div>
-                <div class="saldo-note">Update data Saldo Bank dan Saldo Tunai setiap tutup bulan.</div>
+                <div class="saldo-note">Data saldo awal terbaru berdasarkan Tanggal Record. Klik ikon mata untuk melihat riwayat.</div>
             </div>
             <div class="saldo-item">
                 <div class="saldo-item-head"><span class="saldo-label">Total Pemasukan</span></div>
@@ -1165,30 +1255,35 @@
         </div>
     </div>
 
-    <!-- Modal Update Saldo Awal -->
-    <div class="modal-saldo-overlay" id="modalSaldoAwal">
-        <div class="saldo-box">
+    <!-- Modal Riwayat Record Saldo Awal -->
+    <div class="modal-saldo-overlay" id="modalSaldoHistory">
+        <div class="saldo-box saldo-box-wide">
             <div class="saldo-header-bar">
-                <h3><i class="fas fa-coins"></i> Update Saldo Bank &amp; Saldo Tunai</h3>
-                <button class="btn-close-saldo" onclick="closeSaldoAwalModal()"><i class="fas fa-times"></i></button>
+                <h3><i class="fas fa-clock-rotate-left"></i> Riwayat Record Saldo Awal</h3>
+                <button class="btn-close-saldo" onclick="closeSaldoHistoryModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="saldo-body">
-                <label for="inputSaldoBank">Nominal Saldo Bank</label>
-                <div class="saldo-input-wrap">
-                    <span>Rp</span>
-                    <input type="text" id="inputSaldoBank" placeholder="0" inputmode="numeric" oninput="formatSaldoAwalInput(this)">
+                <div class="saldo-history-scroll">
+                    <table class="history-tabel">
+                        <thead>
+                            <tr>
+                                <th style="width:26px;">No</th>
+                                <th>Tanggal Record</th>
+                                <th>Bulan</th>
+                                <th>Saldo Bank</th>
+                                <th>Saldo Tunai</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="saldoHistoryTbody">
+                            <tr><td colspan="6" class="saldo-history-empty"><i class="fas fa-spinner fa-spin"></i> Memuat riwayat...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <label for="inputSaldoTunai" style="margin-top:12px;display:block;">Nominal Saldo Tunai</label>
-                <div class="saldo-input-wrap">
-                    <span>Rp</span>
-                    <input type="text" id="inputSaldoTunai" placeholder="0" inputmode="numeric" oninput="formatSaldoAwalInput(this)">
-                </div>
-                <div class="saldo-hint">Update data Saldo Bank dan Saldo Tunai setiap tutup bulan. Total keduanya menjadi Preview Saldo Awal pada Neraca Keuangan Sekolah.</div>
             </div>
             <div class="saldo-footer">
-                <button class="btn-cancel-saldo" onclick="closeSaldoAwalModal()">Cancel</button>
-                <button class="btn-save-saldo" onclick="saveSaldoAwal()"><i class="fas fa-check"></i> Simpan</button>
+                <button class="btn-cancel-saldo" onclick="closeSaldoHistoryModal()">Tutup</button>
+                <button class="btn-save-saldo" onclick="exportSaldoHistoryPdf()"><i class="fas fa-file-pdf"></i> Export PDF</button>
             </div>
         </div>
     </div>
@@ -2280,18 +2375,28 @@
             if (e.target === this) closeSourceSaldoModal();
         });
 
-        // ---- Modal Saldo Awal Gabungan (Preview Saldo Awal - Bank & Tunai) ----
-        // Disimpan di tabel Supabase 'saldoawal' (kolom: id, saldo_bank, saldo_tunai).
-        // Jika tabel ini belum ada, buat dulu di Supabase sebelum tombol edit dipakai.
-        const globalSaldo = { bank: 0, tunai: 0, id: null };
+        // ---- Preview Saldo Awal Gabungan (Bank & Tunai) ----
+        // Disimpan di tabel Supabase 'saldoawal' (kolom: id, saldo_bank,
+        // saldo_tunai, bulan, created_at). Data selalu ditambahkan (insert)
+        // dari halaman Neraca Sumbangan; di halaman ini hanya ditampilkan
+        // (read-only) berdasarkan record TERBARU menurut created_at
+        // (Tanggal Record), dan bisa dilihat riwayatnya lewat ikon mata.
+        const globalSaldo = { bank: 0, tunai: 0, id: null, bulan: '', tanggalRecord: null };
 
         async function loadSaldoSekolah() {
             try {
-                const { data } = await db.from('saldoawal').select('*').limit(1).single();
+                const { data } = await db
+                    .from('saldoawal')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
                 if (data) {
                     globalSaldo.id = data.id;
                     globalSaldo.bank = parseFloat(data.saldo_bank) || 0;
                     globalSaldo.tunai = parseFloat(data.saldo_tunai) || 0;
+                    globalSaldo.bulan = data.bulan || '';
+                    globalSaldo.tanggalRecord = data.created_at || null;
                 }
             } catch (e) {
                 // Tabel belum ada / belum ada data -> biarkan default 0
@@ -2308,62 +2413,128 @@
             document.getElementById('saldoTunai').textContent = 'Rp ' + globalSaldo.tunai.toLocaleString('id-ID');
         }
 
-        function openSaldoAwalModal() {
-            document.getElementById('inputSaldoBank').value = globalSaldo.bank ? globalSaldo.bank.toLocaleString('id-ID') : '';
-            document.getElementById('inputSaldoTunai').value = globalSaldo.tunai ? globalSaldo.tunai.toLocaleString('id-ID') : '';
-            document.getElementById('modalSaldoAwal').classList.add('active');
+        function formatTanggalRecordIndo(d) {
+            const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()];
+            const bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][d.getMonth()];
+            const tgl = String(d.getDate()).padStart(2, '0');
+            const thn = d.getFullYear();
+            const jam = String(d.getHours()).padStart(2, '0');
+            const mnt = String(d.getMinutes()).padStart(2, '0');
+            const dtk = String(d.getSeconds()).padStart(2, '0');
+            return `${hari}, ${tgl} ${bulanNama} ${thn} ${jam}:${mnt}:${dtk}`;
         }
 
-        function closeSaldoAwalModal() {
-            document.getElementById('modalSaldoAwal').classList.remove('active');
-        }
+        // ---- Modal Riwayat Record Saldo Awal ----
+        let saldoHistoryCache = [];
 
-        async function saveSaldoAwal() {
-            const rawBank = document.getElementById('inputSaldoBank').value.replace(/\D/g, '');
-            const rawTunai = document.getElementById('inputSaldoTunai').value.replace(/\D/g, '');
-            const bankBaru = rawBank ? parseInt(rawBank, 10) : 0;
-            const tunaiBaru = rawTunai ? parseInt(rawTunai, 10) : 0;
-
-            const btn = document.querySelector('.btn-save-saldo');
-            const btnHtmlAsli = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        async function openSaldoHistoryModal() {
+            document.getElementById('modalSaldoHistory').classList.add('active');
+            const tbody = document.getElementById('saldoHistoryTbody');
+            tbody.innerHTML = '<tr><td colspan="6" class="saldo-history-empty"><i class="fas fa-spinner fa-spin"></i> Memuat riwayat...</td></tr>';
 
             try {
-                if (globalSaldo.id) {
-                    const { error } = await db
-                        .from('saldoawal')
-                        .update({ saldo_bank: bankBaru, saldo_tunai: tunaiBaru })
-                        .eq('id', globalSaldo.id);
-                    if (error) throw error;
-                } else {
-                    const idBaru = 'saldoawal-' + Date.now();
-                    const { data, error } = await db
-                        .from('saldoawal')
-                        .insert({ id: idBaru, saldo_bank: bankBaru, saldo_tunai: tunaiBaru })
-                        .select('id')
-                        .single();
-                    if (error) throw error;
-                    globalSaldo.id = data ? data.id : idBaru;
+                const { data, error } = await db
+                    .from('saldoawal')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+
+                saldoHistoryCache = data || [];
+
+                if (saldoHistoryCache.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="saldo-history-empty">Belum ada riwayat record saldo awal.</td></tr>';
+                    return;
                 }
 
-                globalSaldo.bank = bankBaru;
-                globalSaldo.tunai = tunaiBaru;
-                closeSaldoAwalModal();
-                showToast('Saldo Bank dan Saldo Tunai berhasil diperbarui.');
-                renderSaldoAwalPreview();
-                updateSaldoAkhirPreview();
+                tbody.innerHTML = saldoHistoryCache.map((row, idx) => {
+                    const bank = parseFloat(row.saldo_bank) || 0;
+                    const tunai = parseFloat(row.saldo_tunai) || 0;
+                    const total = bank + tunai;
+                    const tgl = row.created_at ? formatTanggalRecordIndo(new Date(row.created_at)) : '-';
+                    const bulan = row.bulan ? escHtml(row.bulan) : '-';
+                    return `
+                        <tr class="${idx === 0 ? 'is-latest' : ''}">
+                            <td style="text-align:center;">${idx + 1}</td>
+                            <td>${tgl}${idx === 0 ? '<span class="sh-badge">Terbaru</span>' : ''}</td>
+                            <td>${bulan}</td>
+                            <td>Rp ${bank.toLocaleString('id-ID')}</td>
+                            <td>Rp ${tunai.toLocaleString('id-ID')}</td>
+                            <td style="font-weight:700;">Rp ${total.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                }).join('');
             } catch (err) {
-                showToast('Gagal menyimpan saldo: ' + err.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = btnHtmlAsli;
+                tbody.innerHTML = '<tr><td colspan="6" class="saldo-history-empty">Gagal memuat riwayat: ' + err.message + '</td></tr>';
             }
         }
 
-        document.getElementById('modalSaldoAwal').addEventListener('click', function(e) {
-            if (e.target === this) closeSaldoAwalModal();
+        function closeSaldoHistoryModal() {
+            document.getElementById('modalSaldoHistory').classList.remove('active');
+        }
+
+        document.getElementById('modalSaldoHistory').addEventListener('click', function(e) {
+            if (e.target === this) closeSaldoHistoryModal();
         });
+
+        function exportSaldoHistoryPdf() {
+            if (!saldoHistoryCache || saldoHistoryCache.length === 0) {
+                showToast('Belum ada data riwayat untuk diexport.', 'error');
+                return;
+            }
+
+            const rowsHtml = saldoHistoryCache.map((row, idx) => {
+                const bank = parseFloat(row.saldo_bank) || 0;
+                const tunai = parseFloat(row.saldo_tunai) || 0;
+                const total = bank + tunai;
+                const tgl = row.created_at ? formatTanggalRecordIndo(new Date(row.created_at)) : '-';
+                const bulan = row.bulan ? escHtml(row.bulan) : '-';
+                return `
+                    <tr>
+                        <td style="text-align:center;">${idx + 1}</td>
+                        <td>${tgl}</td>
+                        <td>${bulan}</td>
+                        <td>Rp ${bank.toLocaleString('id-ID')}</td>
+                        <td>Rp ${tunai.toLocaleString('id-ID')}</td>
+                        <td style="font-weight:700;">Rp ${total.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const now = new Date();
+            const tglCetak = now.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+            const jamCetak = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+
+            document.getElementById('pdfContent').innerHTML = `
+                <div class="struk-kop">
+                    <img src="${schoolLogo || ''}" alt="Logo Sekolah" style="${schoolLogo ? '' : 'display:none;'}" onerror="this.style.display='none'">
+                    <div class="struk-kop-center">
+                        <h2>Riwayat Record Saldo Awal<br>${escHtml(schoolName)}</h2>
+                    </div>
+                    <img src="logo komite.png" alt="Logo Komite" onerror="this.style.display='none'">
+                </div>
+                <div class="pdf-divider"></div>
+                <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;">
+                    Dicetak: ${tglCetak}, ${jamCetak} WIB &nbsp;|&nbsp; Riwayat setiap perubahan Saldo Bank &amp; Saldo Tunai, diurutkan dari yang terbaru
+                </div>
+                <div class="pdf-lampiran">
+                    <table class="pdf-tabel">
+                        <thead>
+                            <tr>
+                                <th style="width:28px;text-align:center;">No</th>
+                                <th>Tanggal Record</th>
+                                <th>Bulan</th>
+                                <th>Saldo Bank</th>
+                                <th>Saldo Tunai</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+            `;
+            closeSaldoHistoryModal();
+            document.getElementById('modalPdf').classList.add('active');
+        }
 
         // =============================================
         // Ringkasan Gabungan Neraca Keuangan Sekolah
