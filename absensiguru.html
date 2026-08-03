@@ -221,6 +221,7 @@
             font-weight: 700;
         }
         .badge-hadir { background: #dcfce7; color: #15803d; }
+        .badge-terlambat { background: #fef3c7; color: #b45309; }
         .badge-ditolak { background: #fee2e2; color: #b91c1c; }
 
         .empty-note {
@@ -365,7 +366,7 @@
 
             <div class="map-wrapper">
                 <iframe id="mapFrame" loading="lazy"
-                    src="https://www.google.com/maps?q=-2.0505029,105.1686474&z=17&output=embed"
+                    src="https://www.google.com/maps?q=-2.0619535895881476,105.1643078650724&z=17&output=embed"
                     allowfullscreen></iframe>
             </div>
 
@@ -373,7 +374,7 @@
                 <i class="fas fa-info-circle"></i>
                 <div>
                     Tekan tombol "Ambil Lokasi Saya" untuk mengukur jarak Anda ke sekolah.
-                    <span class="status-detail">Radius absensi yang diizinkan: 10 meter dari titik sekolah.</span>
+                    <span class="status-detail">Radius absensi yang diizinkan: 50 meter dari titik sekolah.</span>
                 </div>
             </div>
 
@@ -424,9 +425,9 @@
         }
 
         // --- Titik Koordinat Sekolah & Radius yang Diizinkan ---
-        const SCHOOL_LAT = -2.0505029;
-        const SCHOOL_LNG = 105.1686474;
-        const RADIUS_METER = 10;
+        const SCHOOL_LAT = -2.0619535895881476;
+        const SCHOOL_LNG = 105.1643078650724;
+        const RADIUS_METER = 50;
 
         let currentPosition = null; // { lat, lng, distance }
         let session = null;
@@ -591,6 +592,11 @@
             const tanggal = now.toISOString().slice(0, 10); // YYYY-MM-DD
             const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
+            // --- Batas Waktu Tepat Waktu: 06:45 ---
+            const batasJam = new Date(now);
+            batasJam.setHours(6, 45, 0, 0);
+            const statusAbsen = now > batasJam ? 'Terlambat' : 'Hadir';
+
             btnAbsen.disabled = true;
             btnAbsen.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
@@ -621,12 +627,14 @@
                         latitude: currentPosition.lat,
                         longitude: currentPosition.lng,
                         jarak_meter: Math.round(currentPosition.distance),
-                        status: 'Hadir'
+                        status: statusAbsen
                     }]);
 
                 if (error) throw error;
 
-                setStatusBox('ok', `Absensi berhasil disimpan pada pukul <b>${jam}</b>.`);
+                const statusLabel = statusAbsen === 'Terlambat' ? 'Terlambat' : 'Hadir (Tepat Waktu)';
+                const statusType = statusAbsen === 'Terlambat' ? 'out' : 'ok';
+                setStatusBox(statusType, `Absensi berhasil disimpan pada pukul <b>${jam}</b>. Status: <b>${statusLabel}</b>.`);
                 btnAbsen.innerHTML = '<i class="fas fa-check-circle"></i> Absen Berhasil';
                 loadRiwayat();
 
@@ -666,7 +674,7 @@
                     </tr></thead><tbody>`;
                 data.forEach(row => {
                     const tgl = new Date(row.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-                    const badgeClass = row.status === 'Hadir' ? 'badge-hadir' : 'badge-ditolak';
+                    const badgeClass = row.status === 'Hadir' ? 'badge-hadir' : (row.status === 'Terlambat' ? 'badge-terlambat' : 'badge-ditolak');
                     html += `<tr>
                         <td>${tgl}</td>
                         <td>${row.jam || '-'}</td>
