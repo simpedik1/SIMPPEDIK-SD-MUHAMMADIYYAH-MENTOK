@@ -91,32 +91,24 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        /* --- Tabs Role --- */
-        .role-tabs {
-            display: flex;
-            background-color: #f0f2f5;
-            padding: 5px;
+        /* --- Dropdown Pilih Role --- */
+        .role-select-wrap { margin-top: 0.5rem; }
+        .role-select-wrap select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .role-tab {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            color: #666;
+            font-size: 0.95rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            color: #333;
+            background-color: #f9f9f9;
             cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s;
         }
-
-        .role-tab.active {
-            background-color: #FF5722;
-            color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .role-select-wrap select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         /* Tombol Toggle Password */
@@ -300,10 +292,6 @@
             #loginModal .form-group select {
                 padding: 0.6rem 0.7rem;
                 font-size: 0.9rem;
-            }
-            #loginModal .role-tab {
-                padding: 7px;
-                font-size: 0.8rem;
             }
             #loginModal .btn-login,
             #loginModal .btn-cancel {
@@ -1041,7 +1029,7 @@
                 <!-- Bagian Kanan: Form Login -->
                 <div class="login-right">
                     <div class="login-header">
-                        <h2>Selamat Datang</h2>
+                        <h2>LOGIN</h2>
                         <p>Silakan masuk ke akun Anda</p>
                     </div>
 
@@ -1049,14 +1037,16 @@
 
                     <form id="loginForm">
                         <div class="form-group">
-                            <label>Masuk Sebagai</label>
-                            <div class="role-tabs">
-                                <button type="button" class="role-tab active" data-role="Siswa">Siswa</button>
-                                <button type="button" class="role-tab" data-role="Guru">Guru</button>
-                                <button type="button" class="role-tab" data-role="AdminTU">Tata Usaha</button>
-                                <button type="button" class="role-tab" data-role="Administrator">Admin</button>
+                            <label for="role">Pilih Akun Anda</label>
+                            <div class="role-select-wrap">
+                                <select id="role">
+                                    <option value="Siswa">Siswa</option>
+                                    <option value="Guru">Guru</option>
+                                    <option value="AdminTU">Tata Usaha</option>
+                                    <option value="Administrator">Admin Utama</option>
+                                    <option value="KepalaSekolah">Kepala Sekolah</option>
+                                </select>
                             </div>
-                            <input type="hidden" id="role" value="Siswa">
                         </div>
 
                         <div class="form-group">
@@ -1466,8 +1456,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const loginForm = document.getElementById('loginForm');
-            const roleInput = document.getElementById('role'); // Input hidden
-            const roleTabs = document.querySelectorAll('.role-tab');
+            const roleInput = document.getElementById('role'); // Dropdown select role
             
             // Elemen Form
             const label1 = document.getElementById('label1');
@@ -1513,6 +1502,12 @@
                     isPassword: true
                 },
                 'Administrator': {
+                    label1: 'Username', placeholder1: 'Masukkan Username', type1: 'text',
+                    isSelect1: false,
+                    label2: 'Password', placeholder2: 'Masukkan Password', type2: 'password',
+                    isPassword: true
+                },
+                'KepalaSekolah': {
                     label1: 'Username', placeholder1: 'Masukkan Username', type1: 'text',
                     isSelect1: false,
                     label2: 'Password', placeholder2: 'Masukkan Password', type2: 'password',
@@ -1615,24 +1610,14 @@
             }
             loadPegawaiTUData();
 
-            // 0. Handle Role Tabs
-            roleTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const selectedRole = tab.getAttribute('data-role');
-                    const config = roleConfig[selectedRole];
+            // 0. Handle Perubahan Role dari Dropdown
+            roleInput.addEventListener('change', () => {
+                const selectedRole = roleInput.value;
+                const config = roleConfig[selectedRole];
 
-                    // Update UI Form
-                    if (config) {
-                        updateFormUI(config);
-                    }
-
-                    // Hapus class active dari semua tab
-                    roleTabs.forEach(t => t.classList.remove('active'));
-                    // Tambah class active ke tab yang diklik
-                    tab.classList.add('active');
-                    // Update nilai input hidden
-                    roleInput.value = tab.getAttribute('data-role');
-                });
+                if (config) {
+                    updateFormUI(config);
+                }
             });
 
             function updateFormUI(config) {
@@ -1865,6 +1850,41 @@
                         welcomeModal.classList.add('active');
 
                         btnWelcomeOk.onclick = () => window.location.href = 'admintu.html';
+
+                    } catch (err) {
+                        showMessage(err.message || 'Login gagal.', 'error');
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.disabled = false;
+                    }
+                } else if (role === 'KepalaSekolah') {
+                    try {
+                        const { data, error } = await simpedikClient
+                            .from('profilkepsek')
+                            .select('*')
+                            .eq('username', val1)
+                            .eq('password', val2)
+                            .single();
+
+                        if (error || !data) throw new Error('Username atau Password tidak sesuai.');
+
+                        // Simpan sesi Kepala Sekolah ke sessionStorage
+                        sessionStorage.setItem('kepsek_session', JSON.stringify({
+                            id: data.id,
+                            nama: data.nama,
+                            nbm: data.nbm,
+                            jabatan: data.jabatan,
+                            photo: data.photo
+                        }));
+
+                        // Tampilkan Modal Selamat Datang
+                        const welcomeModal = document.getElementById('welcomeModal');
+                        const welcomeMessage = document.getElementById('welcomeMessage');
+                        const btnWelcomeOk = document.getElementById('btnWelcomeOk');
+
+                        welcomeMessage.textContent = `Selamat datang ${data.nama} di aplikasi SIMPedik`;
+                        welcomeModal.classList.add('active');
+
+                        btnWelcomeOk.onclick = () => window.location.href = 'adminkepsek.html';
 
                     } catch (err) {
                         showMessage(err.message || 'Login gagal.', 'error');
