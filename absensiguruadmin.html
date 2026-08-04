@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Guru - SIMPPEDIK-SD Muhammadiyyah Muntok</title>
+    <!-- Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- jsPDF & AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --header-height: 60px;
+            --bg-light: #f4f6f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('bg2.jpg') no-repeat center center;
+            background-size: cover;
+            filter: blur(5px);
+            transform: scale(1.05);
+            z-index: -1;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            height: var(--header-height);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 1002;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            width: auto;
+        }
+
+        .navbar-brand span {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .navbar-date {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand span { font-size: 1rem; }
+            .navbar-date { display: none !important; }
+            .main-content { padding-left: 5px; padding-right: 5px; }
+            .dashboard-card { padding-left: 5px; padding-right: 5px; }
+            .page-title-bar { padding-left: 5px; padding-right: 5px; }
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-top: var(--header-height);
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            overflow: visible;
+        }
+
+        /* --- Page Title / Header Halaman --- */
+        .page-title-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 1.05rem;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateX(-3px);
+        }
+
+        .page-title-text h1 {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .page-title-text p {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 3px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- Card Header --- */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 1.05rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Filter Bar --- */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 18px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            color: #333;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 9px 18px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: #555;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #fff;
+        }
+
+        /* --- Rekap Statistik Absensi --- */
+        .recap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .recap-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .recap-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .recap-info h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .recap-info p {
+            font-size: 0.8rem;
+            margin-top: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            opacity: 0.85;
+        }
+
+        .recap-total { background: #eef1fd; }
+        .recap-total .recap-icon { background: #dde3fb; color: #5a67d8; }
+        .recap-total .recap-info h4 { color: #4c51bf; }
+        .recap-total .recap-info p { color: #5a67d8; }
+
+        .recap-tepat { background: #e7f9f1; }
+        .recap-tepat .recap-icon { background: #d3f3e4; color: #0f9d63; }
+        .recap-tepat .recap-info h4 { color: #0d8a56; }
+        .recap-tepat .recap-info p { color: #0f9d63; }
+
+        .recap-terlambat { background: #fff6e0; }
+        .recap-terlambat .recap-icon { background: #fdecb8; color: #b3790f; }
+        .recap-terlambat .recap-info h4 { color: #9c6b0d; }
+        .recap-terlambat .recap-info p { color: #b3790f; }
+
+        .recap-persentase { background: #fdeaec; }
+        .recap-persentase .recap-icon { background: #fad2d7; color: #d13b4d; }
+        .recap-persentase .recap-info h4 { color: #c22e40; }
+        .recap-persentase .recap-info p { color: #d13b4d; }
+
+        /* --- Tables --- */
+        .table-responsive { overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .custom-table th, .custom-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f1f1f1; white-space: nowrap; }
+        .custom-table thead th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.4px;
+            border-bottom: none;
+        }
+        .custom-table tr:hover { background-color: #f9f9f9; }
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; color: white; display: inline-block; }
+        .bg-success { background-color: #2ecc71; }
+        .bg-danger { background-color: #e74c3c; }
+        .bg-warning { background-color: #f1c40f; color: #333; }
+        .bg-info { background-color: #3498db; }
+        .bg-secondary { background-color: #95a5a6; }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #fff;
+            margin-right: 5px;
+            transition: opacity 0.2s ease;
+        }
+        .action-btn:hover { opacity: 0.85; }
+        .action-btn.view { background: #3498db; }
+        .action-btn.edit { background: #f39c12; }
+        .action-btn.delete { background: #e74c3c; }
+
+        /* --- Guru Perlu Pembinaan --- */
+        .pembinaan-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pembinaan-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fdf5f5;
+            border: 1px solid #fbe4e4;
+        }
+
+        .pembinaan-rank {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #c0392b);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pembinaan-nama {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.92rem;
+        }
+
+        .pembinaan-count {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #fee2e2;
+            color: #c0392b;
+            font-weight: 700;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        /* --- Pagination --- */
+        .pagination-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #f1f1f1;
+        }
+
+        .pagination-info {
+            font-size: 0.82rem;
+            color: #777;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            min-width: 34px;
+            height: 34px;
+            padding: 0 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #555;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-dots {
+            color: #999;
+            padding: 0 4px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 576px) {
+            .pagination-wrapper { flex-direction: column; align-items: stretch; text-align: center; }
+            .pagination-buttons { justify-content: center; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 15px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+            color: #ccc;
+        }
+
+        /* --- Footer --- */
+        .main-footer {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 0.85rem;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 576px) {
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-group { width: 100%; }
+            .btn { width: 100%; justify-content: center; }
+        }
+
+        /* --- Modal Lokasi Absensi --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.25s ease;
+        }
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            max-width: 520px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUpModal 0.25s ease;
+        }
+        @keyframes slideUpModal {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.05rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: #555;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .modal-close-btn:hover { background: #e2e8f0; }
+
+        .modal-map-wrapper {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            background: #eaeaea;
+            margin-bottom: 14px;
+        }
+        .modal-map-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .modal-info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.5;
+        }
+        .modal-info-box i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+        .modal-info-box b { color: var(--secondary-color); }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="dasboradmin.html" class="navbar-brand">
+            <img src="" alt="Logo Sekolah" style="display: none;">
+            <span></span>
+        </a>
+        <div class="navbar-date">
+            <i class="far fa-calendar-alt" style="color: var(--primary-color);"></i>
+            <span id="navbarDate"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Page Title -->
+        <div class="page-title-bar">
+            <a href="dasboradmin.html" class="back-btn" title="Kembali ke Dashboard">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="page-title-text">
+                <h1><i class="fas fa-chalkboard-teacher" style="color: var(--primary-color);"></i> Absensi Guru</h1>
+                <p>Pantau riwayat kehadiran guru di sekolah</p>
+            </div>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-filter" style="color: var(--primary-color);"></i> Filter Riwayat</h3>
+            </div>
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label for="filterTanggal">Tanggal</label>
+                    <input type="date" id="filterTanggal">
+                </div>
+                <div class="filter-group">
+                    <label for="filterGuru">Nama Guru</label>
+                    <select id="filterGuru">
+                        <option value="">Semua Guru</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Status</label>
+                    <select id="filterStatus">
+                        <option value="">Semua Status</option>
+                        <option value="Hadir">Hadir</option>
+                        <option value="Terlambat">Terlambat</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-outline" id="btnResetFilter">
+                    <i class="fas fa-rotate-left"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Guru Perlu Pembinaan -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-graduate" style="color: #e74c3c;"></i> Guru Perlu Pembinaan</h3>
+            </div>
+            <p style="color: #888; font-size: 0.85rem; margin-bottom: 14px; margin-top: -6px;">
+                5 guru dengan jumlah keterlambatan terbanyak (berdasarkan seluruh riwayat absensi)
+            </p>
+            <div id="pembinaanList" class="pembinaan-list">
+                <div class="empty-state" style="padding: 25px 15px;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Memuat data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Riwayat Absensi Guru -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-list-ul" style="color: var(--primary-color);"></i> Riwayat Absensi Guru</h3>
+                <button type="button" class="btn btn-danger" id="btnExportPdf">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+            </div>
+
+            <!-- Rekap Statistik Absensi -->
+            <div class="recap-grid" id="recapGrid">
+                <div class="recap-card recap-total">
+                    <div class="recap-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="recap-info">
+                        <h4 id="recapTotalAbsensi">0</h4>
+                        <p>Total Absensi</p>
+                    </div>
+                </div>
+                <div class="recap-card recap-tepat">
+                    <div class="recap-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="recap-info">
+                        <h4 id="recapTepatWaktu">0</h4>
+                        <p>Total Tepat Waktu</p>
+                    </div>
+                </div>
+                <div class="recap-card recap-terlambat">
+                    <div class="recap-icon"><i class="fas fa-clock"></i></div>
+                    <div class="recap-info">
+                        <h4 id="recapTerlambat">0</h4>
+                        <p>Total Terlambat</p>
+                    </div>
+                </div>
+                <div class="recap-card recap-persentase">
+                    <div class="recap-icon"><i class="fas fa-percentage"></i></div>
+                    <div class="recap-info">
+                        <h4 id="recapPersenTerlambat">0%</h4>
+                        <p>Persentase Terlambat</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Guru</th>
+                            <th>Tanggal Absensi</th>
+                            <th>Waktu Absensi</th>
+                            <th>Lokasi Absensi</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absensiGuruTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                Belum ada data riwayat absensi guru.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-wrapper" id="paginationContainer"></div>
+        </div>
+
+        <footer class="main-footer">
+            &copy; <span id="footerYear"></span> SIMPPEDIK - SD Muhammadiyyah Muntok
+        </footer>
+
+    </main>
+
+    <!-- Modal Lokasi Absensi -->
+    <div class="modal-overlay" id="lokasiModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-map-marker-alt" style="color: var(--primary-color);"></i> Lokasi Absensi</h3>
+                <button type="button" class="modal-close-btn" id="btnTutupLokasiModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-map-wrapper">
+                <iframe id="lokasiModalMap" src="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="modal-info-box">
+                <i class="fas fa-info-circle"></i>
+                <div id="lokasiModalInfo"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Date Display in Navbar ---
+        function updateNavbarDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('navbarDate').textContent = now.toLocaleDateString('id-ID', options);
+            document.getElementById('footerYear').textContent = now.getFullYear();
+        }
+        document.addEventListener('DOMContentLoaded', updateNavbarDate);
+
+        // --- Supabase Integration ---
+        const supabaseUrl = 'https://ttorwlqsoioiwhscbqfu.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0b3J3bHFzb2lvaXdoc2NicWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODUyMjMsImV4cCI6MjEwMDI2MTIyM30.-wBFkSoUpvGS6UT0CQgJ-lOZqaV3GgnSY1xZVOx2enM';
+
+        let supabaseClient = null;
+        let riwayatAbsensiData = [];
+        let guruPerluPembinaanData = []; // Menyimpan ranking guru perlu pembinaan untuk keperluan export PDF
+        let halamanAktif = 1;
+        let schoolData = {}; // Menyimpan data sekolah untuk keperluan export PDF
+
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+            // Ambil identitas sekolah untuk navbar (logo & nama sekolah), sama seperti dashboard
+            async function loadSchoolIdentity() {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('identitassekolah')
+                        .select('nama_sekolah, logo, kop_sekolah, tahun_pelajaran')
+                        .limit(1)
+                        .single();
+
+                    if (data) {
+                        schoolData = data;
+                        if (data.nama_sekolah) {
+                            document.querySelector('.navbar-brand span').textContent = data.nama_sekolah;
+                        }
+                        if (data.logo) {
+                            const img = document.querySelector('.navbar-brand img');
+                            img.src = data.logo;
+                            img.style.display = 'block';
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error loading school identity:', err);
+                }
+            }
+            document.addEventListener('DOMContentLoaded', loadSchoolIdentity);
+        }
+
+        /*
+         * Ambil daftar nama guru unik untuk dropdown filter.
+         */
+        async function loadDaftarGuru() {
+            const select = document.getElementById('filterGuru');
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('absensiguru')
+                    .select('nama_guru')
+                    .not('nama_guru', 'is', null);
+
+                if (error) throw error;
+
+                const namaUnik = [...new Set((data || []).map(d => d.nama_guru))].sort();
+                namaUnik.forEach(nama => {
+                    const opt = document.createElement('option');
+                    opt.value = nama;
+                    opt.textContent = nama;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Error loading daftar guru:', err);
+            }
+        }
+
+        // --- Badge class berdasarkan status ---
+        function getStatusBadgeClass(status) {
+            if (status === 'Hadir') return 'bg-success';
+            if (status === 'Terlambat') return 'bg-warning';
+            if (status === 'Izin') return 'bg-info';
+            if (status === 'Sakit') return 'bg-info';
+            if (status === 'Alpa') return 'bg-danger';
+            return 'bg-secondary';
+        }
+
+        // --- Format tanggal ke format Indonesia ---
+        function formatTanggalIndo(tanggal) {
+            if (!tanggal) return '-';
+            const d = new Date(tanggal);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // --- Modal Lokasi Absensi ---
+        const lokasiModal = document.getElementById('lokasiModal');
+        const lokasiModalMap = document.getElementById('lokasiModalMap');
+        const lokasiModalInfo = document.getElementById('lokasiModalInfo');
+        const btnTutupLokasiModal = document.getElementById('btnTutupLokasiModal');
+
+        function bukaLokasiModal(index) {
+            const row = riwayatAbsensiData[index];
+            if (!row || row.latitude == null || row.longitude == null) return;
+
+            lokasiModalMap.src = `https://www.google.com/maps?q=${row.latitude},${row.longitude}&hl=id&z=17&output=embed`;
+
+            const jarakText = (row.jarak_meter !== null && row.jarak_meter !== undefined)
+                ? `${row.jarak_meter} meter`
+                : 'tidak diketahui jaraknya';
+
+            lokasiModalInfo.innerHTML = `
+                <b>${row.nama_guru || '-'}</b> melakukan absensi <b>${jarakText}</b> dari titik lokasi
+                pada tanggal ${formatTanggalIndo(row.tanggal)} pukul ${row.jam || '-'}.
+            `;
+
+            lokasiModal.classList.add('active');
+        }
+
+        function tutupLokasiModal() {
+            lokasiModal.classList.remove('active');
+            lokasiModalMap.src = '';
+        }
+
+        btnTutupLokasiModal.addEventListener('click', tutupLokasiModal);
+        lokasiModal.addEventListener('click', (e) => {
+            if (e.target === lokasiModal) tutupLokasiModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') tutupLokasiModal();
+        });
+
+        // --- Update Kartu Rekap Statistik ---
+        function updateRekapStatistik(data) {
+            const total = data.length;
+            const tepatWaktu = data.filter(r => r.status === 'Hadir').length;
+            const terlambat = data.filter(r => r.status === 'Terlambat').length;
+            const persenTerlambat = total > 0 ? ((terlambat / total) * 100).toFixed(1) : '0.0';
+
+            document.getElementById('recapTotalAbsensi').textContent = total;
+            document.getElementById('recapTepatWaktu').textContent = tepatWaktu;
+            document.getElementById('recapTerlambat').textContent = terlambat;
+            document.getElementById('recapPersenTerlambat').textContent = persenTerlambat + '%';
+        }
+
+        // --- Muat Guru Perlu Pembinaan (Top 5 Terlambat Terbanyak) ---
+        async function loadGuruPerluPembinaan() {
+            const container = document.getElementById('pembinaanList');
+            if (!supabaseClient) {
+                container.innerHTML = `<div class="empty-state" style="padding: 25px 15px;"><i class="fas fa-exclamation-triangle"></i>Koneksi database tidak tersedia.</div>`;
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('absensiguru')
+                    .select('nama_guru')
+                    .eq('status', 'Terlambat');
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div class="empty-state" style="padding: 25px 15px;"><i class="fas fa-check-circle"></i>Belum ada data keterlambatan.</div>`;
+                    guruPerluPembinaanData = [];
+                    return;
+                }
+
+                // Hitung jumlah keterlambatan per guru
+                const counts = {};
+                data.forEach(row => {
+                    const nama = row.nama_guru || 'Tanpa Nama';
+                    counts[nama] = (counts[nama] || 0) + 1;
+                });
+
+                const ranking = Object.entries(counts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                guruPerluPembinaanData = ranking; // Simpan untuk keperluan export PDF
+
+                container.innerHTML = '';
+                ranking.forEach(([nama, jumlah], index) => {
+                    const item = document.createElement('div');
+                    item.className = 'pembinaan-item';
+                    item.innerHTML = `
+                        <div class="pembinaan-rank">${index + 1}</div>
+                        <div class="pembinaan-nama"><i class="fas fa-chalkboard-teacher" style="color: #c0392b; margin-right: 6px;"></i>${nama}</div>
+                        <div class="pembinaan-count"><i class="fas fa-clock"></i> ${jumlah}x Terlambat</div>
+                    `;
+                    container.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error('Error loading guru perlu pembinaan:', err);
+                container.innerHTML = `<div class="empty-state" style="padding: 25px 15px; color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i>Gagal memuat data: ${err.message}</div>`;
+                guruPerluPembinaanData = [];
+            }
+        }
+
+        // --- Muat Riwayat Absensi Guru dari tabel "absensiguru" ---
+        async function loadAbsensiGuru(filters = {}) {
+            const tbody = document.getElementById('absensiGuruTableBody');
+            if (!supabaseClient) {
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-exclamation-triangle"></i>Koneksi database tidak tersedia.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-spinner fa-spin"></i>Memuat data...</td></tr>`;
+
+            try {
+                let query = supabaseClient
+                    .from('absensiguru')
+                    .select('id, nama_guru, tanggal, jam, latitude, longitude, jarak_meter, status, keterangan')
+                    .order('tanggal', { ascending: false })
+                    .order('jam', { ascending: false });
+
+                if (filters.tanggal) query = query.eq('tanggal', filters.tanggal);
+                if (filters.namaGuru) query = query.eq('nama_guru', filters.namaGuru);
+                if (filters.status) query = query.eq('status', filters.status);
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i>Belum ada data riwayat absensi guru.</td></tr>`;
+                    riwayatAbsensiData = [];
+                    updateRekapStatistik([]);
+                    renderPagination();
+                    return;
+                }
+
+                riwayatAbsensiData = data;
+                updateRekapStatistik(data);
+                halamanAktif = 1;
+                renderTabelHalaman();
+
+            } catch (err) {
+                console.error('Error loading absensi guru:', err);
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state" style="color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i>Gagal memuat data: ${err.message}</td></tr>`;
+            }
+        }
+
+        // --- Render Tabel Sesuai Halaman Aktif (Pagination) ---
+        const DATA_PER_HALAMAN = 32;
+
+        function renderTabelHalaman() {
+            const tbody = document.getElementById('absensiGuruTableBody');
+            const totalData = riwayatAbsensiData.length;
+            const totalHalaman = Math.max(1, Math.ceil(totalData / DATA_PER_HALAMAN));
+            if (halamanAktif > totalHalaman) halamanAktif = totalHalaman;
+            if (halamanAktif < 1) halamanAktif = 1;
+
+            const startIndex = (halamanAktif - 1) * DATA_PER_HALAMAN;
+            const dataHalaman = riwayatAbsensiData.slice(startIndex, startIndex + DATA_PER_HALAMAN);
+
+            tbody.innerHTML = '';
+            dataHalaman.forEach((row, i) => {
+                const globalIndex = startIndex + i;
+                const adaLokasi = row.latitude != null && row.longitude != null;
+                const lokasi = adaLokasi ? `${row.latitude}, ${row.longitude}` : '-';
+                const lokasiCell = adaLokasi
+                    ? `<a href="javascript:void(0)" onclick="bukaLokasiModal(${globalIndex})" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                            <i class="fas fa-map-marker-alt"></i> ${lokasi}
+                       </a>`
+                    : '-';
+                const badgeClass = getStatusBadgeClass(row.status);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${globalIndex + 1}</td>
+                    <td>${row.nama_guru || '-'}</td>
+                    <td>${formatTanggalIndo(row.tanggal)}</td>
+                    <td>${row.jam || '-'}</td>
+                    <td>${lokasiCell}</td>
+                    <td><span class="badge ${badgeClass}">${row.status || '-'}</span></td>
+                    <td>${row.keterangan || '-'}</td>
+                    <td>
+                        <button type="button" class="action-btn view" title="Lihat Lokasi" ${adaLokasi ? `onclick="bukaLokasiModal(${globalIndex})"` : 'disabled'}>
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        // --- Render Kontrol Pagination ---
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            const totalData = riwayatAbsensiData.length;
+            const totalHalaman = Math.max(1, Math.ceil(totalData / DATA_PER_HALAMAN));
+
+            if (totalData === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const startItem = (halamanAktif - 1) * DATA_PER_HALAMAN + 1;
+            const endItem = Math.min(halamanAktif * DATA_PER_HALAMAN, totalData);
+
+            let html = `<div class="pagination-info">Menampilkan ${startItem}-${endItem} dari ${totalData} data</div>`;
+            html += `<div class="pagination-buttons">`;
+
+            html += `<button type="button" class="page-btn" ${halamanAktif === 1 ? 'disabled' : ''} onclick="gantiHalaman(${halamanAktif - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                     </button>`;
+
+            const maxTombolTampil = 5;
+            let awal = Math.max(1, halamanAktif - Math.floor(maxTombolTampil / 2));
+            let akhir = Math.min(totalHalaman, awal + maxTombolTampil - 1);
+            if (akhir - awal + 1 < maxTombolTampil) {
+                awal = Math.max(1, akhir - maxTombolTampil + 1);
+            }
+
+            if (awal > 1) {
+                html += `<button type="button" class="page-btn" onclick="gantiHalaman(1)">1</button>`;
+                if (awal > 2) html += `<span class="page-dots">...</span>`;
+            }
+
+            for (let p = awal; p <= akhir; p++) {
+                html += `<button type="button" class="page-btn ${p === halamanAktif ? 'active' : ''}" onclick="gantiHalaman(${p})">${p}</button>`;
+            }
+
+            if (akhir < totalHalaman) {
+                if (akhir < totalHalaman - 1) html += `<span class="page-dots">...</span>`;
+                html += `<button type="button" class="page-btn" onclick="gantiHalaman(${totalHalaman})">${totalHalaman}</button>`;
+            }
+
+            html += `<button type="button" class="page-btn" ${halamanAktif === totalHalaman ? 'disabled' : ''} onclick="gantiHalaman(${halamanAktif + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                     </button>`;
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function gantiHalaman(halaman) {
+            halamanAktif = halaman;
+            renderTabelHalaman();
+            document.getElementById('absensiGuruTableBody').closest('.dashboard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function terapkanFilter() {
+            loadAbsensiGuru({
+                tanggal: document.getElementById('filterTanggal').value,
+                namaGuru: document.getElementById('filterGuru').value,
+                status: document.getElementById('filterStatus').value
+            });
+        }
+
+        document.getElementById('filterTanggal').addEventListener('change', terapkanFilter);
+        document.getElementById('filterGuru').addEventListener('change', terapkanFilter);
+        document.getElementById('filterStatus').addEventListener('change', terapkanFilter);
+
+        document.getElementById('btnResetFilter').addEventListener('click', function () {
+            document.getElementById('filterTanggal').value = '';
+            document.getElementById('filterGuru').value = '';
+            document.getElementById('filterStatus').value = '';
+            loadAbsensiGuru();
+        });
+
+        // --- Export PDF: Riwayat Absensi Guru ---
+        document.getElementById('btnExportPdf').addEventListener('click', async () => {
+            const btn = document.getElementById('btnExportPdf');
+            const originalHtml = btn.innerHTML;
+
+            if (!riwayatAbsensiData || riwayatAbsensiData.length === 0) {
+                alert('Tidak ada data untuk diexport.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuat PDF...';
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                let yPos = 20;
+
+                // Tambahkan KOP Sekolah jika ada
+                if (schoolData.kop_sekolah) {
+                    try {
+                        const response = await fetch(schoolData.kop_sekolah);
+                        const blob = await response.blob();
+                        const base64data = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+
+                        const imgProps = doc.getImageProperties(base64data);
+                        const pdfWidth = pageWidth - 20; // Margin kiri kanan 10
+                        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                        doc.addImage(base64data, 'PNG', 10, 10, pdfWidth, imgHeight);
+                        yPos = 10 + imgHeight + 10; // Update posisi Y di bawah gambar
+                    } catch (err) {
+                        console.error('Gagal memuat KOP Sekolah:', err);
+                    }
+                }
+
+                // Judul Dokumen
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text('LAPORAN RIWAYAT ABSENSI GURU', pageWidth / 2, yPos, { align: 'center' });
+                yPos += 8;
+
+                // Nama Sekolah
+                const schoolName = schoolData.nama_sekolah || document.querySelector('.navbar-brand span').textContent || '-';
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text(schoolName, pageWidth / 2, yPos, { align: 'center' });
+                yPos += 6;
+
+                // Tahun Pelajaran (jika ada)
+                if (schoolData.tahun_pelajaran) {
+                    doc.text('Tahun Pelajaran ' + schoolData.tahun_pelajaran, pageWidth / 2, yPos, { align: 'center' });
+                    yPos += 6;
+                }
+
+                // Info Filter yang aktif
+                const fTgl = document.getElementById('filterTanggal').value;
+                const fGuru = document.getElementById('filterGuru').value;
+                const fStatus = document.getElementById('filterStatus').value;
+                const infoFilter = [];
+                if (fTgl) infoFilter.push(`Tanggal: ${formatTanggalIndo(fTgl)}`);
+                if (fGuru) infoFilter.push(`Guru: ${fGuru}`);
+                if (fStatus) infoFilter.push(`Status: ${fStatus}`);
+                if (infoFilter.length > 0) {
+                    doc.setFontSize(9);
+                    doc.text(infoFilter.join('   |   '), pageWidth / 2, yPos, { align: 'center' });
+                    yPos += 5;
+                }
+
+                // Tanggal cetak
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('id-ID', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+                doc.setFontSize(9);
+                doc.setTextColor(120, 120, 120);
+                doc.text(`Dicetak pada: ${dateStr}`, pageWidth / 2, yPos, { align: 'center' });
+                yPos += 8;
+
+                // --- Rekap Statistik Absensi (Card-card) ---
+                doc.setFontSize(11);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Rekap Statistik Absensi', 14, yPos);
+                yPos += 4;
+
+                const recapTotal = document.getElementById('recapTotalAbsensi').textContent;
+                const recapTepat = document.getElementById('recapTepatWaktu').textContent;
+                const recapTerlambat = document.getElementById('recapTerlambat').textContent;
+                const recapPersen = document.getElementById('recapPersenTerlambat').textContent;
+
+                doc.autoTable({
+                    head: [['Total Absensi', 'Total Tepat Waktu', 'Total Terlambat', 'Persentase Terlambat']],
+                    body: [[recapTotal, recapTepat, recapTerlambat, recapPersen]],
+                    startY: yPos,
+                    theme: 'grid',
+                    styles: { fontSize: 9, cellPadding: 4, halign: 'center' },
+                    headStyles: {
+                        fillColor: [102, 126, 234],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        fontSize: 8.5
+                    },
+                    margin: { left: 14, right: 14 }
+                });
+                yPos = doc.lastAutoTable.finalY + 10;
+
+                // --- Guru Perlu Pembinaan ---
+                doc.setFontSize(11);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Guru Perlu Pembinaan (5 Keterlambatan Terbanyak)', 14, yPos);
+                yPos += 4;
+
+                if (guruPerluPembinaanData && guruPerluPembinaanData.length > 0) {
+                    const pembinaanTableData = guruPerluPembinaanData.map(([nama, jumlah], idx) => [
+                        idx + 1,
+                        nama,
+                        `${jumlah}x Terlambat`
+                    ]);
+
+                    doc.autoTable({
+                        head: [['Rank', 'Nama Guru', 'Jumlah Keterlambatan']],
+                        body: pembinaanTableData,
+                        startY: yPos,
+                        theme: 'grid',
+                        styles: { fontSize: 9, cellPadding: 4 },
+                        headStyles: {
+                            fillColor: [231, 76, 60],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold',
+                            fontSize: 8.5
+                        },
+                        margin: { left: 14, right: 14 }
+                    });
+                    yPos = doc.lastAutoTable.finalY + 10;
+                } else {
+                    doc.setFontSize(9);
+                    doc.setTextColor(120, 120, 120);
+                    doc.text('Belum ada data keterlambatan.', 14, yPos);
+                    yPos += 10;
+                }
+
+                // --- Tabel Riwayat Absensi Guru ---
+                doc.setFontSize(11);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Riwayat Absensi Guru', 14, yPos);
+                yPos += 4;
+
+                // Siapkan Data Tabel
+                const tableData = riwayatAbsensiData.map((row, index) => {
+                    const lokasi = (row.latitude != null && row.longitude != null)
+                        ? `${row.latitude}, ${row.longitude}`
+                        : '-';
+                    return [
+                        index + 1,
+                        row.nama_guru || '-',
+                        formatTanggalIndo(row.tanggal),
+                        row.jam || '-',
+                        lokasi,
+                        row.status || '-',
+                        row.keterangan || '-'
+                    ];
+                });
+
+                doc.autoTable({
+                    head: [['No', 'Nama Guru', 'Tanggal Absensi', 'Waktu Absensi', 'Lokasi Absensi', 'Status', 'Keterangan']],
+                    body: tableData,
+                    startY: yPos,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 3,
+                        overflow: 'linebreak'
+                    },
+                    headStyles: {
+                        fillColor: [102, 126, 234],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        fontSize: 8
+                    },
+                    alternateRowStyles: {
+                        fillColor: [248, 250, 252]
+                    },
+                    margin: { top: 45 }
+                });
+
+                // Total data
+                const finalY = doc.lastAutoTable.finalY || yPos;
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(`Total Data: ${riwayatAbsensiData.length}`, 14, finalY + 10);
+
+                // Simpan File
+                const fileName = `Riwayat_Absensi_Guru_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.pdf`;
+                doc.save(fileName);
+
+            } catch (err) {
+                console.error('Error exporting PDF:', err);
+                alert('Gagal membuat PDF: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDaftarGuru();
+            loadAbsensiGuru();
+            loadGuruPerluPembinaan();
+        });
+    </script>
+</body>
+</html>
