@@ -943,7 +943,17 @@
                     
                     if (error) throw error;
                     alert('Data berhasil dihapus');
-                    loadPiketSiswaData();
+
+                    // Refresh tabel form tambah/edit piket (jika ada di halaman)
+                    if (typeof loadPiketSiswaData === 'function') {
+                        loadPiketSiswaData();
+                    }
+
+                    // Refresh modal "Jadwal Piket Siswa (Senin - Jumat)" jika sedang terbuka
+                    const allPiketModalEl = document.getElementById('allPiketModal');
+                    if (allPiketModalEl && allPiketModalEl.classList.contains('active') && typeof loadAllPiketModalData === 'function') {
+                        loadAllPiketModalData();
+                    }
                 } catch (err) {
                     alert('Gagal menghapus: ' + err.message);
                 }
@@ -1075,82 +1085,91 @@
         const closeAllPiketModal = document.getElementById('closeAllPiketModal');
         const allPiketContainer = document.getElementById('allPiketContainer');
 
-        if (viewAllPiketBtn) {
-            viewAllPiketBtn.addEventListener('click', async () => {
-                allPiketModal.classList.add('active');
-                allPiketContainer.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>';
+        // --- Load & Render Data Modal Semua Jadwal Piket ---
+        async function loadAllPiketModalData() {
+            allPiketContainer.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>';
 
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('datapiketsiswa')
-                        .select('*')
-                        .order('kelas', { ascending: true });
+            try {
+                const { data, error } = await supabaseClient
+                    .from('datapiketsiswa')
+                    .select('*')
+                    .order('kelas', { ascending: true });
 
-                    if (error) throw error;
+                if (error) throw error;
 
-                    if (!data || data.length === 0) {
-                        allPiketContainer.innerHTML = '<p style="text-align:center; padding:20px;">Belum ada data jadwal piket.</p>';
-                        return;
-                    }
-
-                    const days = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT'];
-                    let htmlContent = '';
-
-                    days.forEach(day => {
-                        // Filter data berdasarkan ID yang mengandung nama hari (misal: ID_SENIN-...)
-                        const dayData = data.filter(item => item.id_piket && item.id_piket.toUpperCase().includes(`ID_${day}`));
-                        
-                        if (dayData.length > 0) {
-                            htmlContent += `
-                                <div style="margin-bottom: 30px; background: #f9fafb; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-                                    <div style="background: #3b82f6; color: white; padding: 10px 15px; font-weight: bold; font-size: 1.1rem;">
-                                        <i class="fas fa-calendar-day"></i> ${day}
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="custom-table" style="margin-top: 0;">
-                                            <thead style="background: #eff6ff; color: #1e3a8a;">
-                                                <tr>
-                                                    <th style="width: 50px;">No</th>
-                                                    <th>Nama Siswa</th>
-                                                    <th>NISN</th>
-                                                    <th>Kelas</th>
-                                                    <th>Area Piket</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                            `;
-                            
-                            dayData.forEach((item, index) => {
-                                htmlContent += `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${item.nama_siswa}</td>
-                                        <td>${item.nisn || '-'}</td>
-                                        <td>${item.kelas}</td>
-                                        <td>${item.area}</td>
-                                    </tr>
-                                `;
-                            });
-
-                            htmlContent += `
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    });
-                    
-                    if (htmlContent === '') {
-                         allPiketContainer.innerHTML = '<p style="text-align:center; padding:20px;">Tidak ada data jadwal yang sesuai format hari.</p>';
-                    } else {
-                        allPiketContainer.innerHTML = htmlContent;
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    allPiketContainer.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Gagal memuat: ${err.message}</p>`;
+                if (!data || data.length === 0) {
+                    allPiketContainer.innerHTML = '<p style="text-align:center; padding:20px;">Belum ada data jadwal piket.</p>';
+                    return;
                 }
+
+                const days = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT'];
+                let htmlContent = '';
+
+                days.forEach(day => {
+                    // Filter data berdasarkan ID yang mengandung nama hari (misal: ID_SENIN-...)
+                    const dayData = data.filter(item => item.id_piket && item.id_piket.toUpperCase().includes(`ID_${day}`));
+                    
+                    if (dayData.length > 0) {
+                        htmlContent += `
+                            <div style="margin-bottom: 30px; background: #f9fafb; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                <div style="background: #3b82f6; color: white; padding: 10px 15px; font-weight: bold; font-size: 1.1rem;">
+                                    <i class="fas fa-calendar-day"></i> ${day}
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="custom-table" style="margin-top: 0;">
+                                        <thead style="background: #eff6ff; color: #1e3a8a;">
+                                            <tr>
+                                                <th style="width: 50px;">No</th>
+                                                <th>Nama Siswa</th>
+                                                <th>NISN</th>
+                                                <th>Kelas</th>
+                                                <th>Area Piket</th>
+                                                <th style="width: 70px;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                        `;
+                        
+                        dayData.forEach((item, index) => {
+                            htmlContent += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.nama_siswa}</td>
+                                    <td>${item.nisn || '-'}</td>
+                                    <td>${item.kelas}</td>
+                                    <td>${item.area}</td>
+                                    <td>
+                                        <button onclick="deletePiketSiswa('${item.id_piket}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" title="Hapus"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+
+                        htmlContent += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (htmlContent === '') {
+                     allPiketContainer.innerHTML = '<p style="text-align:center; padding:20px;">Tidak ada data jadwal yang sesuai format hari.</p>';
+                } else {
+                    allPiketContainer.innerHTML = htmlContent;
+                }
+
+            } catch (err) {
+                console.error(err);
+                allPiketContainer.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Gagal memuat: ${err.message}</p>`;
+            }
+        }
+
+        if (viewAllPiketBtn) {
+            viewAllPiketBtn.addEventListener('click', () => {
+                allPiketModal.classList.add('active');
+                loadAllPiketModalData();
             });
         }
 
