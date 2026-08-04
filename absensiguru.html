@@ -514,7 +514,7 @@
         const btnTutupModal = document.getElementById('btnTutupModal');
 
         function showOutOfRangeModal(jarak) {
-            modalJarakInfo.textContent = `Jarak Anda: ${formatJarak(jarak)} (maks. ${RADIUS_METER} m)`;
+            modalJarakInfo.textContent = `Jarak Anda: ${formatJarak(jarak)} (maks. ${formatJarak(RADIUS_METER)})`;
             outOfRangeModal.classList.add('active');
         }
 
@@ -552,7 +552,7 @@
                             <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Silakan tekan "Absen Sekarang".</span>`);
                         btnAbsen.disabled = false;
                     } else {
-                        setStatusBox('out', `Anda berada di luar radius yang diizinkan. Jarak: <b>${formatJarak(jarak)}</b> (maks. ${RADIUS_METER} m).
+                        setStatusBox('out', `Anda berada di luar radius yang diizinkan. Jarak: <b>${formatJarak(jarak)}</b> (maks. ${formatJarak(RADIUS_METER)}).
                             <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Mendekatlah ke lokasi sekolah untuk bisa absen.</span>`);
                         btnAbsen.disabled = true;
                         showOutOfRangeModal(jarak);
@@ -597,6 +597,15 @@
             batasJam.setHours(6, 45, 0, 0);
             const statusAbsen = now > batasJam ? 'Terlambat' : 'Hadir';
 
+            // --- Hitung Keterangan Otomatis ---
+            let keteranganAbsen;
+            if (now > batasJam) {
+                const selisihMenit = Math.round((now - batasJam) / 60000);
+                keteranganAbsen = `Terlambat ${selisihMenit} Menit`;
+            } else {
+                keteranganAbsen = 'Tepat Waktu';
+            }
+
             btnAbsen.disabled = true;
             btnAbsen.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
@@ -627,14 +636,15 @@
                         latitude: currentPosition.lat,
                         longitude: currentPosition.lng,
                         jarak_meter: Math.round(currentPosition.distance),
-                        status: statusAbsen
+                        status: statusAbsen,
+                        keterangan: keteranganAbsen
                     }]);
 
                 if (error) throw error;
 
                 const statusLabel = statusAbsen === 'Terlambat' ? 'Terlambat' : 'Hadir (Tepat Waktu)';
                 const statusType = statusAbsen === 'Terlambat' ? 'out' : 'ok';
-                setStatusBox(statusType, `Absensi berhasil disimpan pada pukul <b>${jam}</b>. Status: <b>${statusLabel}</b>.`);
+                setStatusBox(statusType, `Absensi berhasil disimpan pada pukul <b>${jam}</b>. Status: <b>${statusLabel}</b> (${keteranganAbsen}).`);
                 btnAbsen.innerHTML = '<i class="fas fa-check-circle"></i> Absen Berhasil';
                 loadRiwayat();
 
@@ -656,7 +666,7 @@
             try {
                 const { data, error } = await supabaseClient
                     .from('absensiguru')
-                    .select('tanggal, jam, jarak_meter, status')
+                    .select('tanggal, jam, jarak_meter, status, keterangan')
                     .eq('nama_guru', session.nama)
                     .order('tanggal', { ascending: false })
                     .order('jam', { ascending: false })
@@ -670,7 +680,7 @@
                 }
 
                 let html = `<table class="riwayat"><thead><tr>
-                    <th>Tanggal</th><th>Jam</th><th>Jarak</th><th>Status</th>
+                    <th>Tanggal</th><th>Jam</th><th>Jarak</th><th>Status</th><th>Keterangan</th>
                     </tr></thead><tbody>`;
                 data.forEach(row => {
                     const tgl = new Date(row.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -680,6 +690,7 @@
                         <td>${row.jam || '-'}</td>
                         <td>${row.jarak_meter != null ? row.jarak_meter + ' m' : '-'}</td>
                         <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                        <td>${row.keterangan || '-'}</td>
                         </tr>`;
                 });
                 html += '</tbody></table>';
