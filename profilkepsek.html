@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Kepala Sekolah - SIMPPEDIK-SD Muhammadiyyah Muntok</title>
+    <!-- Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --header-height: 60px;
+            --bg-light: #f4f6f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            height: var(--header-height);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 1002;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            width: auto;
+        }
+
+        .navbar-brand span {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .navbar-date {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-back {
+            margin-left: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back:hover { opacity: 0.9; }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-top: var(--header-height);
+            padding: 2rem 2rem 3rem;
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-header { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .card-header h3 { font-size: 1.1rem; color: #444; }
+        .card-header p { color: #777; font-size: 0.85rem; margin-top: 4px; }
+
+        /* --- Header Welcome Card --- */
+        .header-welcome {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 26px 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 22px rgba(102,126,234,0.3);
+        }
+        .header-welcome h2 { font-size: 1.4rem; margin-bottom: 6px; }
+        .header-welcome p { color: rgba(255,255,255,0.9); font-size: 0.9rem; }
+
+        .id-badge {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Photo Upload --- */
+        .photo-upload-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .photo-preview {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid #eef1ff;
+            background: #f4f6f9 center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b8bfcc;
+            font-size: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-choose-photo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eef1ff;
+            color: var(--secondary-color);
+            border: 1px solid #dde3ff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-choose-photo:hover { background: #e0e5ff; }
+        .btn-choose-photo input[type="file"] { display: none; }
+
+        .photo-hint { font-size: 0.78rem; color: #999; }
+
+        /* --- Form --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 20px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #333;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+        .form-control[readonly] {
+            background: #f4f6f9;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        .password-wrap { position: relative; }
+        .password-wrap .form-control { width: 100%; padding-right: 40px; }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* --- Action Buttons --- */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(102,126,234,0.3);
+        }
+        .btn-save:hover:not(:disabled) { opacity: 0.92; }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #555;
+        }
+        .btn-cancel:hover:not(:disabled) { background: #e2e8f0; }
+
+        /* --- Status Message --- */
+        .status-msg {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-msg.show { display: flex; }
+        .status-msg.success { background: rgba(46,204,113,0.12); color: #1e8449; border: 1px solid rgba(46,204,113,0.3); }
+        .status-msg.error { background: rgba(231,76,60,0.12); color: #c0392b; border: 1px solid rgba(231,76,60,0.3); }
+
+        /* --- Footer --- */
+        .main-footer {
+            text-align: center; padding: 20px; color: #888; font-size: 0.85rem;
+            border-top: 1px solid #eee; margin-top: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .navbar-brand span { font-size: 1rem; }
+            .navbar-date { display: none !important; }
+            .main-content { padding: 1rem 12px 2rem; }
+            .header-welcome { padding: 20px 16px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-back span { display: none; }
+            .btn-back { padding: 8px 10px; }
+            .form-actions { flex-direction: column-reverse; }
+            .form-actions .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="adminkepsek.html" class="navbar-brand">
+            <img src="" alt="Logo Sekolah" style="display: none;">
+            <span>Profil Kepala Sekolah</span>
+        </a>
+        <div class="navbar-date">
+            <i class="far fa-calendar-alt" style="color: var(--primary-color);"></i>
+            <span id="navbarDate"></span>
+        </div>
+        <a href="adminkepsek.html" class="btn-back"><i class="fas fa-arrow-left"></i> <span>Kembali</span></a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Header Welcome -->
+        <div class="header-welcome">
+            <div>
+                <h2><i class="fas fa-user-tie"></i> Profil Kepala Sekolah</h2>
+                <p>Kelola data identitas Kepala Sekolah untuk kebutuhan sistem.</p>
+            </div>
+            <div class="id-badge"><i class="fas fa-id-badge"></i> <span id="idBadge">Memuat...</span></div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-edit" style="color: var(--primary-color);"></i> Formulir Data Kepala Sekolah</h3>
+                <p>Lengkapi data di bawah ini, lalu klik Simpan.</p>
+            </div>
+
+            <form id="formProfilKepsek" autocomplete="off">
+                <!-- Upload Foto -->
+                <div class="photo-upload-wrap">
+                    <div class="photo-preview" id="photoPreview">
+                        <i class="fas fa-user" id="photoPlaceholderIcon"></i>
+                        <img id="photoPreviewImg" src="" alt="Preview Foto" style="display:none;">
+                    </div>
+                    <label class="btn-choose-photo">
+                        <i class="fas fa-camera"></i> Pilih Foto
+                        <input type="file" id="inputPhoto" accept="image/*">
+                    </label>
+                    <span class="photo-hint">Format JPG/PNG, maksimal 2MB</span>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="inputNama"><i class="fas fa-user"></i> Nama Lengkap</label>
+                        <input type="text" id="inputNama" class="form-control" placeholder="Masukkan nama lengkap" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputNbm"><i class="fas fa-id-card"></i> NIP / NBM</label>
+                        <input type="number" id="inputNbm" class="form-control" placeholder="Masukkan NIP/NBM" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputJabatan"><i class="fas fa-briefcase"></i> Jabatan</label>
+                        <input type="text" id="inputJabatan" class="form-control" value="Kepala Sekolah" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTempatLahir"><i class="fas fa-map-marker-alt"></i> Tempat Lahir</label>
+                        <input type="text" id="inputTempatLahir" class="form-control" placeholder="Masukkan tempat lahir" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTanggalLahir"><i class="fas fa-calendar-day"></i> Tanggal Lahir</label>
+                        <input type="date" id="inputTanggalLahir" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputUsername"><i class="fas fa-user-circle"></i> Username</label>
+                        <input type="text" id="inputUsername" class="form-control" placeholder="Masukkan username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputPassword"><i class="fas fa-lock"></i> Password</label>
+                        <div class="password-wrap">
+                            <input type="password" id="inputPassword" class="form-control" placeholder="Masukkan password" required>
+                            <button type="button" class="toggle-password" id="togglePassword"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-msg" id="statusMsg"></div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="btnCancel"><i class="fas fa-times"></i> Batal</button>
+                    <button type="submit" class="btn btn-save" id="btnSave"><i class="fas fa-save"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>CopyRight Kenji Studio Developer, 2026</p>
+        </footer>
+    </main>
+
+    <script>
+        // ============================================================
+        // Supabase Integration
+        // ============================================================
+        const supabaseUrl = 'https://ttorwlqsoioiwhscbqfu.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0b3J3bHFzb2lvaXdoc2NicWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODUyMjMsImV4cCI6MjEwMDI2MTIyM30.-wBFkSoUpvGS6UT0CQgJ-lOZqaV3GgnSY1xZVOx2enM';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const STORAGE_BUCKET = 'aset';
+        const TABLE_NAME = 'profilkepsek';
+
+        let currentRecordId = null;   // id record yang sedang aktif (null jika belum ada data)
+        let currentPhotoPath = null;  // path foto yang tersimpan saat ini (jika ada)
+        let selectedPhotoFile = null; // file foto baru yang dipilih user (belum diupload)
+        let loadedData = null;        // data terakhir yang berhasil dimuat dari DB (untuk fitur Batal)
+
+        // --- Generate ID baru dengan format KS-XXXXXX ---
+        function generateNewId() {
+            const randomDigits = Math.floor(100000 + Math.random() * 900000); // 6 digit angka acak
+            return 'KS-' + randomDigits;
+        }
+
+        // --- Tampilkan pesan status ---
+        function showStatus(message, type) {
+            const el = document.getElementById('statusMsg');
+            el.textContent = message;
+            el.className = 'status-msg show ' + type;
+            if (type === 'success') {
+                setTimeout(() => { el.classList.remove('show'); }, 4000);
+            }
+        }
+
+        function clearStatus() {
+            const el = document.getElementById('statusMsg');
+            el.className = 'status-msg';
+            el.textContent = '';
+        }
+
+        // --- Reset form ke kondisi kosong (untuk data baru) ---
+        function resetFormToEmpty() {
+            document.getElementById('inputNama').value = '';
+            document.getElementById('inputNbm').value = '';
+            document.getElementById('inputTempatLahir').value = '';
+            document.getElementById('inputTanggalLahir').value = '';
+            document.getElementById('inputJabatan').value = 'Kepala Sekolah';
+            document.getElementById('inputUsername').value = '';
+            document.getElementById('inputPassword').value = '';
+            resetPhotoPreview();
+            selectedPhotoFile = null;
+        }
+
+        // --- Isi form dari data yang ada di database ---
+        function fillFormFromData(data) {
+            document.getElementById('inputNama').value = data.nama || '';
+            document.getElementById('inputNbm').value = data.nbm || '';
+            document.getElementById('inputTempatLahir').value = data.tempat_lahir || '';
+            document.getElementById('inputTanggalLahir').value = data.tanggal_lahir || '';
+            document.getElementById('inputJabatan').value = data.jabatan || 'Kepala Sekolah';
+            document.getElementById('inputUsername').value = data.username || '';
+            document.getElementById('inputPassword').value = data.password || '';
+
+            currentPhotoPath = data.photo || null;
+            selectedPhotoFile = null;
+
+            if (data.photo) {
+                showPhotoPreviewFromUrl(data.photo);
+            } else {
+                resetPhotoPreview();
+            }
+        }
+
+        function resetPhotoPreview() {
+            document.getElementById('photoPreviewImg').style.display = 'none';
+            document.getElementById('photoPreviewImg').src = '';
+            document.getElementById('photoPlaceholderIcon').style.display = 'block';
+        }
+
+        function showPhotoPreviewFromUrl(url) {
+            const img = document.getElementById('photoPreviewImg');
+            img.src = url;
+            img.style.display = 'block';
+            document.getElementById('photoPlaceholderIcon').style.display = 'none';
+        }
+
+        // --- Preview foto langsung saat dipilih (sebelum diupload) ---
+        document.getElementById('inputPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                showStatus('Ukuran foto maksimal 2MB.', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            selectedPhotoFile = file;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const img = document.getElementById('photoPreviewImg');
+                img.src = ev.target.result;
+                img.style.display = 'block';
+                document.getElementById('photoPlaceholderIcon').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // --- Toggle tampilkan/sembunyikan password ---
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const input = document.getElementById('inputPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // ============================================================
+        // Muat data profil kepala sekolah (jika sudah pernah diinput)
+        // ============================================================
+        async function loadProfilKepsek() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from(TABLE_NAME)
+                    .select('*')
+                    .order('id', { ascending: true })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data) {
+                    currentRecordId = data.id;
+                    loadedData = data;
+                    fillFormFromData(data);
+                    document.getElementById('idBadge').textContent = data.id;
+                } else {
+                    currentRecordId = null;
+                    loadedData = null;
+                    const newId = generateNewId();
+                    document.getElementById('idBadge').textContent = newId;
+                    document.getElementById('idBadge').dataset.pendingId = newId;
+                    resetFormToEmpty();
+                }
+            } catch (err) {
+                console.error('Error loading profil kepala sekolah:', err);
+                const detail = [err.message, err.details, err.hint].filter(Boolean).join(' | ');
+                showStatus('Gagal memuat data: ' + (detail || 'Terjadi kesalahan tidak dikenal.'), 'error');
+            }
+        }
+
+        // ============================================================
+        // Upload foto ke Supabase Storage (bucket: aset)
+        // ============================================================
+        async function uploadPhoto(file, recordId) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `kepsek/${recordId}_${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from(STORAGE_BUCKET)
+                .upload(fileName, file, { upsert: true, cacheControl: '3600' });
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = supabaseClient
+                .storage
+                .from(STORAGE_BUCKET)
+                .getPublicUrl(fileName);
+
+            return publicUrlData.publicUrl;
+        }
+
+        // ============================================================
+        // Simpan Data (Tambah jika belum ada, Edit jika sudah ada)
+        // ============================================================
+        document.getElementById('formProfilKepsek').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearStatus();
+
+            const btnSave = document.getElementById('btnSave');
+            const originalHtml = btnSave.innerHTML;
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const nama = document.getElementById('inputNama').value.trim();
+                const nbm = document.getElementById('inputNbm').value.trim();
+                const tempatLahir = document.getElementById('inputTempatLahir').value.trim();
+                const tanggalLahir = document.getElementById('inputTanggalLahir').value;
+                const jabatan = document.getElementById('inputJabatan').value.trim() || 'Kepala Sekolah';
+                const username = document.getElementById('inputUsername').value.trim();
+                const password = document.getElementById('inputPassword').value;
+
+                if (!nama || !nbm || !tempatLahir || !tanggalLahir || !username || !password) {
+                    showStatus('Mohon lengkapi semua data yang wajib diisi.', 'error');
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = originalHtml;
+                    return;
+                }
+
+                // Tentukan id yang dipakai (id lama jika edit, id baru jika tambah data)
+                const recordId = currentRecordId || document.getElementById('idBadge').dataset.pendingId || generateNewId();
+
+                // Upload foto baru jika user memilih foto baru
+                let photoUrl = currentPhotoPath;
+                if (selectedPhotoFile) {
+                    photoUrl = await uploadPhoto(selectedPhotoFile, recordId);
+                }
+
+                const payload = {
+                    id: recordId,
+                    nama: nama,
+                    nbm: nbm,
+                    tempat_lahir: tempatLahir,
+                    tanggal_lahir: tanggalLahir,
+                    jabatan: jabatan,
+                    username: username,
+                    password: password,
+                    photo: photoUrl
+                };
+
+                let result;
+                if (currentRecordId) {
+                    // Mode Edit: update data yang sudah ada
+                    result = await supabaseClient
+                        .from(TABLE_NAME)
+                        .update(payload)
+                        .eq('id', currentRecordId);
+                } else {
+                    // Mode Tambah: insert data baru
+                    result = await supabaseClient
+                        .from(TABLE_NAME)
+                        .insert(payload);
+                }
+
+                if (result.error) throw result.error;
+
+                currentRecordId = recordId;
+                currentPhotoPath = photoUrl;
+                selectedPhotoFile = null;
+                loadedData = payload;
+                document.getElementById('idBadge').textContent = recordId;
+
+                showStatus('Data berhasil disimpan.', 'success');
+            } catch (err) {
+                console.error('Error menyimpan profil kepala sekolah:', err);
+                const detail = [err.message, err.details, err.hint].filter(Boolean).join(' | ');
+                showStatus('Gagal menyimpan data: ' + (detail || 'Terjadi kesalahan tidak dikenal.'), 'error');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = originalHtml;
+            }
+        });
+
+        // ============================================================
+        // Batal — kembalikan form ke data terakhir tersimpan
+        // ============================================================
+        document.getElementById('btnCancel').addEventListener('click', function() {
+            clearStatus();
+            document.getElementById('inputPhoto').value = '';
+            if (loadedData) {
+                fillFormFromData(loadedData);
+            } else {
+                resetFormToEmpty();
+            }
+        });
+
+        // --- Date Display in Navbar ---
+        function updateNavbarDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('navbarDate').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavbarDate();
+            loadProfilKepsek();
+        });
+    </script>
+</body>
+</html>
