@@ -454,25 +454,16 @@
             }
         }
 
-        // --- Info Sesi Guru, Tanggal & Jam (selalu WIB / Asia-Jakarta, apapun zona waktu device) ---
+        // --- Info Sesi Guru, Tanggal & Jam (mengikuti waktu di perangkat pengguna) ---
         function updateLiveInfo() {
             const now = new Date();
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
-            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             document.getElementById('infoTanggal').textContent = now.toLocaleDateString('id-ID', dateOptions);
             document.getElementById('infoJam').textContent = now.toLocaleTimeString('id-ID', timeOptions).replace(/\./g, ':') + ' WIB';
         }
         setInterval(updateLiveInfo, 1000);
         updateLiveInfo();
-
-        // --- Ambil waktu saat ini dalam WIB (UTC+7, tanpa DST) ---
-        // Mengembalikan objek Date yang komponen getUTCXxx()-nya merepresentasikan
-        // jam dinding WIB, sehingga hasilnya konsisten walau device diset ke zona waktu lain.
-        function getWIBDate() {
-            const now = new Date();
-            const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-            return new Date(utcMs + 7 * 60 * 60000);
-        }
 
         function loadSession() {
             session = JSON.parse(sessionStorage.getItem('guru_session'));
@@ -597,20 +588,23 @@
                 return;
             }
 
-            // --- Waktu berbasis WIB (Asia/Jakarta, UTC+7), agar konsisten meski device di zona waktu lain ---
-            const nowWIB = getWIBDate();
-            const tanggal = `${nowWIB.getUTCFullYear()}-${String(nowWIB.getUTCMonth() + 1).padStart(2, '0')}-${String(nowWIB.getUTCDate()).padStart(2, '0')}`; // YYYY-MM-DD (WIB)
-            const jam = `${String(nowWIB.getUTCHours()).padStart(2, '0')}:${String(nowWIB.getUTCMinutes()).padStart(2, '0')}:${String(nowWIB.getUTCSeconds()).padStart(2, '0')}`;
+            // --- Waktu mengikuti perangkat pengguna ---
+            const now = new Date();
+            const tahun = now.getFullYear();
+            const bulan = String(now.getMonth() + 1).padStart(2, '0');
+            const tgl = String(now.getDate()).padStart(2, '0');
+            const tanggal = `${tahun}-${bulan}-${tgl}`; // YYYY-MM-DD
+            const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-            // --- Batas Waktu Tepat Waktu: 06:45 WIB ---
-            const totalMenitSekarang = nowWIB.getUTCHours() * 60 + nowWIB.getUTCMinutes() + nowWIB.getUTCSeconds() / 60;
-            const batasMenit = 6 * 60 + 45; // 06:45 WIB
-            const statusAbsen = totalMenitSekarang > batasMenit ? 'Terlambat' : 'Hadir';
+            // --- Batas Waktu Tepat Waktu: 06:45 (waktu perangkat) ---
+            const batasJam = new Date(now);
+            batasJam.setHours(6, 45, 0, 0);
+            const statusAbsen = now > batasJam ? 'Terlambat' : 'Hadir';
 
             // --- Hitung Keterangan Otomatis ---
             let keteranganAbsen;
-            if (totalMenitSekarang > batasMenit) {
-                const selisihMenit = Math.round(totalMenitSekarang - batasMenit);
+            if (now > batasJam) {
+                const selisihMenit = Math.round((now - batasJam) / 60000);
                 keteranganAbsen = `Terlambat ${selisihMenit} Menit`;
             } else {
                 keteranganAbsen = 'Tepat Waktu';
