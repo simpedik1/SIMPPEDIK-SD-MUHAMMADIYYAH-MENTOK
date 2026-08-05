@@ -1591,6 +1591,9 @@
                 <button type="button" class="tab-btn" id="tableTabBtnSebelumnya" onclick="switchTableTab('sebelumnya')">
                     <i class="fas fa-history"></i> Pembayaran Tahun Sebelumnya
                 </button>
+                <button type="button" class="tab-btn" id="tableTabBtnBaru" onclick="switchTableTab('baru')">
+                    <i class="fas fa-user-graduate"></i> Siswa Mutasi
+                </button>
             </div>
 
             <!-- TAB 1: Pembayaran Tahun Berjalan -->
@@ -1692,6 +1695,60 @@
 
             </div>
             <!-- END TAB 2: Pembayaran Tahun Sebelumnya -->
+
+            <!-- TAB 3: Siswa Mutasi -->
+            <div class="tab-pane" id="tablePaneBaru">
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInputBaru" placeholder="Cari nama / NISN..." oninput="filterDataBaru()">
+                </div>
+                <select class="filter-select" id="filterKelasBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Kelas</option>
+                </select>
+                <select class="filter-select" id="filterBulanBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Bulan</option>
+                </select>
+                <select class="filter-select" id="filterTahunBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Tahun</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th>NISN</th>
+                            <th>Kelas</th>
+                            <th>Tahun</th>
+                            <th>Bulan Bayar</th>
+                            <th>Tgl Bayar</th>
+                            <th>Nominal</th>
+                            <th>Keterangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyBaru">
+                        <tr class="loading-row">
+                            <td colspan="10"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfoBaru">—</div>
+                <div class="pagination-btns" id="paginationBtnsBaru"></div>
+            </div>
+
+            </div>
+            <!-- END TAB 3: Siswa Mutasi -->
         </div>
 
         <footer class="main-footer">
@@ -1715,10 +1772,18 @@
                     <button type="button" class="tab-btn" id="tabBtnSebelumnya" onclick="switchTransTab('sebelumnya')">
                         <i class="fas fa-history"></i> Pembayaran Tahun Sebelumnya
                     </button>
+                    <button type="button" class="tab-btn" id="tabBtnBaru" onclick="switchTransTab('baru')">
+                        <i class="fas fa-user-graduate"></i> Siswa Mutasi
+                    </button>
                 </div>
 
                 <!-- TAB 1: Pembayaran Tahun Berjalan -->
                 <div class="tab-pane active" id="tabPaneBerjalan">
+
+                <div style="margin-bottom:12px;padding:10px 14px;background:#fde047;border-radius:8px;border-left:4px solid #eab308;display:flex;align-items:flex-start;gap:8px;">
+                    <i class="fas fa-info-circle" style="color:#000;font-size:1rem;margin-top:1px;flex-shrink:0;"></i>
+                    <span style="color:#000;font-weight:700;font-size:0.85rem;line-height:1.5;">Pembayaran Tahun Berjalan digunakan untuk menginput data pembayaran IPP siswa di Tahun Ajaran yang sedang berjalan selama 6 Tahun Pelajaran. Pastikan sebelum memilih siswa lihat Tahun Ajarannya.</span>
+                </div>
 
                 <!-- NISN Lookup -->
                 <div class="form-group" id="nisnLookupGroup">
@@ -1892,6 +1957,122 @@
                 </div>
                 <!-- END TAB 2: Pembayaran Tahun Sebelumnya -->
 
+                <!-- TAB 3: Siswa Mutasi -->
+                <div class="tab-pane" id="tabPaneBaru">
+
+                <div class="lookup-info found" style="margin-bottom:12px;">
+                    <i class="fas fa-info-circle"></i> Khusus siswa mutasi/pindahan yang masuk sekolah tidak dimulai dari bulan Juli. Pilih <strong>Bulan Masuk</strong> untuk menentukan mulai bulan apa iuran dihitung.
+                </div>
+
+                <!-- NISN Lookup -->
+                <div class="form-group" id="nisnLookupGroupSb">
+                    <label><i class="fas fa-id-card" style="margin-right:4px;color:#10b981"></i>NISN Siswa</label>
+                    <div class="nisn-lookup-wrap">
+                        <input type="text" id="sbNisn" placeholder="Masukkan NISN lalu klik Cari">
+                        <button class="btn-lookup" id="btnLookupSb" onclick="lookupNisnSb()">
+                            <i class="fas fa-search"></i> Cari
+                        </button>
+                    </div>
+                    <div class="lookup-info" id="lookupInfoSb"></div>
+                </div>
+
+                <!-- Detail Siswa (auto-filled) -->
+                <div class="siswa-detail-box" id="siswaDetailBoxSb">
+                    <strong id="sbDetailNama"></strong><br>
+                    Kelas: <span id="sbDetailKelas"></span> &nbsp;|&nbsp; Tahun: <span id="sbDetailTahun"></span> &nbsp;|&nbsp; Nominal/Bln: <strong id="sbDetailNominal" style="color:#059669;"></strong>
+                </div>
+
+                <!-- Fields (auto-filled, editable) -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#10b981"></i>Nama Siswa</label>
+                        <div class="autocomplete-wrap" id="acWrapSb">
+                            <input type="text" id="sbNama" placeholder="Klik untuk pilih siswa" readonly
+                                onclick="toggleAcDropdownSb()" autocomplete="off">
+                            <i class="fas fa-chevron-down ac-trigger-icon" id="acChevronSb"></i>
+                            <div class="autocomplete-dropdown" id="acDropdownSb">
+                                <div class="ac-search-wrap">
+                                    <div class="ac-search-icon-wrap">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="acSearchSb" placeholder="Cari nama siswa..."
+                                            oninput="filterAcListSb()" onclick="event.stopPropagation()">
+                                    </div>
+                                </div>
+                                <div class="ac-list" id="acListSb">
+                                    <div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-school" style="margin-right:4px;color:#10b981"></i>Kelas</label>
+                        <input type="text" id="sbKelas" placeholder="Otomatis dari siswa" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar" style="margin-right:4px;color:#10b981"></i>Tahun Pelajaran</label>
+                        <select id="sbTahun" disabled style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;cursor:not-allowed;">
+                            <option value="">— Pilih siswa dahulu —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#10b981"></i>Nominal/Bulan (Rp)</label>
+                        <input type="number" id="sbNominal" placeholder="Otomatis dari siswa" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-door-open" style="margin-right:4px;color:#10b981"></i>Bulan Masuk Sekolah</label>
+                        <select id="sbBulanMasuk" onchange="onBulanMasukChangeSb()" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih bulan masuk —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#10b981"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tabel Riwayat & Input Pembayaran Per Bulan -->
+                <div class="riwayat-section" id="riwayatSectionSb">
+                    <div class="riwayat-title">
+                        <i class="fas fa-table"></i> Riwayat & Input Pembayaran
+                    </div>
+                    <div class="riwayat-info" id="riwayatInfoSb">
+                        Pilih siswa dan Bulan Masuk terlebih dahulu, centang bulan yang dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu klik <strong>Simpan Transaksi</strong>.
+                    </div>
+                    <div class="riwayat-wrap">
+                        <div class="riwayat-lunas-watermark" id="riwayatLunasWatermarkSb">Lunas</div>
+                        <table class="riwayat-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:28px;text-align:center;">
+                                        <input type="checkbox" id="chkAllBulanSb" title="Pilih semua belum bayar"
+                                            onchange="toggleAllBulanSb(this.checked)" style="accent-color:#fff;width:14px;height:14px;">
+                                    </th>
+                                    <th>ID Pembayaran</th>
+                                    <th>Bulan</th>
+                                    <th>Tanggal Bayar</th>
+                                    <th>Jumlah Bayar (Rp)</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="riwayatBodySb">
+                                <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">
+                                    Pilih siswa dan Bulan Masuk terlebih dahulu
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                </div>
+                <!-- END TAB 3: Siswa Mutasi -->
+
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal()">Batal</button>
@@ -2019,6 +2200,11 @@
         let currentPageTS = 1;
         let tsLoaded = false;
 
+        // State - Tabel Siswa Mutasi
+        // (subset dari allData: id transaksi berawalan "SKB-")
+        let filteredDataBaru = [];
+        let currentPageBaru = 1;
+
         const BULAN_ORDER = ['Juli','Agustus','September','Oktober','November','Desember',
                              'Januari','Februari','Maret','April','Mei','Juni'];
 
@@ -2063,6 +2249,7 @@
                 buildFilters();
                 updateStats();
                 filterData();
+                filterDataBaru();
             } catch(err) {
                 document.getElementById('tableBody').innerHTML =
                     `<tr class="loading-row"><td colspan="10" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
@@ -2083,6 +2270,19 @@
                 tahunList.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('filterBulan').innerHTML = '<option value="">Semua Bulan</option>' +
                 bulanList.map(b => `<option value="${b}">${b}</option>`).join('');
+
+            // Filter khusus tabel Siswa Mutasi (subset id "SKB-")
+            const dataBaru = allData.filter(d => (d.id || '').startsWith('SKB-'));
+            const kelasListBaru = [...new Set(dataBaru.map(d => d.kelas).filter(Boolean))].sort();
+            const tahunListBaru = [...new Set(dataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
+            const bulanListBaru = BULAN_ORDER.filter(b => dataBaru.some(d => d.bulan_bayar === b));
+
+            document.getElementById('filterKelasBaru').innerHTML = '<option value="">Semua Kelas</option>' +
+                kelasListBaru.map(k => `<option value="${k}">${k}</option>`).join('');
+            document.getElementById('filterTahunBaru').innerHTML = '<option value="">Semua Tahun</option>' +
+                tahunListBaru.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('filterBulanBaru').innerHTML = '<option value="">Semua Bulan</option>' +
+                bulanListBaru.map(b => `<option value="${b}">${b}</option>`).join('');
         }
 
         // =============================================
@@ -2211,8 +2411,10 @@
             currentTableTab = tab;
             document.getElementById('tableTabBtnBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tableTabBtnSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tableTabBtnBaru').classList.toggle('active', tab === 'baru');
             document.getElementById('tablePaneBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tablePaneSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tablePaneBaru').classList.toggle('active', tab === 'baru');
 
             if (tab === 'sebelumnya' && !tsLoaded) {
                 loadDataTS();
@@ -2317,6 +2519,104 @@
             if (p < 1 || p > totalPages) return;
             currentPageTS = p;
             renderTableTS();
+        }
+
+        // =============================================
+        // Filter & Render - Tabel Siswa Mutasi
+        // (subset dari tabel sumbangankomite: id berawalan "SKB-")
+        // =============================================
+        function filterDataBaru() {
+            const searchEl = document.getElementById('searchInputBaru');
+            const kelasEl  = document.getElementById('filterKelasBaru');
+            const bulanEl  = document.getElementById('filterBulanBaru');
+            const tahunEl  = document.getElementById('filterTahunBaru');
+            if (!searchEl) return; // elemen belum siap saat load pertama
+
+            const q     = searchEl.value.toLowerCase();
+            const kelas = kelasEl.value;
+            const bulan = bulanEl.value;
+            const tahun = tahunEl.value;
+
+            filteredDataBaru = allData.filter(d => {
+                if (!(d.id || '').startsWith('SKB-')) return false;
+                const matchQ = !q ||
+                    (d.nama_siswa || '').toLowerCase().includes(q) ||
+                    (d.nisn || '').toLowerCase().includes(q);
+                const matchK = !kelas || d.kelas === kelas;
+                const matchB = !bulan || d.bulan_bayar === bulan;
+                const matchT = !tahun || d.tahun_pelajaran === tahun;
+                return matchQ && matchK && matchB && matchT;
+            });
+
+            currentPageBaru = 1;
+            renderTableBaru();
+        }
+
+        function renderTableBaru() {
+            const tbody = document.getElementById('tableBodyBaru');
+            if (!tbody) return;
+            const total = filteredDataBaru.length;
+
+            if (total === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="10">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Tidak ada data transaksi siswa mutasi.</p>
+                        </div>
+                    </td></tr>`;
+                document.getElementById('paginationInfoBaru').textContent = 'Tidak ada data';
+                document.getElementById('paginationBtnsBaru').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(total / PAGE_SIZE);
+            if (currentPageBaru > totalPages) currentPageBaru = totalPages;
+            const start = (currentPageBaru - 1) * PAGE_SIZE;
+            const slice = filteredDataBaru.slice(start, start + PAGE_SIZE);
+
+            tbody.innerHTML = slice.map((d, i) => `
+                <tr>
+                    <td style="color:#94a3b8;font-size:0.8rem;">${start + i + 1}</td>
+                    <td><strong>${escHtml(d.nama_siswa || '-')}</strong></td>
+                    <td style="font-family:monospace;color:#475569;">${escHtml(d.nisn || '-')}</td>
+                    <td><span class="badge-kelas">${escHtml(d.kelas || '-')}</span></td>
+                    <td><span class="badge-tahun" style="background:#f3e8ff;color:#6b21a8;">${escHtml(d.tahun_pelajaran || '-')}</span></td>
+                    <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
+                    <td style="font-size:0.82rem;color:#475569;">${d.tanggal_bayar ? fmtDate(d.tanggal_bayar) : '-'}</td>
+                    <td class="nominal-text">Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
+                    <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-delete" onclick="openConfirm('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('paginationInfoBaru').textContent =
+                `Menampilkan ${start + 1}–${Math.min(start + PAGE_SIZE, total)} dari ${total} transaksi`;
+
+            const btnsEl = document.getElementById('paginationBtnsBaru');
+            let btnsHtml = `<button class="btn-page" onclick="goPageBaru(${currentPageBaru-1})" ${currentPageBaru<=1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+            for (let p = 1; p <= totalPages; p++) {
+                if (totalPages <= 7 || Math.abs(p - currentPageBaru) <= 2 || p === 1 || p === totalPages) {
+                    btnsHtml += `<button class="btn-page ${p===currentPageBaru?'active':''}" onclick="goPageBaru(${p})">${p}</button>`;
+                } else if (Math.abs(p - currentPageBaru) === 3) {
+                    btnsHtml += `<span style="padding:4px;color:#94a3b8;">…</span>`;
+                }
+            }
+            btnsHtml += `<button class="btn-page" onclick="goPageBaru(${currentPageBaru+1})" ${currentPageBaru>=totalPages?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+            btnsEl.innerHTML = btnsHtml;
+        }
+
+        function goPageBaru(p) {
+            const totalPages = Math.ceil(filteredDataBaru.length / PAGE_SIZE);
+            if (p < 1 || p > totalPages) return;
+            currentPageBaru = p;
+            renderTableBaru();
         }
 
         function openConfirmTS(id, nama) {
@@ -2587,6 +2887,17 @@
         let riwayatBulanState = []; // state 12 baris bulan di modal
 
         // =============================================
+        // Ambil Nama Bendahara dari Akun yang Login (admintu_session)
+        // =============================================
+        function getBendaharaNama() {
+            try {
+                const session = JSON.parse(sessionStorage.getItem('admintu_session'));
+                if (session && session.nama) return session.nama;
+            } catch (e) { console.error(e); }
+            return 'Bendahara IPP'; // fallback jika sesi tidak ditemukan
+        }
+
+        // =============================================
         // Tab Modal Tambah Transaksi (Tahun Berjalan / Tahun Sebelumnya)
         // =============================================
         let currentTransTab = 'berjalan';
@@ -2595,8 +2906,10 @@
             currentTransTab = tab;
             document.getElementById('tabBtnBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tabBtnSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tabBtnBaru').classList.toggle('active', tab === 'baru');
             document.getElementById('tabPaneBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tabPaneSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tabPaneBaru').classList.toggle('active', tab === 'baru');
 
             if (tab === 'sebelumnya') {
                 // Isi otomatis saat pertama kali dibuka: ID pembayaran, tanggal, bendahara
@@ -2606,8 +2919,12 @@
                 if (!document.getElementById('tsTanggalBayar').value) {
                     document.getElementById('tsTanggalBayar').value = new Date().toISOString().split('T')[0];
                 }
-                document.getElementById('tsBendahara').value = 'Bendahara IPP';
+                document.getElementById('tsBendahara').value = getBendaharaNama();
                 loadDaftarSiswaTS();
+            }
+
+            if (tab === 'baru') {
+                populateBulanMasukOptions();
             }
         }
 
@@ -2633,6 +2950,527 @@
             document.getElementById('tsBulanBayar').value = '';
             document.getElementById('tsTotalPembayaran').value = '';
             document.getElementById('tsBendahara').value = '';
+        }
+
+        // =============================================================
+        // TAB 3: Siswa Mutasi
+        // (siswa yang masuk sekolah tidak dimulai dari bulan Juli)
+        // Data tetap disimpan ke tabel 'sumbangankomite' seperti Tab 1,
+        // hanya saja daftar bulan yang wajib dibayar dimulai dari
+        // "Bulan Masuk" yang dipilih, bukan selalu dari Juli.
+        // ID transaksi diberi prefix "SKB-" supaya bisa dibedakan/
+        // difilter di tabel "Daftar Riwayat Pembayaran".
+        // =============================================================
+        let lookedUpSiswaSb = null;
+        let riwayatBulanStateSb = [];
+
+        function resetTabBaru() {
+            lookedUpSiswaSb = null;
+            riwayatBulanStateSb = [];
+            document.getElementById('sbNisn').value = '';
+            document.getElementById('sbNama').value = '';
+            document.getElementById('sbKelas').value = '';
+            const selT = document.getElementById('sbTahun');
+            selT.innerHTML = '<option value="">— Pilih siswa dahulu —</option>';
+            selT.disabled = true;
+            selT.onchange = null;
+            document.getElementById('sbNominal').value = '';
+            document.getElementById('sbBulanMasuk').value = '';
+            document.getElementById('sbKeterangan').value = '';
+            document.getElementById('lookupInfoSb').className = 'lookup-info';
+            document.getElementById('lookupInfoSb').textContent = '';
+            document.getElementById('siswaDetailBoxSb').classList.remove('show');
+            document.getElementById('riwayatSectionSb').classList.remove('show');
+            document.getElementById('riwayatBodySb').innerHTML =
+                '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">Pilih siswa dan Bulan Masuk terlebih dahulu</td></tr>';
+            document.getElementById('riwayatLunasWatermarkSb').classList.remove('show');
+            closeAcDropdownSb();
+            if (document.getElementById('acSearchSb')) document.getElementById('acSearchSb').value = '';
+            populateBulanMasukOptions();
+        }
+
+        function populateBulanMasukOptions() {
+            const sel = document.getElementById('sbBulanMasuk');
+            if (!sel || sel.options.length > 1) return; // sudah terisi
+            sel.innerHTML = '<option value="">— Pilih bulan masuk —</option>' +
+                BULAN_LIST.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        // Mengembalikan daftar bulan yang wajib dibayar, dimulai dari
+        // bulan masuk yang dipilih sampai akhir tahun ajaran (Juni).
+        function getSbBulanList() {
+            const bulanMasuk = document.getElementById('sbBulanMasuk').value;
+            const idx = BULAN_LIST.indexOf(bulanMasuk);
+            return idx === -1 ? BULAN_LIST : BULAN_LIST.slice(idx);
+        }
+
+        function onBulanMasukChangeSb() {
+            if (lookedUpSiswaSb) {
+                loadAndRenderRiwayatSb(lookedUpSiswaSb);
+            }
+        }
+
+        // --- NISN Lookup ---
+        async function lookupNisnSb() {
+            const nisn = document.getElementById('sbNisn').value.trim();
+            if (!nisn) { showToast('Masukkan NISN terlebih dahulu.', 'error'); return; }
+
+            const btn = document.getElementById('btnLookupSb');
+            const info = document.getElementById('lookupInfoSb');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            info.className = 'lookup-info';
+            info.textContent = '';
+
+            try {
+                const { data, error } = await db
+                    .from('tagihansumbangan')
+                    .select('*')
+                    .eq('nisn', nisn)
+                    .limit(1).single();
+
+                if (error || !data) {
+                    lookedUpSiswaSb = null;
+                    info.className = 'lookup-info not-found';
+                    info.innerHTML = '<i class="fas fa-times-circle"></i> NISN tidak ditemukan di data tagihan.';
+                    document.getElementById('siswaDetailBoxSb').classList.remove('show');
+                    clearFormFieldsSb();
+                } else {
+                    lookedUpSiswaSb = data;
+                    info.className = 'lookup-info found';
+                    info.innerHTML = `<i class="fas fa-check-circle"></i> Siswa ditemukan: <strong>${data.nama_siswa}</strong>`;
+
+                    document.getElementById('sbNama').value    = data.nama_siswa || '';
+                    document.getElementById('sbKelas').value   = data.kelas || '';
+                    document.getElementById('sbNominal').value = data.nominal_per_bulan || '';
+
+                    document.getElementById('sbDetailNama').textContent    = data.nama_siswa;
+                    document.getElementById('sbDetailKelas').textContent   = data.kelas;
+                    document.getElementById('sbDetailTahun').textContent   = data.tahun_pelajaran || '';
+                    document.getElementById('sbDetailNominal').textContent = 'Rp ' + (parseFloat(data.nominal_per_bulan)||0).toLocaleString('id-ID') + '/bln';
+                    document.getElementById('siswaDetailBoxSb').classList.add('show');
+
+                    loadTahunOptionsSb(data.nisn, data.tahun_pelajaran).then(tahunTerpilih => {
+                        const siswaCtx = Object.assign({}, data, { tahun_pelajaran: tahunTerpilih || data.tahun_pelajaran });
+                        lookedUpSiswaSb = siswaCtx;
+                        if (document.getElementById('sbBulanMasuk').value) {
+                            loadAndRenderRiwayatSb(siswaCtx);
+                        }
+                    });
+                }
+            } catch(err) {
+                info.className = 'lookup-info not-found';
+                info.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search"></i> Cari';
+            }
+        }
+
+        function clearFormFieldsSb() {
+            document.getElementById('sbNama').value = '';
+            document.getElementById('sbKelas').value = '';
+            const selTahun = document.getElementById('sbTahun');
+            selTahun.innerHTML = '<option value="">— Pilih siswa dahulu —</option>';
+            selTahun.disabled = true;
+            selTahun.onchange = null;
+            document.getElementById('sbNominal').value = '';
+        }
+
+        // --- Autocomplete Nama Siswa (pakai cache yang sama dengan Tab 1) ---
+        let acOpenSb = false;
+        let acCurrentListSb = [];
+
+        async function toggleAcDropdownSb() {
+            if (acOpenSb) { closeAcDropdownSb(); return; }
+            openAcDropdownSb();
+        }
+
+        async function openAcDropdownSb() {
+            acOpenSb = true;
+            const dropdown = document.getElementById('acDropdownSb');
+            const chevron  = document.getElementById('acChevronSb');
+            dropdown.classList.add('open');
+            chevron.style.transform = 'translateY(-50%) rotate(180deg)';
+            chevron.style.transition = 'transform 0.2s';
+
+            const list = await loadSiswaList();
+            renderAcListSb(list);
+
+            setTimeout(() => {
+                const s = document.getElementById('acSearchSb');
+                if (s) { s.value = ''; s.focus(); }
+            }, 60);
+        }
+
+        function closeAcDropdownSb() {
+            acOpenSb = false;
+            const dropdown = document.getElementById('acDropdownSb');
+            const chevron  = document.getElementById('acChevronSb');
+            if (dropdown) dropdown.classList.remove('open');
+            if (chevron) chevron.style.transform = 'translateY(-50%) rotate(0deg)';
+        }
+
+        function renderAcListSb(data) {
+            acCurrentListSb = data || [];
+            const ul = document.getElementById('acListSb');
+            if (acCurrentListSb.length === 0) {
+                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-user-slash" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Tidak ada data siswa</div>';
+                return;
+            }
+            ul.innerHTML = acCurrentListSb.map((s, idx) => `
+                <div class="ac-item" tabindex="0"
+                    onclick="selectSiswaSb(${idx})"
+                    onkeydown="if(event.key==='Enter') selectSiswaSb(${idx})">
+                    <div class="ac-item-name">${escHtml(s.nama_siswa || '-')}</div>
+                    <div class="ac-item-sub">
+                        <span><i class="fas fa-id-card"></i>${escHtml(s.nisn || '-')}</span>
+                        <span><i class="fas fa-school"></i>${escHtml(s.kelas || '-')}</span>
+                        <span><i class="fas fa-calendar"></i>${escHtml(s.tahun_pelajaran || '-')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterAcListSb() {
+            const q = document.getElementById('acSearchSb').value.toLowerCase();
+            const src = siswaCacheList || [];
+            const filtered = src.filter(s =>
+                (s.nama_siswa || '').toLowerCase().includes(q) ||
+                (s.nisn || '').toLowerCase().includes(q) ||
+                (s.kelas || '').toLowerCase().includes(q)
+            );
+            renderAcListSb(filtered);
+        }
+
+        function selectSiswaSb(idx) {
+            const s = acCurrentListSb[idx];
+            if (!s) return;
+            document.getElementById('sbNisn').value    = s.nisn || '';
+            document.getElementById('sbNama').value    = s.nama_siswa || '';
+            document.getElementById('sbKelas').value   = s.kelas || '';
+            document.getElementById('sbNominal').value = s.nominal_per_bulan || '';
+
+            document.getElementById('sbDetailNama').textContent    = s.nama_siswa;
+            document.getElementById('sbDetailKelas').textContent   = s.kelas;
+            document.getElementById('sbDetailTahun').textContent   = s.tahun_pelajaran || '';
+            document.getElementById('sbDetailNominal').textContent = 'Rp ' + (parseFloat(s.nominal_per_bulan)||0).toLocaleString('id-ID') + '/bln';
+            document.getElementById('siswaDetailBoxSb').classList.add('show');
+
+            const info = document.getElementById('lookupInfoSb');
+            info.className = 'lookup-info found';
+            info.innerHTML = `<i class="fas fa-check-circle"></i> Siswa dipilih: <strong>${escHtml(s.nama_siswa)}</strong>`;
+
+            closeAcDropdownSb();
+
+            loadTahunOptionsSb(s.nisn, s.tahun_pelajaran).then(tahunTerpilih => {
+                const siswaCtx = Object.assign({}, s, { tahun_pelajaran: tahunTerpilih || s.tahun_pelajaran });
+                lookedUpSiswaSb = siswaCtx;
+                if (document.getElementById('sbBulanMasuk').value) {
+                    loadAndRenderRiwayatSb(siswaCtx);
+                }
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('acWrapSb');
+            if (wrap && !wrap.contains(e.target)) {
+                closeAcDropdownSb();
+            }
+        });
+
+        // --- Opsi Tahun Pelajaran ---
+        async function loadTahunOptionsSb(nisn, defaultTahun = '') {
+            const sel = document.getElementById('sbTahun');
+            sel.innerHTML = '<option value="">Memuat...</option>';
+            sel.disabled = true;
+
+            try {
+                const { data, error } = await db
+                    .from('tagihansumbangan')
+                    .select('tahun_pelajaran')
+                    .eq('nisn', nisn);
+
+                if (error) throw error;
+
+                const tahunList = [...new Set((data || [])
+                    .map(d => d.tahun_pelajaran)
+                    .filter(Boolean)
+                )].sort();
+
+                if (tahunList.length === 0) {
+                    sel.innerHTML = defaultTahun
+                        ? `<option value="${defaultTahun}">${defaultTahun}</option>`
+                        : '<option value="">Tidak ada data tahun</option>';
+                    sel.disabled = tahunList.length === 0 && !defaultTahun;
+                } else {
+                    sel.innerHTML = tahunList.map(t =>
+                        `<option value="${t}" ${t === defaultTahun ? 'selected' : ''}>${t}</option>`
+                    ).join('');
+                    sel.disabled = false;
+                }
+
+                sel.onchange = function() {
+                    const tahun = this.value;
+                    document.getElementById('sbDetailTahun').textContent = tahun;
+                    if (lookedUpSiswaSb) {
+                        const siswaCtx = Object.assign({}, lookedUpSiswaSb, { tahun_pelajaran: tahun });
+                        lookedUpSiswaSb = siswaCtx;
+                        if (document.getElementById('sbBulanMasuk').value) {
+                            loadAndRenderRiwayatSb(siswaCtx);
+                        }
+                    }
+                };
+
+                return sel.value;
+            } catch(e) {
+                sel.innerHTML = defaultTahun
+                    ? `<option value="${defaultTahun}">${defaultTahun}</option>`
+                    : '<option value="">Gagal memuat</option>';
+                sel.disabled = false;
+                return defaultTahun;
+            }
+        }
+
+        // --- Riwayat & Input Pembayaran (mulai dari Bulan Masuk) ---
+        async function loadAndRenderRiwayatSb(siswa) {
+            const bulanMasuk = document.getElementById('sbBulanMasuk').value;
+            if (!bulanMasuk) {
+                showToast('Pilih Bulan Masuk terlebih dahulu!', 'error');
+                return;
+            }
+
+            const body = document.getElementById('riwayatBodySb');
+            body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:16px;"><i class="fas fa-spinner fa-spin"></i> Memuat riwayat...</td></tr>';
+            document.getElementById('riwayatSectionSb').classList.add('show');
+            document.getElementById('riwayatLunasWatermarkSb').classList.remove('show');
+
+            const nisn    = siswa.nisn;
+            const nama    = siswa.nama_siswa;
+            const tahun   = siswa.tahun_pelajaran;
+            const nominal = parseFloat(siswa.nominal_per_bulan) || 0;
+            const bulanListSb = getSbBulanList();
+
+            let sudahBayar = {};
+            let sudahBayarCount = 0;
+            try {
+                const { data, error } = await db
+                    .from('sumbangankomite')
+                    .select('bulan_bayar, tanggal_bayar, nominal, id, keterangan')
+                    .eq('nisn', nisn)
+                    .eq('tahun_pelajaran', tahun);
+                if (!error && data) {
+                    data.forEach(d => { sudahBayar[d.bulan_bayar] = d; });
+                    sudahBayarCount = data.filter(d => bulanListSb.includes(d.bulan_bayar)).length;
+                }
+            } catch(e) {}
+
+            const infoEl = document.getElementById('riwayatInfoSb');
+            if (sudahBayarCount > 0) {
+                infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#10b981;margin-right:4px;"></i>
+                    <strong>${nama}</strong> — masuk bulan <strong>${bulanMasuk}</strong>, ${sudahBayarCount} bulan sudah dibayar (baris hijau).
+                    Centang bulan yang akan dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu <strong>Simpan Transaksi</strong>.`;
+            } else {
+                infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#10b981;margin-right:4px;"></i>
+                    <strong>${nama}</strong> masuk bulan <strong>${bulanMasuk}</strong>. Belum ada pembayaran untuk tahun ini.
+                    Centang bulan yang akan dibayar, klik <strong>Bayar</strong>, lalu <strong>Simpan Transaksi</strong>.`;
+            }
+
+            riwayatBulanStateSb = bulanListSb.map((bulan, idx) => {
+                const existing = sudahBayar[bulan] || null;
+                const bulanKode = bulan.substring(0,3).toUpperCase();
+                const tahunKode = tahun ? tahun.replace(/[^0-9]/g,'').substring(0,4) : '';
+                const generatedId = existing
+                    ? existing.id
+                    : `SKB-${nisn}-${bulanKode}-${tahunKode}`;
+                return {
+                    idx,
+                    bulan,
+                    existing,
+                    generatedId,
+                    checked: false,
+                    tanggal: existing ? existing.tanggal_bayar : '',
+                    jumlah:  existing ? (existing.nominal || nominal) : nominal,
+                    status:  existing ? 'Lunas' : 'Belum'
+                };
+            });
+
+            const sudahLunasSemua = riwayatBulanStateSb.length > 0 &&
+                riwayatBulanStateSb.every(r => !!r.existing);
+            const btnSimpanEl = document.getElementById('btnSimpan');
+            const watermarkEl = document.getElementById('riwayatLunasWatermarkSb');
+            if (btnSimpanEl) btnSimpanEl.disabled = sudahLunasSemua;
+            if (watermarkEl) watermarkEl.classList.toggle('show', sudahLunasSemua);
+
+            renderRiwayatTableSb();
+        }
+
+        function renderRiwayatTableSb() {
+            const body = document.getElementById('riwayatBodySb');
+
+            body.innerHTML = riwayatBulanStateSb.map(row => {
+                const isExisting = !!row.existing;
+                const trClass = isExisting ? 'sudah-bayar' : (row.checked ? 'akan-bayar' : '');
+
+                return `<tr class="${trClass}" id="riwayat-row-sb-${row.idx}">
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="chk-bayar" id="chkBulanSb-${row.idx}"
+                            ${isExisting ? 'checked disabled' : (row.checked ? 'checked' : '')}
+                            onchange="onBulanCheckSb(${row.idx}, this.checked)">
+                    </td>
+                    <td class="col-id">${isExisting
+                        ? row.existing.id
+                        : (row.checked
+                            ? `<span style="color:#059669;font-weight:600;">${row.generatedId}</span>`
+                            : '<span style="color:#cbd5e1;">—</span>')
+                    }</td>
+                    <td style="font-weight:600;white-space:nowrap;">${row.bulan}</td>
+                    <td>
+                        <input type="date" id="tglSb-${row.idx}"
+                            value="${row.tanggal || ''}"
+                            ${isExisting ? 'readonly' : ''}
+                            onchange="riwayatBulanStateSb[${row.idx}].tanggal = this.value">
+                    </td>
+                    <td>
+                        <input type="number" id="jmlSb-${row.idx}"
+                            value="${row.jumlah || ''}" min="0"
+                            ${isExisting ? 'readonly' : ''}
+                            onchange="riwayatBulanStateSb[${row.idx}].jumlah = parseFloat(this.value)||0">
+                    </td>
+                    <td>
+                        ${isExisting
+                            ? '<span class="badge-existing"><i class="fas fa-check-circle"></i> Sudah</span>'
+                            : (row.checked
+                                ? '<span class="badge-lunas"><i class="fas fa-check-circle"></i> Lunas</span>'
+                                : '<span class="badge-belum"><i class="fas fa-clock"></i> Belum</span>')}
+                    </td>
+                    <td>
+                        ${isExisting
+                            ? '<span style="color:#94a3b8;font-size:0.75rem;">Tersimpan</span>'
+                            : `<button class="btn-bayar" onclick="isiBayarSb(${row.idx})"><i class="fas fa-money-bill-wave"></i> Bayar</button>`}
+                    </td>
+                </tr>`;
+            }).join('');
+
+            const chkAll = document.getElementById('chkAllBulanSb');
+            if (chkAll) {
+                const belum = riwayatBulanStateSb.filter(r => !r.existing);
+                chkAll.disabled = belum.length === 0;
+                chkAll.checked  = belum.length > 0 && belum.every(r => r.checked);
+                chkAll.indeterminate = belum.some(r => r.checked) && !belum.every(r => r.checked);
+            }
+        }
+
+        function isiBayarSb(idx) {
+            const row = riwayatBulanStateSb[idx];
+            if (!row || row.existing) return;
+            const today = new Date().toISOString().split('T')[0];
+            const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+            row.tanggal = today;
+            row.jumlah  = nominal;
+            row.checked = true;
+            row.status  = 'Lunas';
+            renderRiwayatTableSb();
+        }
+
+        function onBulanCheckSb(idx, checked) {
+            const row = riwayatBulanStateSb[idx];
+            if (!row || row.existing) return;
+            row.checked = checked;
+            if (checked && !row.tanggal) {
+                row.tanggal = new Date().toISOString().split('T')[0];
+                row.jumlah  = parseFloat(document.getElementById('sbNominal').value) || 0;
+            }
+            row.status = checked ? 'Lunas' : 'Belum';
+            renderRiwayatTableSb();
+        }
+
+        function toggleAllBulanSb(checked) {
+            const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+            const today   = new Date().toISOString().split('T')[0];
+            riwayatBulanStateSb.forEach(row => {
+                if (row.existing) return;
+                row.checked = checked;
+                if (checked && !row.tanggal) {
+                    row.tanggal = today;
+                    row.jumlah  = nominal;
+                }
+                row.status = checked ? 'Lunas' : 'Belum';
+            });
+            renderRiwayatTableSb();
+        }
+
+        // --- Simpan Transaksi Siswa Mutasi ---
+        // (tabel: sumbangankomite, sama seperti Tab 1 — id diberi prefix "SKB-")
+        async function saveDataSb() {
+            const nisn        = document.getElementById('sbNisn').value.trim();
+            const nama        = document.getElementById('sbNama').value.trim();
+            const kelas       = document.getElementById('sbKelas').value.trim();
+            const tahun       = document.getElementById('sbTahun').value.trim();
+            const bulanMasuk  = document.getElementById('sbBulanMasuk').value.trim();
+            const keteranganInput = document.getElementById('sbKeterangan').value.trim();
+            const keterangan  = keteranganInput || `Siswa Mutasi (Masuk ${bulanMasuk})`;
+
+            if (!nisn || !nama || !kelas || !tahun) {
+                showToast('Pilih siswa terlebih dahulu!', 'error');
+                return;
+            }
+            if (!bulanMasuk) {
+                showToast('Pilih Bulan Masuk terlebih dahulu!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnSimpan');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const toInsert = riwayatBulanStateSb.filter(r => !r.existing && r.checked);
+                if (toInsert.length === 0) {
+                    showToast('Centang minimal 1 bulan yang akan dibayar!', 'error');
+                    return;
+                }
+                const noDate = toInsert.find(r => !r.tanggal);
+                if (noDate) {
+                    showToast(`Tanggal bulan ${noDate.bulan} belum diisi!`, 'error');
+                    return;
+                }
+
+                const payloads = toInsert.map(r => ({
+                    id: r.generatedId,
+                    nisn, nama_siswa: nama, kelas,
+                    tahun_pelajaran: tahun,
+                    bulan_bayar: r.bulan,
+                    tanggal_bayar: r.tanggal,
+                    nominal: r.jumlah,
+                    keterangan
+                }));
+
+                const { error } = await db.from('sumbangankomite').insert(payloads);
+                if (error) throw error;
+                showToast(`✅ ${payloads.length} transaksi siswa mutasi berhasil disimpan!`, 'success');
+
+                const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+                showStruk({ nisn, nama, kelas, tahun, nominal }, payloads, riwayatBulanStateSb, getSbBulanList());
+
+                toInsert.forEach(r => {
+                    r.existing = {
+                        id: r.generatedId,
+                        bulan_bayar: r.bulan,
+                        tanggal_bayar: r.tanggal,
+                        nominal: r.jumlah,
+                        keterangan
+                    };
+                });
+
+                closeModal();
+                await loadData();
+            } catch(err) {
+                showToast('Gagal menyimpan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Transaksi';
+            }
         }
 
         // =============================================
@@ -2759,6 +3597,7 @@
 
             // Reset tab ke "Pembayaran Tahun Berjalan" setiap modal dibuka
             resetTabSebelumnya();
+            resetTabBaru();
             switchTransTab('berjalan');
 
             document.getElementById('modalTabs').style.display = '';
@@ -2783,6 +3622,8 @@
             document.getElementById('fKelas').readOnly  = true;
             document.getElementById('fNominal').readOnly = true;
             riwayatBulanState = [];
+            closeAcDropdownSb();
+            riwayatBulanStateSb = [];
         }
 
         // =============================================
@@ -2975,6 +3816,9 @@
         async function saveData() {
             if (currentTransTab === 'sebelumnya') {
                 return saveDataTS();
+            }
+            if (currentTransTab === 'baru') {
+                return saveDataSb();
             }
             const nisn       = document.getElementById('fNisn').value.trim();
             const nama       = document.getElementById('fNama').value.trim();
@@ -3238,8 +4082,9 @@
         // =============================================
         let currentStrukNama = '';
 
-        function showStruk(siswa, payloads, bulanState) {
+        function showStruk(siswa, payloads, bulanState, bulanRange) {
             currentStrukNama = siswa.nama;
+            const daftarBulan = bulanRange || BULAN_LIST;
             const now = new Date();
             const tglCetak = now.toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
             const jamCetak = now.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
@@ -3254,8 +4099,8 @@
                 if (row.existing) existingMap[row.bulan] = row.existing;
             });
 
-            // Render 12 bulan penuh
-            const rowsHtml = BULAN_LIST.map((bulan, i) => {
+            // Render daftar bulan (12 bulan penuh, atau subset untuk siswa mutasi)
+            const rowsHtml = daftarBulan.map((bulan, i) => {
                 const newlyPaid = paidMap[bulan];
                 const existing  = existingMap[bulan];
 
@@ -3344,7 +4189,7 @@
 
                 <div class="struk-ttd">
                     <div class="struk-ttd-box">
-                        <div class="ttd-label">Bendahara IPP</div>
+                        <div class="ttd-label">${escHtml(getBendaharaNama())}</div>
                         <div class="ttd-space"></div>
                         <div class="ttd-name">(.................................)</div>
                     </div>
