@@ -198,15 +198,181 @@
     .notifikasi i {
         font-size: 1.2rem;
     }
+
+    /* Panel skor */
+    .skor-panel {
+        width: 100%;
+        max-width: 700px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0.5rem;
+        z-index: 10;
+    }
+    .skor-panel .skor-item {
+        text-align: center;
+    }
+    .skor-panel .skor-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .skor-panel .skor-nilai {
+        display: block;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+    .progress-bar-track {
+        flex: 1 1 160px;
+        height: 8px;
+        background: #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        min-width: 120px;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        transition: width 0.3s ease;
+    }
+
+    /* Kartu soal yang sudah dikunci */
+    .soal-card.terkunci .opsi-item {
+        cursor: not-allowed;
+        opacity: 0.75;
+    }
+    .soal-card.terkunci .opsi-item:hover {
+        border-color: #e2e2e2;
+        background: transparent;
+    }
+    .soal-card.terkunci .opsi-item.benar:hover {
+        border-color: #2e7d32;
+        background: #e8f5e9;
+    }
+    .soal-card.terkunci .opsi-item.salah:hover {
+        border-color: #c62828;
+        background: #ffebee;
+    }
+    .badge-terkunci {
+        display: inline-block;
+        margin-top: 0.7rem;
+        font-size: 0.82rem;
+        color: #888;
+        font-style: italic;
+    }
+
+    /* Layar hasil akhir */
+    .hasil-akhir {
+        display: none;
+        background: #ffffff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .hasil-akhir.show { display: block; }
+    .hasil-akhir .hasil-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 1.5rem;
+    }
+    .hasil-akhir .hasil-header h2 {
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+    }
+    .hasil-akhir .skor-besar {
+        font-size: 2.8rem;
+        font-weight: 800;
+    }
+    .hasil-akhir .skor-keterangan {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 0.3rem;
+    }
+    .hasil-akhir .hasil-body {
+        padding: 1.5rem;
+    }
+    .hasil-akhir .hasil-body p {
+        color: #555;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+    }
+    .hasil-tombol {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .btn-ulangi, .btn-tutup {
+        padding: 0.85rem 1.6rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    .btn-ulangi {
+        background: linear-gradient(to right, #667eea, #764ba2);
+        color: white;
+    }
+    .btn-tutup {
+        background: #eee;
+        color: #444;
+    }
+    .btn-ulangi:hover, .btn-tutup:hover { opacity: 0.85; }
+
+    .pesan-tutup {
+        display: none;
+        width: 100%;
+        max-width: 700px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        color: #555;
+    }
+    .pesan-tutup.show { display: block; }
 </style>
 </head>
 <body>
 
 <div class="page-header">
     <h1>Latihan Soal</h1>
-    <p>Jawab setiap soal sesuai instruksinya, lalu tekan "Periksa Jawaban".</p>
+    <p>Jawab setiap soal sesuai instruksinya, lalu tekan "Periksa Jawaban". Setiap soal hanya bisa dijawab satu kali.</p>
 </div>
 
+<div class="skor-panel" id="skorPanel">
+    <div class="skor-item">
+        <span class="skor-label">Skor</span>
+        <span class="skor-nilai"><span id="skorNilai">0</span> / <span id="skorMaks">100</span></span>
+    </div>
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="skor-item">
+        <span class="skor-label">Terjawab</span>
+        <span class="skor-nilai"><span id="soalTerjawab">0</span> / <span id="soalTotal">10</span></span>
+    </div>
+</div>
+
+<div id="kuisContainer">
 <div class="soal-card" id="soal1" data-tipe="single">
     <div class="soal-nomor">Soal 1</div>
     <div class="soal-body">
@@ -678,11 +844,110 @@
     </div>
 </div>
 
+</div><!-- /#kuisContainer -->
+
+<div class="hasil-akhir" id="hasilAkhir">
+    <div class="hasil-header">
+        <h2>Kuis Selesai!</h2>
+        <div class="skor-besar"><span id="skorAkhirNilai">0</span> / <span id="skorAkhirMaks">100</span></div>
+        <div class="skor-keterangan" id="skorAkhirKeterangan"></div>
+    </div>
+    <div class="hasil-body">
+        <p>Kamu sudah menjawab seluruh soal. Ingin mencoba lagi dari awal atau selesai di sini?</p>
+        <div class="hasil-tombol">
+            <button class="btn-ulangi" type="button" id="btnUlangi">Ulangi Soal</button>
+            <button class="btn-tutup" type="button" id="btnTutup">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<div class="pesan-tutup" id="pesanTutup">
+    <p>Terima kasih sudah mengerjakan latihan soal ini. Sampai jumpa lagi!</p>
+</div>
+
 <script>
+    // --- Konfigurasi skor ---
+    const POIN_PER_SOAL = 10;
+    const semuaSoalCard = Array.from(document.querySelectorAll('.soal-card'));
+    const TOTAL_SOAL = semuaSoalCard.length;
+    const SKOR_MAKS = TOTAL_SOAL * POIN_PER_SOAL;
+
+    let skor = 0;
+    let jumlahTerjawab = 0;
+
+    const elSkorNilai = document.getElementById('skorNilai');
+    const elSkorMaks = document.getElementById('skorMaks');
+    const elSoalTerjawab = document.getElementById('soalTerjawab');
+    const elSoalTotal = document.getElementById('soalTotal');
+    const elProgressFill = document.getElementById('progressFill');
+    const elHasilAkhir = document.getElementById('hasilAkhir');
+    const elSkorAkhirNilai = document.getElementById('skorAkhirNilai');
+    const elSkorAkhirMaks = document.getElementById('skorAkhirMaks');
+    const elSkorAkhirKeterangan = document.getElementById('skorAkhirKeterangan');
+    const elPesanTutup = document.getElementById('pesanTutup');
+    const elKuisContainer = document.getElementById('kuisContainer');
+    const elSkorPanel = document.getElementById('skorPanel');
+
+    elSkorMaks.textContent = SKOR_MAKS;
+    elSoalTotal.textContent = TOTAL_SOAL;
+    elSkorAkhirMaks.textContent = SKOR_MAKS;
+
+    function perbaruiTampilanSkor() {
+        elSkorNilai.textContent = skor;
+        elSoalTerjawab.textContent = jumlahTerjawab;
+        const persen = TOTAL_SOAL === 0 ? 0 : Math.round((jumlahTerjawab / TOTAL_SOAL) * 100);
+        elProgressFill.style.width = persen + '%';
+    }
+
+    function kunciKartu(card, btnPeriksa) {
+        card.classList.add('terkunci');
+        btnPeriksa.disabled = true;
+        btnPeriksa.textContent = 'Sudah Dijawab';
+        card.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function (inp) {
+            inp.disabled = true;
+        });
+        if (!card.querySelector('.badge-terkunci')) {
+            const badge = document.createElement('span');
+            badge.className = 'badge-terkunci';
+            badge.textContent = 'Soal ini sudah dijawab dan tidak bisa diulang.';
+            btnPeriksa.insertAdjacentElement('afterend', badge);
+        }
+    }
+
+    function catatJawabanSelesai(card, btnPeriksa, benar) {
+        if (card.dataset.sudahDijawab === 'true') return; // cegah hitung ganda
+        card.dataset.sudahDijawab = 'true';
+
+        if (benar) {
+            skor += POIN_PER_SOAL;
+        }
+        jumlahTerjawab += 1;
+        perbaruiTampilanSkor();
+        kunciKartu(card, btnPeriksa);
+
+        if (jumlahTerjawab >= TOTAL_SOAL) {
+            tampilkanHasilAkhir();
+        }
+    }
+
+    function tampilkanHasilAkhir() {
+        elSkorAkhirNilai.textContent = skor;
+        let ket = '';
+        const persen = Math.round((skor / SKOR_MAKS) * 100);
+        if (persen === 100) ket = 'Sempurna! Semua jawaban kamu benar.';
+        else if (persen >= 70) ket = 'Kerja bagus! Hasil kamu sudah cukup baik.';
+        else if (persen >= 40) ket = 'Lumayan, ayo tingkatkan lagi hasil belajarmu.';
+        else ket = 'Yuk pelajari lagi materinya, lalu coba ulangi soal ini.';
+        elSkorAkhirKeterangan.textContent = ket;
+        elHasilAkhir.classList.add('show');
+        elHasilAkhir.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     // --- Highlight visual saat opsi dipilih (berlaku untuk soal tipe single & multi) ---
     document.querySelectorAll('.opsi-item input[type="radio"], .opsi-item input[type="checkbox"]').forEach(function (input) {
         input.addEventListener('change', function () {
             const card = input.closest('.soal-card');
+            if (card.classList.contains('terkunci')) return;
             const item = input.closest('.opsi-item');
             if (input.type === 'radio') {
                 card.querySelectorAll('input[name="' + input.name + '"]').forEach(function (r) {
@@ -694,7 +959,7 @@
     });
 
     // --- Logika Periksa Jawaban, sesuai tipe soal masing-masing kartu ---
-    document.querySelectorAll('.soal-card').forEach(function (card) {
+    semuaSoalCard.forEach(function (card) {
         const tipe = card.getAttribute('data-tipe') || 'single';
         const btnPeriksa = card.querySelector('.btn-periksa');
         const notifSalah = card.querySelector('.notifikasi.salah');
@@ -707,6 +972,7 @@
             const opsiItems = card.querySelectorAll('.opsi-item');
 
             btnPeriksa.addEventListener('click', function () {
+                if (card.classList.contains('terkunci')) return;
                 const dipilih = card.querySelector('input[type="radio"]:checked');
 
                 notifSalah.classList.remove('show');
@@ -719,13 +985,16 @@
                 }
 
                 const opsiTerpilih = dipilih.closest('.opsi-item');
-                if (dipilih.value === jawabanBenar) {
+                const benar = dipilih.value === jawabanBenar;
+                if (benar) {
                     opsiTerpilih.classList.add('benar');
                     notifBenar.classList.add('show');
                 } else {
                     opsiTerpilih.classList.add('salah');
                     notifSalah.classList.add('show');
                 }
+
+                catatJawabanSelesai(card, btnPeriksa, benar);
             });
 
         } else if (tipe === 'truefalse') {
@@ -733,6 +1002,8 @@
             const baris = card.querySelectorAll('.baris-bs');
 
             btnPeriksa.addEventListener('click', function () {
+                if (card.classList.contains('terkunci')) return;
+
                 notifSalah.classList.remove('show');
                 notifBenar.classList.remove('show');
                 baris.forEach(function (b) { b.classList.remove('benar', 'salah'); });
@@ -765,6 +1036,8 @@
                 } else {
                     notifSalah.classList.add('show');
                 }
+
+                catatJawabanSelesai(card, btnPeriksa, semuaBenar);
             });
 
         } else if (tipe === 'multi') {
@@ -774,6 +1047,8 @@
             const opsiItems = card.querySelectorAll('.opsi-item');
 
             btnPeriksa.addEventListener('click', function () {
+                if (card.classList.contains('terkunci')) return;
+
                 notifSalah.classList.remove('show');
                 notifBenar.classList.remove('show');
                 opsiItems.forEach(function (i) { i.classList.remove('benar', 'salah'); });
@@ -803,9 +1078,59 @@
                 } else {
                     notifSalah.classList.add('show');
                 }
+
+                catatJawabanSelesai(card, btnPeriksa, semuaBenar);
             });
         }
     });
+
+    // --- Tombol Ulangi: reset seluruh kuis dan kembali ke Soal 1 ---
+    document.getElementById('btnUlangi').addEventListener('click', function () {
+        skor = 0;
+        jumlahTerjawab = 0;
+        perbaruiTampilanSkor();
+        elHasilAkhir.classList.remove('show');
+        elPesanTutup.classList.remove('show');
+        elKuisContainer.style.display = '';
+        elSkorPanel.style.display = '';
+
+        semuaSoalCard.forEach(function (card) {
+            const btnPeriksa = card.querySelector('.btn-periksa');
+            card.classList.remove('terkunci');
+            card.dataset.sudahDijawab = 'false';
+            btnPeriksa.disabled = false;
+            btnPeriksa.textContent = 'Periksa Jawaban';
+
+            const badge = card.querySelector('.badge-terkunci');
+            if (badge) badge.remove();
+
+            card.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function (inp) {
+                inp.disabled = false;
+                inp.checked = false;
+            });
+            card.querySelectorAll('.opsi-item').forEach(function (i) {
+                i.classList.remove('benar', 'salah', 'selected');
+            });
+            card.querySelectorAll('.baris-bs').forEach(function (b) {
+                b.classList.remove('benar', 'salah');
+            });
+            card.querySelectorAll('.notifikasi').forEach(function (n) {
+                n.classList.remove('show');
+            });
+        });
+
+        document.getElementById('soal1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // --- Tombol Tutup: sembunyikan kuis dan tampilkan pesan penutup ---
+    document.getElementById('btnTutup').addEventListener('click', function () {
+        elKuisContainer.style.display = 'none';
+        elSkorPanel.style.display = 'none';
+        elHasilAkhir.classList.remove('show');
+        elPesanTutup.classList.add('show');
+    });
+
+    perbaruiTampilanSkor();
 </script>
 
 </body>
