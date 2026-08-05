@@ -167,6 +167,29 @@
             text-decoration: underline;
         }
 
+        /* Tombol ikon buku (menuju halaman latihan soal) */
+        .btn-latihan-soal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            margin-top: 0.8rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-latihan-soal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(102, 126, 234, 0.45);
+        }
+        .btn-latihan-soal svg {
+            width: 20px;
+            height: 20px;
+        }
+
         /* Pesan Error/Sukses */
         .message {
             text-align: center;
@@ -1071,6 +1094,12 @@
                     <div class="footer-text">
                         <p style="font-size: 0.8rem; color: #666;">SD Muhammadiyah Mentok</p>
                         <p style="font-size: 0.75rem; color: #888;">Copyright@KenjiStudioDeveloper-2026</p>
+                        <a href="testka.html" class="btn-latihan-soal" title="Latihan Soal Siswa">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H12v18H4.5a2.5 2.5 0 0 1 0-5H12"></path>
+                                <path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H12v18h7.5a2.5 2.5 0 0 0 0-5H12"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
