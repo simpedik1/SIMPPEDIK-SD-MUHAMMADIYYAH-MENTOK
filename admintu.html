@@ -321,6 +321,10 @@
             flex-wrap: wrap;
         }
 
+        /* Desktop/tablet: foto di sebelah kanan kontainer */
+        .biodata-wrap .bio-info  { order: 1; }
+        .biodata-wrap .bio-photo { order: 2; }
+
         .bio-photo {
             width: 110px; height: 110px;
             border-radius: 12px;
@@ -624,6 +628,11 @@
             .icon-box { width: 52px; height: 52px; font-size: 1.3rem; border-radius: 10px; }
             .menu-card span { font-size: 0.65rem; width: 68px; }
             .stats-grid { grid-template-columns: 1fr; }
+
+            /* Biodata: foto pindah ke atas, data di bawah, foto rata tengah */
+            .biodata-wrap { flex-direction: column; align-items: center; }
+            .biodata-wrap .bio-photo { order: -1; width: 96px; height: 96px; }
+            .biodata-wrap .bio-info  { order: 1; width: 100%; min-width: 0; }
         }
 
         /* --- Modal --- */
@@ -760,7 +769,7 @@
             </div>
             <div class="biodata-wrap">
                 <img id="bioPhoto" src="" alt="Foto" class="bio-photo">
-                <div style="flex:1; min-width:220px;">
+                <div class="bio-info" style="flex:1; min-width:220px;">
                     <table class="bio-table">
                         <tr>
                             <td>ID Pegawai</td>
@@ -836,17 +845,17 @@
                 </div>
             </div>
 
-            <!-- Chart Sumbangan -->
+            <!-- Chart Kas Sekolah -->
             <div class="chart-card">
                 <div class="chart-header">
                     <div class="chart-title">
                         <i class="fas fa-chart-line" style="color:#10b981;"></i>
-                        Sumbangan Komite
+                        Kas Sekolah
                     </div>
                     <span class="chart-badge badge-green">6 Bulan Terakhir</span>
                 </div>
                 <div class="chart-canvas-wrap">
-                    <canvas id="chartSumbangan" style="width:100%!important;"></canvas>
+                    <canvas id="chartKasSekolah" style="width:100%!important;"></canvas>
                 </div>
             </div>
 
@@ -1289,24 +1298,93 @@
         }
 
         // =============================================
-        // Chart Sumbangan
+        // Chart Kas Sekolah
+        // (gabungan pemasukan & pengeluaran seluruh sumber
+        // dana: IPP, Iuran TIK, Infaq Jum'at, Kantin)
         // =============================================
-        async function loadChartSumbangan() {
+        const KAS_SOURCES = [
+            {
+                masukTable: 'sumbangankomite',
+                masukPrevTable: 'ipptahunsebelumnya',
+                keluarTable: 'pengeluaransumbangan',
+                masukTanggal: d => d.tanggal_bayar,
+                masukNominal: d => parseFloat(d.nominal) || 0,
+                masukPrevTanggal: d => d.tanggal_bayar,
+                masukPrevNominal: d => (parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0),
+                keluarTanggal: d => d.tanggal_pengeluaran,
+                keluarNominal: d => parseFloat(d.total_pengeluaran) || 0
+            },
+            {
+                masukTable: 'pemasukantik',
+                masukPrevTable: 'tiktahunsebelumnya',
+                keluarTable: 'pengeluarantik',
+                masukTanggal: d => d.tanggal_bayar,
+                masukNominal: d => parseFloat(d.nominal) || 0,
+                masukPrevTanggal: d => d.tanggal_bayar,
+                masukPrevNominal: d => (parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0),
+                keluarTanggal: d => d.tanggal_pengeluaran,
+                keluarNominal: d => parseFloat(d.total_pengeluaran) || 0
+            },
+            {
+                masukTable: 'pemasukaninfaq',
+                keluarTable: 'pengeluaraninfaq',
+                masukTanggal: d => d.tanggal,
+                masukNominal: d => parseFloat(d.jumlah_infaq) || 0,
+                keluarTanggal: d => d.tanggal,
+                keluarNominal: d => parseFloat(d.total_biaya) || 0
+            },
+            {
+                masukTable: 'pemasukankantin',
+                keluarTable: 'pengeluarankantin',
+                masukTanggal: d => d.tanggal,
+                masukNominal: d => parseFloat(d.jumlah_setoran) || 0,
+                keluarTanggal: d => d.tanggal,
+                keluarNominal: d => parseFloat(d.total_biaya) || 0
+            }
+        ];
+
+        async function loadChartKasSekolah() {
             const periods = getLast6Months();
             const labels  = periods.map(p => `${p.label} ${p.year}`);
-            // Tabel sumbangankomite belum dibuat — tampilkan chart kosong dulu
-            const lunas  = new Array(6).fill(0);
-            const belum  = new Array(6).fill(0);
+            const pemasukan  = new Array(6).fill(0);
+            const pengeluaran = new Array(6).fill(0);
 
-            const ctx = document.getElementById('chartSumbangan').getContext('2d');
+            const addToBucket = (bucket, tanggal, nominal) => {
+                if (!tanggal) return;
+                const d = new Date(tanggal);
+                periods.forEach((p, i) => {
+                    if (d.getFullYear() === p.year && d.getMonth() + 1 === p.month) bucket[i] += nominal;
+                });
+            };
+
+            await Promise.all(KAS_SOURCES.map(async src => {
+                try {
+                    const { data } = await absensiClient.from(src.masukTable).select('*');
+                    (data || []).forEach(row => addToBucket(pemasukan, src.masukTanggal(row), src.masukNominal(row)));
+                } catch(e) { /* tabel belum ada, lewati */ }
+
+                if (src.masukPrevTable) {
+                    try {
+                        const { data } = await absensiClient.from(src.masukPrevTable).select('*');
+                        (data || []).forEach(row => addToBucket(pemasukan, src.masukPrevTanggal(row), src.masukPrevNominal(row)));
+                    } catch(e) { /* tabel belum ada, lewati */ }
+                }
+
+                try {
+                    const { data } = await absensiClient.from(src.keluarTable).select('*');
+                    (data || []).forEach(row => addToBucket(pengeluaran, src.keluarTanggal(row), src.keluarNominal(row)));
+                } catch(e) { /* tabel belum ada, lewati */ }
+            }));
+
+            const ctx = document.getElementById('chartKasSekolah').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels,
                     datasets: [
                         {
-                            label: 'Lunas',
-                            data: lunas,
+                            label: 'Pemasukan',
+                            data: pemasukan,
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16,185,129,0.12)',
                             borderWidth: 2.5,
@@ -1316,13 +1394,13 @@
                             fill: true,
                         },
                         {
-                            label: 'Belum Lunas',
-                            data: belum,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245,158,11,0.1)',
+                            label: 'Pengeluaran',
+                            data: pengeluaran,
+                            borderColor: '#dc2626',
+                            backgroundColor: 'rgba(220,38,38,0.1)',
                             borderWidth: 2.5,
                             tension: 0.4,
-                            pointBackgroundColor: '#f59e0b',
+                            pointBackgroundColor: '#dc2626',
                             pointRadius: 4,
                             fill: true,
                         }
@@ -1336,12 +1414,18 @@
                             display: true,
                             position: 'top',
                             labels: { font: { size: 10 }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: { label: ctx => ` ${ctx.dataset.label}: Rp ${ctx.parsed.y.toLocaleString('id-ID')}` }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { precision: 0, font: { size: 10 } },
+                            ticks: {
+                                precision: 0, font: { size: 10 },
+                                callback: v => 'Rp ' + v.toLocaleString('id-ID')
+                            },
                             grid: { color: '#f0fdf4' }
                         },
                         x: { ticks: { font: { size: 10 } }, grid: { display: false } }
@@ -1520,7 +1604,7 @@
             loadBiodata();
             loadStats();
             loadChartArsip();
-            loadChartSumbangan();
+            loadChartKasSekolah();
 
             // Photo upload untuk Edit Profil
             document.getElementById('epPhotoInput').addEventListener('change', async function() {
