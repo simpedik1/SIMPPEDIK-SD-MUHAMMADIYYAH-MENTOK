@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan Soal Siswa</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f6f9;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .page-header h1 {
+        font-size: 1.5rem;
+        color: #222;
+        margin-bottom: 0.3rem;
+    }
+    .page-header p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .soal-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .soal-nomor {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.9rem 1.5rem;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .soal-body {
+        padding: 1.5rem;
+    }
+
+    .soal-teks {
+        color: #333;
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .soal-pertanyaan {
+        color: #222;
+        font-weight: 600;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 1.2rem;
+    }
+
+    .opsi-list, .opsi-list-multi {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .opsi-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0.85rem 1rem;
+        border: 1.5px solid #e2e2e2;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+    }
+
+    .opsi-item:hover {
+        border-color: #667eea;
+        background: #f8f8fd;
+    }
+
+    .opsi-item.selected {
+        border-color: #667eea;
+        background: #eef0fd;
+    }
+
+    .opsi-item.benar {
+        border-color: #2e7d32;
+        background: #e8f5e9;
+    }
+
+    .opsi-item.salah {
+        border-color: #c62828;
+        background: #ffebee;
+    }
+
+    .opsi-item input[type="radio"],
+    .opsi-item input[type="checkbox"] {
+        margin-top: 3px;
+        accent-color: #667eea;
+        flex-shrink: 0;
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+    }
+
+    .opsi-label {
+        font-weight: 700;
+        color: #667eea;
+        margin-right: 4px;
+    }
+
+    .opsi-teks {
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Soal tipe Benar/Salah (tabel) */
+    .tabel-bs {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        font-size: 0.92rem;
+    }
+    .tabel-bs th, .tabel-bs td {
+        padding: 0.7rem 0.6rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+    }
+    .tabel-bs thead th {
+        border-bottom: 2px solid #333;
+        color: #333;
+        font-weight: 700;
+    }
+    .tabel-bs .col-no { width: 34px; font-weight: 700; color: #333; }
+    .tabel-bs .col-opsi { width: 70px; text-align: center; vertical-align: middle; }
+    .tabel-bs .col-opsi input[type="radio"] {
+        accent-color: #667eea;
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+    }
+    .baris-bs.benar { background: #e8f5e9; }
+    .baris-bs.salah { background: #ffebee; }
+
+    .catatan-soal {
+        display: block;
+        font-weight: 400;
+        color: #666;
+        font-size: 0.85rem;
+        margin-top: 0.4rem;
+    }
+
+    .btn-periksa {
+        width: 100%;
+        padding: 0.9rem;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    .btn-periksa:hover { opacity: 0.9; }
+    .btn-periksa:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Notifikasi */
+    .notifikasi {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+    .notifikasi.show { display: flex; }
+    .notifikasi.salah { background: #ffebee; color: #c62828; }
+    .notifikasi.benar { background: #e8f5e9; color: #2e7d32; }
+
+    .notifikasi i {
+        font-size: 1.2rem;
+    }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>Latihan Soal</h1>
+    <p>Jawab setiap soal sesuai instruksinya, lalu tekan "Periksa Jawaban".</p>
+</div>
+
+<div class="soal-card" id="soal1" data-tipe="single">
+    <div class="soal-nomor">Soal 1</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Sistem pemerintahan Indonesia terbagi antara pemerintah pusat dan pemerintah daerah yang hubungannya diatur sesuai peraturan perundang-undangan. Hubungan ini kerap menimbulkan berbagai tantangan, terutama dalam pelaksanaan otonomi daerah, pembagian anggaran, serta sinkronisasi kebijakan pusat dan daerah.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasar ilustrasi tersebut, tantangan dari hubungan antara pemerintah pusat dan daerah, yakni….
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="B">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal1" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>ketidakmampuan pemerintah pusat dalam memenuhi semua kebutuhan anggaran pemerintah daerah</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal1" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>berbagai kebijakan pemerintah daerah kadangkala tidak sejalan dengan penerapan program nasional</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal1" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>terbatasnya kewenangan pemerintah pusat dalam mengatur pembagian alokasi anggaran di daerah</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal1" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>masih belum adanya sinkronisasi ruang lingkup otonomi antara pemerintah pusat dan daerah</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal1" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>keterbatasan kewenangan dari pemerintah pusat dalam mengawasi pelaksanaan otonomi di daerah</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal2" data-tipe="truefalse">
+    <div class="soal-nomor">Soal 2</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Sila pertama Pancasila berbunyi &ldquo;Ketuhanan Yang Maha Esa&rdquo;.
+        </p>
+        <p class="soal-pertanyaan">
+            Tentukan Benar (B) atau Salah (S) makna dari sila pertama Pancasila pada pernyataan berikut ini!
+        </p>
+
+        <table class="tabel-bs">
+            <thead>
+                <tr>
+                    <th class="col-no">#</th>
+                    <th>Pernyataan</th>
+                    <th class="col-opsi">Benar</th>
+                    <th class="col-opsi">Salah</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="baris-bs" data-jawaban-benar="Salah">
+                    <td class="col-no">A.</td>
+                    <td>Semua penganut agama dan kepercayaan mengembangkan ajaran agama secara bersama.</td>
+                    <td class="col-opsi"><input type="radio" name="soal2-A" value="Benar"></td>
+                    <td class="col-opsi"><input type="radio" name="soal2-A" value="Salah"></td>
+                </tr>
+                <tr class="baris-bs" data-jawaban-benar="Salah">
+                    <td class="col-no">B.</td>
+                    <td>Sila tersebut menjadi dasar penerapan toleransi dengan penganut kepercayaan yang sama.</td>
+                    <td class="col-opsi"><input type="radio" name="soal2-B" value="Benar"></td>
+                    <td class="col-opsi"><input type="radio" name="soal2-B" value="Salah"></td>
+                </tr>
+                <tr class="baris-bs" data-jawaban-benar="Benar">
+                    <td class="col-no">C.</td>
+                    <td>Prinsip sila pertama Pancasila menjamin kebebasan beribadah semua agama dan kepercayaan.</td>
+                    <td class="col-opsi"><input type="radio" name="soal2-C" value="Benar"></td>
+                    <td class="col-opsi"><input type="radio" name="soal2-C" value="Salah"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Masih ada jawaban yang salah. Silakan periksa kembali.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Semua jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal3" data-tipe="multi">
+    <div class="soal-nomor">Soal 3</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Masyarakat di seluruh wilayah tanah air Indonesia seharusnya memiliki kesadaran yang sama menjaga keutuhan NKRI, salah satunya dalam bidang pertahanan dan keamanan. Melemahnya peran masyarakat untuk menjaga pertahanan berdampak pada munculnya ancaman yang bisa datang dari dalam maupun luar.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasarkan ilustrasi di atas, tentukan alasan pentingnya masyarakat ikut serta dalam menjaga keutuhan NKRI!
+            <span class="catatan-soal">Klik pada setiap pilihan jawaban benar! Jawaban benar lebih dari satu.</span>
+        </p>
+
+        <div class="opsi-list-multi" data-jawaban-benar="B,C,E">
+            <label class="opsi-item" data-opsi="A">
+                <input type="checkbox" name="soal3" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>memperkuat peran masyarakat untuk terlibat dalam mengatur urusan kenegaraan</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="checkbox" name="soal3" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>membentuk lingkungan yang aman dan tertib untuk menjaga eksistensi NKRI</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="checkbox" name="soal3" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>menjaga wilayah kedaulatan teritorial NKRI sesuai dengan amanah konstitusi</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="checkbox" name="soal3" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>meringankan tugas aparat keamanan dalam menjaga ketertiban di wilayahnya</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="checkbox" name="soal3" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>mengimplementasikan peran masyarakat dalam sistem pertahanan negara</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu belum tepat. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal4" data-tipe="single">
+    <div class="soal-nomor">Soal 4</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Pada masa Orde Baru, pelaksanaan demokrasi Pancasila mengalami berbagai tantangan seperti pembatasan kebebasan berpendapat, dominasi partai politik tertentu, serta lemahnya fungsi pengawasan terhadap pemerintah.
+        </p>
+        <p class="soal-pertanyaan">
+            Upaya paling tepat untuk mencegah terulangnya kondisi tersebut adalah ….
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="C">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal4" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>menyederhanakan sistem partai politik agar stabilitas politik terjaga</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal4" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>memberikan kewenangan kepada pemerintah untuk urusan ketertiban</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal4" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>mendorong keterlibatan masyarakat dalam pengambilan kebijakan publik</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal4" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>menjaga ketertiban sosial dengan membatasi perbedaan cara pandang</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal4" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>menjamin penyaluran aspirasi rakyat secara terpusat melalui satu partai</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal5" data-tipe="single">
+    <div class="soal-nomor">Soal 5</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Berdasarkan data dari Badan Nasional Penanggulangan Terorisme (BNPT) dan Kementerian Komunikasi dan Digital (Komdigi) terdapat sebanyak 180.954 konten bermuatan intoleransi, radikalisme, ekstremisme, dan terorisme di ruang siber. Oleh karena berbahaya bisa menimbulkan ancaman terhadap negara terutama bagi bhinneka tunggal ika, maka konten-konten tersebut telah diblokir.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasarkan ilustrasi tersebut, potensi akibat yang ditimbulkan dari ancaman tersebut, yaitu…
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="C">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal5" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>turunnya kepercayaan masyarakat pada pemerintah karena tidak mampu mengatasi permasalahan akibat intoleransi dalam keberagaman</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal5" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>bertambahnya aktivitas generasi muda dalam melakukan penelusuran berbagai berita terkait permasalahan intoleransi yang terjadi di masyarakat</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal5" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>meningkatnya penyebaran paham ekstrem yang berakibat munculnya perpecahan dan konflik antaranggota masyarakat yang beragam</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal5" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>menurunnya semangat warga negara dalam menjaga kebhinekaan karena terjadinya perilaku diskriminatif yang disebabkan intoleransi</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal5" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>semakin banyaknya informasi yang mengandung konten negatif pada berbagai media internet yang mudah di konsumsi masyarakat</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal6" data-tipe="multi">
+    <div class="soal-nomor">Soal 6</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Di suatu sekolah yang memiliki latar belakang yang beragam, Dimas aktif mengajak teman-temannya untuk saling menghargai perbedaan budaya dan tidak membeda-bedakan dalam bergaul. Ia juga mengingatkan agar tidak membuat konten media sosial yang dapat memecah belah.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasarkan ilustrasi, tentukan hubungan antara perilaku tersebut dengan menjaga keutuhan NKRI!
+            <span class="catatan-soal">Klik pada setiap pilihan jawaban benar! Jawaban benar lebih dari satu.</span>
+        </p>
+
+        <div class="opsi-list-multi" data-jawaban-benar="A,C,D">
+            <label class="opsi-item" data-opsi="A">
+                <input type="checkbox" name="soal6" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>menghargai budaya lain sebagai bentuk pengakuan terhadap perbedaan</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="checkbox" name="soal6" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>mengakui adanya perbedaan merupakan bentuk kewajiban warga negara</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="checkbox" name="soal6" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>selektif terhadap informasi di media sosial dapat menghindari berita hoaks</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="checkbox" name="soal6" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>berinteraksi tanpa membedakan asal usul dapat memperkuat kerukunan</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="checkbox" name="soal6" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>mempelajari budaya lain sebagai wujud kepatuhan rakyat terhadap pemerintah</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu belum tepat. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal7" data-tipe="single">
+    <div class="soal-nomor">Soal 7</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Pada suatu peringatan hari besar keagamaan semua masyarakat menghormati pelaksanaan ibadah dan memberikan kesempatan untuk merayakannya dengan khidmat.
+        </p>
+        <p class="soal-pertanyaan">
+            Perilaku tersebut merupakan perwujudan Sila Pertama Pancasila yang penting dilakukan karena….
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="D">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal7" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>membuat masyarakat agar tidak melupakan untuk selalu memperingati hari besar keagamaan</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal7" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>setiap peringatan hari besar keagamaan harus dilaksanakan dalam suasana damai dan menyenangkan</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal7" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>menjaga suasana agar tidak terjadi konflik dalam masyarakat pada saat memperingati hari raya</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal7" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>kebebasan beribadah sesuai agama dan kepercayaan merupakan perwujudan perlindungan HAM</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal7" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>pemerintah menjaga pelaksanaan peringatan hari besar keagamaan yang mayoritas di masyarakat</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal8" data-tipe="single">
+    <div class="soal-nomor">Soal 8</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Pada sebuah wilayah perbatasan, pembangunan infrastruktur belum merata dibandingkan daerah lainnya. Kondisi ini menimbulkan rasa ketidakadilan dan keluhan dari masyarakat setempat. Beberapa kelompok mulai menyuarakan sikap antipemerintah dan mempertanyakan komitmen negara terhadap kesejahteraan seluruh rakyat. Jika dibiarkan, situasi ini dapat berkembang menjadi ancaman serius bagi persatuan nasional.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasar ilustrasi tersebut, solusi untuk mencegah dampak negatif dari kondisi tersebut terhadap persatuan bangsa, adalah….
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="A">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal8" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>mengutamakan dialog terbuka agar warga perbatasan merasa didengar dan dihargai</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal8" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>mendorong warga perbatasan untuk menunggu bantuan keuangan dari pemerintah</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal8" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>mengirim aparat keamanan mensosialisasikan program pemerintah di perbatasan</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal8" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>menunjuk tokoh adat untuk menjaga kondisi masyarakat agar tetap kondusif</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal8" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>memberikan bantuan langsung tunai secara rutin kepada warga perbatasan</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal9" data-tipe="multi">
+    <div class="soal-nomor">Soal 9</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Di suatu sekolah yang memiliki latar belakang yang beragam, Dimas aktif mengajak teman-temannya untuk saling menghargai perbedaan budaya dan tidak membeda-bedakan dalam bergaul. Ia juga mengingatkan agar tidak membuat konten media sosial yang dapat memecah belah.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasarkan ilustrasi, tentukan hubungan antara perilaku tersebut dengan menjaga keutuhan NKRI!
+            <span class="catatan-soal">Klik pada setiap pilihan jawaban benar! Jawaban benar lebih dari satu.</span>
+        </p>
+
+        <div class="opsi-list-multi" data-jawaban-benar="A,B,C">
+            <label class="opsi-item" data-opsi="A">
+                <input type="checkbox" name="soal9" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>menghargai budaya lain sebagai bentuk pengakuan terhadap perbedaan</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="checkbox" name="soal9" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>mengakui adanya perbedaan merupakan bentuk kewajiban warga negara</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="checkbox" name="soal9" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>selektif terhadap informasi di media sosial dapat menghindari berita hoaks</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="checkbox" name="soal9" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>berinteraksi tanpa membedakan asal usul dapat memperkuat kerukunan</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="checkbox" name="soal9" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>mempelajari budaya lain sebagai wujud kepatuhan rakyat terhadap pemerintah</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu belum tepat. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<div class="soal-card" id="soal10" data-tipe="single">
+    <div class="soal-nomor">Soal 10</div>
+    <div class="soal-body">
+        <p class="soal-teks">
+            Pada masa berlakunya UUDS 1950, pemerintah sering berganti dan tidak stabil karena koalisi partai politik pecah yang menyebabkan pengambilan kebijakan negara menjadi tidak efektif.
+        </p>
+        <p class="soal-pertanyaan">
+            Berdasarkan peristiwa tersebut, pelaksanaan demokrasi tidak berjalan lancar karena ….
+        </p>
+
+        <div class="opsi-list" data-jawaban-benar="A">
+            <label class="opsi-item" data-opsi="A">
+                <input type="radio" name="soal10" value="A">
+                <span class="opsi-teks"><span class="opsi-label">A.</span>sistem multipartai ekstrim dalam pelaksanaan demokrasi</span>
+            </label>
+            <label class="opsi-item" data-opsi="B">
+                <input type="radio" name="soal10" value="B">
+                <span class="opsi-teks"><span class="opsi-label">B.</span>seluruh kekuasaan terpusat pada Presiden Indonesia</span>
+            </label>
+            <label class="opsi-item" data-opsi="C">
+                <input type="radio" name="soal10" value="C">
+                <span class="opsi-teks"><span class="opsi-label">C.</span>negara mengakomodir seluruh kepentingan masyarakat</span>
+            </label>
+            <label class="opsi-item" data-opsi="D">
+                <input type="radio" name="soal10" value="D">
+                <span class="opsi-teks"><span class="opsi-label">D.</span>rakyat dapat memilih secara langsung kepala negara</span>
+            </label>
+            <label class="opsi-item" data-opsi="E">
+                <input type="radio" name="soal10" value="E">
+                <span class="opsi-teks"><span class="opsi-label">E.</span>keterlibatan rakyat dalam pemerintahan masih terbatas</span>
+            </label>
+        </div>
+
+        <button class="btn-periksa" type="button">Periksa Jawaban</button>
+
+        <div class="notifikasi salah">
+            <span>&#10060;</span>
+            <span>Jawaban kamu salah. Silakan coba lagi.</span>
+        </div>
+        <div class="notifikasi benar">
+            <span>&#9989;</span>
+            <span>Jawaban kamu benar. Kerja bagus!</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Highlight visual saat opsi dipilih (berlaku untuk soal tipe single & multi) ---
+    document.querySelectorAll('.opsi-item input[type="radio"], .opsi-item input[type="checkbox"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            const card = input.closest('.soal-card');
+            const item = input.closest('.opsi-item');
+            if (input.type === 'radio') {
+                card.querySelectorAll('input[name="' + input.name + '"]').forEach(function (r) {
+                    r.closest('.opsi-item').classList.remove('selected');
+                });
+            }
+            item.classList.toggle('selected', input.checked);
+        });
+    });
+
+    // --- Logika Periksa Jawaban, sesuai tipe soal masing-masing kartu ---
+    document.querySelectorAll('.soal-card').forEach(function (card) {
+        const tipe = card.getAttribute('data-tipe') || 'single';
+        const btnPeriksa = card.querySelector('.btn-periksa');
+        const notifSalah = card.querySelector('.notifikasi.salah');
+        const notifBenar = card.querySelector('.notifikasi.benar');
+
+        if (tipe === 'single') {
+            // --- Soal Pilihan Ganda (1 jawaban benar) ---
+            const opsiList = card.querySelector('.opsi-list');
+            const jawabanBenar = opsiList.getAttribute('data-jawaban-benar');
+            const opsiItems = card.querySelectorAll('.opsi-item');
+
+            btnPeriksa.addEventListener('click', function () {
+                const dipilih = card.querySelector('input[type="radio"]:checked');
+
+                notifSalah.classList.remove('show');
+                notifBenar.classList.remove('show');
+                opsiItems.forEach(function (i) { i.classList.remove('benar', 'salah'); });
+
+                if (!dipilih) {
+                    alert('Silakan pilih salah satu jawaban terlebih dahulu.');
+                    return;
+                }
+
+                const opsiTerpilih = dipilih.closest('.opsi-item');
+                if (dipilih.value === jawabanBenar) {
+                    opsiTerpilih.classList.add('benar');
+                    notifBenar.classList.add('show');
+                } else {
+                    opsiTerpilih.classList.add('salah');
+                    notifSalah.classList.add('show');
+                }
+            });
+
+        } else if (tipe === 'truefalse') {
+            // --- Soal Tabel Benar/Salah (per pernyataan) ---
+            const baris = card.querySelectorAll('.baris-bs');
+
+            btnPeriksa.addEventListener('click', function () {
+                notifSalah.classList.remove('show');
+                notifBenar.classList.remove('show');
+                baris.forEach(function (b) { b.classList.remove('benar', 'salah'); });
+
+                let semuaTerjawab = true;
+                let semuaBenar = true;
+
+                baris.forEach(function (b) {
+                    const jawabanBenar = b.getAttribute('data-jawaban-benar');
+                    const dipilih = b.querySelector('input[type="radio"]:checked');
+                    if (!dipilih) {
+                        semuaTerjawab = false;
+                        return;
+                    }
+                    if (dipilih.value === jawabanBenar) {
+                        b.classList.add('benar');
+                    } else {
+                        b.classList.add('salah');
+                        semuaBenar = false;
+                    }
+                });
+
+                if (!semuaTerjawab) {
+                    alert('Silakan jawab semua pernyataan terlebih dahulu.');
+                    return;
+                }
+
+                if (semuaBenar) {
+                    notifBenar.classList.add('show');
+                } else {
+                    notifSalah.classList.add('show');
+                }
+            });
+
+        } else if (tipe === 'multi') {
+            // --- Soal Pilihan Ganda (jawaban benar lebih dari satu) ---
+            const opsiListMulti = card.querySelector('.opsi-list-multi');
+            const jawabanBenar = opsiListMulti.getAttribute('data-jawaban-benar').split(',');
+            const opsiItems = card.querySelectorAll('.opsi-item');
+
+            btnPeriksa.addEventListener('click', function () {
+                notifSalah.classList.remove('show');
+                notifBenar.classList.remove('show');
+                opsiItems.forEach(function (i) { i.classList.remove('benar', 'salah'); });
+
+                const dipilih = Array.from(card.querySelectorAll('input[type="checkbox"]:checked')).map(function (i) { return i.value; });
+
+                if (dipilih.length === 0) {
+                    alert('Silakan pilih minimal satu jawaban terlebih dahulu.');
+                    return;
+                }
+
+                const semuaBenar = dipilih.length === jawabanBenar.length &&
+                    dipilih.every(function (v) { return jawabanBenar.includes(v); });
+
+                opsiItems.forEach(function (item) {
+                    const opsi = item.getAttribute('data-opsi');
+                    const dicentang = item.querySelector('input').checked;
+                    if (dicentang && jawabanBenar.includes(opsi)) {
+                        item.classList.add('benar');
+                    } else if (dicentang && !jawabanBenar.includes(opsi)) {
+                        item.classList.add('salah');
+                    }
+                });
+
+                if (semuaBenar) {
+                    notifBenar.classList.add('show');
+                } else {
+                    notifSalah.classList.add('show');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
