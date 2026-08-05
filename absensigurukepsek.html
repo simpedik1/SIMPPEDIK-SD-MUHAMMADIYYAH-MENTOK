@@ -849,7 +849,7 @@
             document.getElementById('iconPembinaan').className = `fas ${cfg.icon}`;
             document.getElementById('iconPembinaan').style.color = '#e74c3c';
             document.getElementById('deskripsiPembinaan').textContent =
-                `5 ${cfg.label} dengan jumlah keterlambatan terbanyak (berdasarkan seluruh riwayat absensi)`;
+                `5 ${cfg.label} dengan durasi keterlambatan terlama (berdasarkan seluruh riwayat absensi)`;
         }
 
         /*
@@ -947,7 +947,7 @@
             document.getElementById('recapPersenTerlambat').textContent = persenTerlambat + '%';
         }
 
-        // --- Muat Guru/TU Perlu Pembinaan (Top 5 Terlambat Terbanyak), sesuai kategori aktif ---
+        // --- Muat Guru/TU Perlu Pembinaan (Top 5 Durasi Keterlambatan Terlama), sesuai kategori aktif ---
         async function loadGuruPerluPembinaan() {
             const container = document.getElementById('pembinaanList');
             const cfg = KATEGORI_CONFIG[kategoriAktif];
@@ -959,7 +959,7 @@
             try {
                 const { data, error } = await supabaseClient
                     .from(cfg.table)
-                    .select(cfg.namaField)
+                    .select(`${cfg.namaField}, keterangan`)
                     .eq('status', 'Terlambat');
 
                 if (error) throw error;
@@ -970,27 +970,31 @@
                     return;
                 }
 
-                // Hitung jumlah keterlambatan per orang
-                const counts = {};
+                // Ambil menit keterlambatan terlama (dari kolom keterangan, mis. "Terlambat 98 Menit") per orang
+                const menitTerlama = {};
                 data.forEach(row => {
                     const nama = row[cfg.namaField] || 'Tanpa Nama';
-                    counts[nama] = (counts[nama] || 0) + 1;
+                    const match = (row.keterangan || '').match(/(\d+)/);
+                    const menit = match ? parseInt(match[1], 10) : 0;
+                    if (!(nama in menitTerlama) || menit > menitTerlama[nama]) {
+                        menitTerlama[nama] = menit;
+                    }
                 });
 
-                const ranking = Object.entries(counts)
+                const ranking = Object.entries(menitTerlama)
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 5);
 
                 guruPerluPembinaanData = ranking; // Simpan untuk keperluan export PDF
 
                 container.innerHTML = '';
-                ranking.forEach(([nama, jumlah], index) => {
+                ranking.forEach(([nama, menit], index) => {
                     const item = document.createElement('div');
                     item.className = 'pembinaan-item';
                     item.innerHTML = `
                         <div class="pembinaan-rank">${index + 1}</div>
                         <div class="pembinaan-nama"><i class="fas ${cfg.icon}" style="color: #c0392b; margin-right: 6px;"></i>${nama}</div>
-                        <div class="pembinaan-count"><i class="fas fa-clock"></i> ${jumlah}x Terlambat</div>
+                        <div class="pembinaan-count"><i class="fas fa-clock"></i> Terlambat ${menit} Menit</div>
                     `;
                     container.appendChild(item);
                 });
@@ -1295,18 +1299,18 @@
                 // --- Guru/TU Perlu Pembinaan ---
                 doc.setFontSize(11);
                 doc.setTextColor(40, 40, 40);
-                doc.text(`${cfgPdf.label} Perlu Pembinaan (5 Keterlambatan Terbanyak)`, 14, yPos);
+                doc.text(`${cfgPdf.label} Perlu Pembinaan (5 Durasi Keterlambatan Terlama)`, 14, yPos);
                 yPos += 4;
 
                 if (guruPerluPembinaanData && guruPerluPembinaanData.length > 0) {
-                    const pembinaanTableData = guruPerluPembinaanData.map(([nama, jumlah], idx) => [
+                    const pembinaanTableData = guruPerluPembinaanData.map(([nama, menit], idx) => [
                         idx + 1,
                         nama,
-                        `${jumlah}x Terlambat`
+                        `Terlambat ${menit} Menit`
                     ]);
 
                     doc.autoTable({
-                        head: [['Rank', `Nama ${cfgPdf.label}`, 'Jumlah Keterlambatan']],
+                        head: [['Rank', `Nama ${cfgPdf.label}`, 'Durasi Keterlambatan']],
                         body: pembinaanTableData,
                         startY: yPos,
                         theme: 'grid',
