@@ -1059,7 +1059,8 @@
                 <div class="saldo-breakdown">
                     <span><span class="saldo-dot saldo-dot-green"></span> IPP (Tahun Berjalan): <strong id="bdIppBerjalan">Rp 0</strong></span>
                     <span><span class="saldo-dot saldo-dot-purple"></span> IPP (Tahun Sebelumnya): <strong id="bdIppSebelumnya">Rp 0</strong></span>
-                    <span><span class="saldo-dot saldo-dot-green"></span> Iuran TIK: <strong id="bdTikMasuk">Rp 0</strong></span>
+                    <span><span class="saldo-dot saldo-dot-green"></span> Iuran TIK (Tahun Berjalan): <strong id="bdTikMasuk">Rp 0</strong></span>
+                    <span><span class="saldo-dot saldo-dot-purple"></span> Iuran TIK (Tahun Sebelumnya): <strong id="bdTikSebelumnya">Rp 0</strong></span>
                     <span><span class="saldo-dot saldo-dot-green"></span> Infaq Jum'at: <strong id="bdInfaqMasuk">Rp 0</strong></span>
                     <span><span class="saldo-dot saldo-dot-green"></span> Kantin: <strong id="bdKantinMasuk">Rp 0</strong></span>
                 </div>
@@ -1376,7 +1377,7 @@
                 enabled: true,
                 saldoTable: null, // belum dibuat tabelnya — sengaja tidak ditarik
                 masukTable: 'pemasukantik',
-                masukPrevTable: 'pemasukantiktahunsebelumnya',
+                masukPrevTable: 'tiktahunsebelumnya',
                 keluarTable: 'pengeluarantik',
                 mapMasuk: d => ({
                     tanggal: d.tanggal_bayar,
@@ -2579,6 +2580,7 @@
             document.getElementById('bdIppBerjalan').textContent = 'Rp ' + t.ipp.masukBerjalan.toLocaleString('id-ID');
             document.getElementById('bdIppSebelumnya').textContent = 'Rp ' + t.ipp.masukSebelumnya.toLocaleString('id-ID');
             document.getElementById('bdTikMasuk').textContent = 'Rp ' + t.tik.masukBerjalan.toLocaleString('id-ID');
+            document.getElementById('bdTikSebelumnya').textContent = 'Rp ' + t.tik.masukSebelumnya.toLocaleString('id-ID');
             document.getElementById('bdInfaqMasuk').textContent = 'Rp ' + t.infaq.masukBerjalan.toLocaleString('id-ID');
             document.getElementById('bdKantinMasuk').textContent = 'Rp ' + t.kantin.masukBerjalan.toLocaleString('id-ID');
 
