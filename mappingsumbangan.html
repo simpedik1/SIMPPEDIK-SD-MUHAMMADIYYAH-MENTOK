@@ -862,7 +862,7 @@
         <!-- Page Header -->
         <div class="page-header">
             <div class="page-title">
-                <h2><i class="fas fa-users" style="color:#2563eb;"></i> Mapping Sumbangan Siswa</h2>
+                <h2><i class="fas fa-users" style="color:#2563eb;"></i> Mapping Iuran Pengembangan Pendidikan (IPP)</h2>
                 <p>Input massal tagihan sumbangan komite per kelas dan per tahun pelajaran</p>
             </div>
         </div>
@@ -1192,11 +1192,35 @@
     }
 
     // ============================================================
+    // TAHUN PELAJARAN AKTIF (berdasarkan tanggal hari ini)
+    // Tahun ajaran baru dimulai bulan Juli. Contoh: Agustus 2026
+    // -> tahun ajaran aktif = 2026/2027.
+    // ============================================================
+    function getTahunAjaranAktif() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = now.getMonth() + 1; // 1-12
+        return m >= 7 ? `${y}/${y + 1}` : `${y - 1}/${y}`;
+    }
+
+    function buildTahunOptions(selected) {
+        const startY = parseInt(selected.split('/')[0], 10);
+        let opts = '';
+        for (let offset = -1; offset <= 3; offset++) {
+            const y = startY + offset;
+            const val = `${y}/${y + 1}`;
+            opts += `<option value="${val}" ${val === selected ? 'selected' : ''}>${val}</option>`;
+        }
+        return opts;
+    }
+
+    // ============================================================
     // RENDER IMPORT TAB HTML
     // ============================================================
     function renderImportTab(kelas) {
         const tabId = kelas.replace(/\s+/g, '-');
         const siswaList = allSiswaData[kelas] || [];
+        const tahunAktif = getTahunAjaranAktif();
 
         return `
             <div class="tab-toolbar">
@@ -1214,11 +1238,7 @@
                     <div class="tahun-input-bar">
                         <label><i class="fas fa-calendar"></i> Tahun Pelajaran</label>
                         <select id="tahun-${tabId}" onchange="filterImportRows('${escAttr(kelas)}')">
-                            <option value="2025/2026">2025/2026</option>
-                            <option value="2026/2027">2026/2027</option>
-                            <option value="2027/2028">2027/2028</option>
-                            <option value="2028/2029">2028/2029</option>
-                            <option value="2029/2030">2029/2030</option>
+                            ${buildTahunOptions(tahunAktif)}
                         </select>
                     </div>
                 </div>
@@ -1639,7 +1659,7 @@
         document.getElementById('fNama').value = '';
         document.getElementById('fNisn').value = '';
         document.getElementById('fKelas').value = '';
-        document.getElementById('fTahun').value = '';
+        document.getElementById('fTahun').value = getTahunAjaranAktif();
         document.getElementById('fNominal').value = '';
         document.getElementById('modalForm').classList.add('active');
     }
