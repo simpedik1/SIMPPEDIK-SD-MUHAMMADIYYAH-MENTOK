@@ -173,6 +173,7 @@
         .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
         .dot-green  { background: #f97316; }
         .dot-purple { background: #8b5cf6; }
+        .dot-blue   { background: #2563eb; }
 
         /* Dashboard Card */
         .dashboard-card {
@@ -1547,6 +1548,7 @@
                     <div class="stat-breakdown">
                         <span><span class="dot dot-green"></span> Tahun Berjalan: <strong id="statNominalBerjalan">Rp 0</strong></span>
                         <span><span class="dot dot-purple"></span> Tahun Sebelumnya: <strong id="statNominalSebelumnya">Rp 0</strong></span>
+                        <span><span class="dot dot-blue"></span> Iuran Siswa Mutasi: <strong id="statNominalMutasi">Rp 0</strong></span>
                     </div>
                 </div>
             </div>
@@ -1590,6 +1592,9 @@
                 </button>
                 <button type="button" class="tab-btn" id="tableTabBtnSebelumnya" onclick="switchTableTab('sebelumnya')">
                     <i class="fas fa-history"></i> Pembayaran Tahun Sebelumnya
+                </button>
+                <button type="button" class="tab-btn" id="tableTabBtnBaru" onclick="switchTableTab('baru')">
+                    <i class="fas fa-user-graduate"></i> Siswa Mutasi
                 </button>
             </div>
 
@@ -1692,6 +1697,63 @@
 
             </div>
             <!-- END TAB 2: Pembayaran Tahun Sebelumnya -->
+
+            <!-- TAB 3: Siswa Mutasi -->
+            <div class="tab-pane" id="tablePaneBaru">
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInputBaru" placeholder="Cari nama / NISN..." oninput="filterDataBaru()">
+                </div>
+                <select class="filter-select" id="filterKelasBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Kelas</option>
+                </select>
+                <select class="filter-select" id="filterBulanBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Bulan</option>
+                </select>
+                <select class="filter-select" id="filterTahunBaru" onchange="filterDataBaru()">
+                    <option value="">Semua Tahun</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th>NISN</th>
+                            <th>Kelas</th>
+                            <th>Tahun</th>
+                            <th>Bulan Bayar</th>
+                            <th>Tgl Bayar</th>
+                            <th>Nominal</th>
+                            <th>Keterangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyBaru">
+                        <tr><td colspan="10">
+                            <div class="empty-state">
+                                <i class="fas fa-plug"></i>
+                                <p>Tab Siswa Mutasi sudah siap.<br>Data akan tampil setelah database tersambung.</p>
+                            </div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfoBaru">—</div>
+                <div class="pagination-btns" id="paginationBtnsBaru"></div>
+            </div>
+
+            </div>
+            <!-- END TAB 3: Siswa Mutasi -->
         </div>
 
         <footer class="main-footer">
@@ -1716,6 +1778,9 @@
                     </button>
                     <button type="button" class="tab-btn" id="tabBtnSebelumnya" onclick="switchTransTab('sebelumnya')">
                         <i class="fas fa-history"></i> Pembayaran Tahun Sebelumnya
+                    </button>
+                    <button type="button" class="tab-btn" id="tabBtnBaru" onclick="switchTransTab('baru')">
+                        <i class="fas fa-user-graduate"></i> Siswa Mutasi
                     </button>
                 </div>
 
@@ -1899,11 +1964,226 @@
                 </div>
                 <!-- END TAB 2: Pembayaran Tahun Sebelumnya -->
 
+                <!-- TAB 3: Siswa Mutasi -->
+                <div class="tab-pane" id="tabPaneBaru">
+
+                <div class="lookup-info found" style="margin-bottom:12px;">
+                    <i class="fas fa-info-circle"></i> Khusus siswa mutasi/pindahan yang masuk sekolah tidak dimulai dari bulan Juli. Pilih <strong>Bulan Masuk</strong> untuk menentukan mulai bulan apa iuran TIK dihitung.
+                </div>
+
+                <!-- NISN Lookup -->
+                <div class="form-group" id="nisnLookupGroupSb">
+                    <label><i class="fas fa-id-card" style="margin-right:4px;color:#f97316"></i>NISN Siswa</label>
+                    <div style="display:flex;gap:8px;align-items:stretch;">
+                        <div class="nisn-lookup-wrap" style="flex:1;">
+                            <input type="text" id="sbNisn" placeholder="Masukkan NISN lalu klik Cari">
+                            <button class="btn-lookup" id="btnLookupSb" onclick="lookupNisnSb()">
+                                <i class="fas fa-search"></i> Cari
+                            </button>
+                        </div>
+                        <button type="button" class="btn-lookup" id="btnMappingMutasi"
+                            style="position:static;white-space:nowrap;padding:0 14px;background:linear-gradient(135deg,#7c3aed,#a855f7);"
+                            onclick="openMappingMutasiModal()">
+                            <i class="fas fa-route"></i> Maping Siswa Mutasi
+                        </button>
+                    </div>
+                    <div class="lookup-info" id="lookupInfoSb"></div>
+                </div>
+
+                <!-- Detail Siswa (auto-filled) -->
+                <div class="siswa-detail-box" id="siswaDetailBoxSb">
+                    <strong id="sbDetailNama"></strong><br>
+                    Kelas: <span id="sbDetailKelas"></span> &nbsp;|&nbsp; Tahun: <span id="sbDetailTahun"></span> &nbsp;|&nbsp; Nominal/Bln: <strong id="sbDetailNominal" style="color:#ea580c;"></strong>
+                </div>
+
+                <!-- Fields (auto-filled, editable) -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#f97316"></i>Nama Siswa</label>
+                        <div class="autocomplete-wrap" id="acWrapSb">
+                            <input type="text" id="sbNama" placeholder="Klik untuk pilih siswa" readonly
+                                onclick="toggleAcDropdownSb()" autocomplete="off">
+                            <i class="fas fa-chevron-down ac-trigger-icon" id="acChevronSb"></i>
+                            <div class="autocomplete-dropdown" id="acDropdownSb">
+                                <div class="ac-search-wrap">
+                                    <div class="ac-search-icon-wrap">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="acSearchSb" placeholder="Cari nama siswa..."
+                                            oninput="filterAcListSb()" onclick="event.stopPropagation()">
+                                    </div>
+                                </div>
+                                <div class="ac-list" id="acListSb">
+                                    <div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-school" style="margin-right:4px;color:#f97316"></i>Kelas</label>
+                        <input type="text" id="sbKelas" placeholder="Otomatis dari siswa" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar" style="margin-right:4px;color:#f97316"></i>Tahun Pelajaran</label>
+                        <select id="sbTahun" disabled style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;cursor:not-allowed;">
+                            <option value="">— Pilih siswa dahulu —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#f97316"></i>Nominal/Bulan (Rp)</label>
+                        <input type="number" id="sbNominal" placeholder="Otomatis dari siswa" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-door-open" style="margin-right:4px;color:#f97316"></i>Bulan Masuk Sekolah</label>
+                        <select id="sbBulanMasuk" onchange="onBulanMasukChangeSb()" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih bulan masuk —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tabel Riwayat & Input Pembayaran Per Bulan -->
+                <div class="riwayat-section" id="riwayatSectionSb">
+                    <div class="riwayat-title">
+                        <i class="fas fa-table"></i> Riwayat & Input Pembayaran
+                    </div>
+                    <div class="riwayat-info" id="riwayatInfoSb">
+                        Pilih siswa dan Bulan Masuk terlebih dahulu, centang bulan yang dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu klik <strong>Simpan Transaksi</strong>.
+                    </div>
+                    <div class="riwayat-wrap">
+                        <div class="riwayat-lunas-watermark" id="riwayatLunasWatermarkSb">Lunas</div>
+                        <table class="riwayat-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:28px;text-align:center;">
+                                        <input type="checkbox" id="chkAllBulanSb" title="Pilih semua belum bayar"
+                                            onchange="toggleAllBulanSb(this.checked)" style="accent-color:#fff;width:14px;height:14px;">
+                                    </th>
+                                    <th>ID Pembayaran</th>
+                                    <th>Bulan</th>
+                                    <th>Tanggal Bayar</th>
+                                    <th>Jumlah Bayar (Rp)</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="riwayatBodySb">
+                                <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">
+                                    Pilih siswa dan Bulan Masuk terlebih dahulu
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                </div>
+                <!-- END TAB 3: Siswa Mutasi -->
+
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal()">Batal</button>
                 <button class="btn-save" id="btnSimpan" onclick="saveData()">
                     <i class="fas fa-save"></i> Simpan Transaksi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Maping Siswa Mutasi -->
+    <div class="modal-overlay" id="modalMappingMutasi">
+        <div class="modal-box modal-box-wide">
+            <div class="modal-header" style="background:linear-gradient(135deg,#6d28d9,#7c3aed);">
+                <h3><i class="fas fa-route"></i> Maping Siswa Mutasi</h3>
+                <button class="modal-close" onclick="closeMappingMutasiModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag" style="margin-right:4px;color:#7c3aed"></i>Id</label>
+                        <input type="text" id="mmId" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#7c3aed"></i>Nama Siswa</label>
+                        <select id="mmNamaSiswa" onchange="onMappingNamaSiswaChange()" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Memuat data siswa... —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card" style="margin-right:4px;color:#7c3aed"></i>NISN</label>
+                        <input type="text" id="mmNisn" placeholder="Otomatis dari siswa" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-school" style="margin-right:4px;color:#7c3aed"></i>Kelas</label>
+                        <input type="text" id="mmKelas" placeholder="Otomatis dari siswa">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar" style="margin-right:4px;color:#7c3aed"></i>Tahun Pelajaran</label>
+                        <input type="text" id="mmTahunPelajaran" placeholder="Otomatis dari siswa">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#7c3aed"></i>Nominal/Bulan (Rp)</label>
+                        <input type="number" id="mmNominal" placeholder="Otomatis dari siswa">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-door-open" style="margin-right:4px;color:#7c3aed"></i>Bulan Masuk Sekolah</label>
+                        <select id="mmBulanMasuk" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih bulan masuk —</option>
+                        </select>
+                    </div>
+                    <div class="form-group"></div>
+                </div>
+
+                <!-- Tabel Data Maping Siswa Mutasi -->
+                <div class="riwayat-section show" style="margin-top:8px;">
+                    <div class="riwayat-title">
+                        <i class="fas fa-table"></i> Data Maping Siswa Mutasi
+                    </div>
+                    <div class="riwayat-wrap">
+                        <table class="riwayat-table">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Nama Siswa</th>
+                                    <th>NISN</th>
+                                    <th>Kelas</th>
+                                    <th>Tahun Pelajaran</th>
+                                    <th>Nominal/Bulan</th>
+                                    <th>Bulan Masuk</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mmTableBody">
+                                <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">
+                                    Data akan tampil setelah database tersambung
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeMappingMutasiModal()">Cancel</button>
+                <button class="btn-save" id="btnMmKonfirmasi" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="saveMappingMutasi()">
+                    <i class="fas fa-check"></i> Konfirmasi
                 </button>
             </div>
         </div>
@@ -2021,9 +2301,17 @@
         let filteredData = [];
         let deleteTargetId = null;
         let deleteTargetTable = 'pemasukantik';
+        let deleteTargetSource = 'berjalan'; // 'berjalan' | 'sebelumnya' | 'baru'
         let lookedUpSiswa = null;
         const PAGE_SIZE = 15;
         let currentPage = 1;
+
+        // State - Tabel Siswa Mutasi (UI/UX dulu, integrasi database menyusul)
+        // Rencana: tabel 'pemasukantik' dengan id berprefix 'MUT-' (sama pola dengan
+        // sumbangankomite.html), mapping khusus siswa mutasi di tabel 'mappingmutasitik'
+        let allDataBaru = [];
+        let filteredDataBaru = [];
+        let currentPageBaru = 1;
 
         const BULAN_ORDER = ['Juli','Agustus','September','Oktober','November','Desember',
                              'Januari','Februari','Maret','April','Mei','Juni'];
@@ -2076,6 +2364,18 @@
         }
 
         // =============================================
+        // Load Data - Siswa Mutasi (UI/UX dulu, belum tersambung database)
+        // TODO integrasi database: SELECT dari tabel 'pemasukantik'
+        // WHERE id LIKE 'MUT-%' (mengikuti pola sumbangankomite.html)
+        // =============================================
+        function loadDataBaru() {
+            filteredDataBaru = allDataBaru; // masih kosong sampai database tersambung
+            buildFiltersBaru();
+            updateStats();
+            renderTableBaru();
+        }
+
+        // =============================================
         // Build Filters
         // =============================================
         function buildFilters() {
@@ -2095,9 +2395,11 @@
         // Update Stats (gabungan tabel pemasukantik + tiktahunsebelumnya)
         // =============================================
         function updateStats() {
-            const total = allData.length + allDataTS.length;
+            const total = allData.length + allDataTS.length + allDataBaru.length;
 
-            const totalNominalBerjalan = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalNominalBerjalanOnly = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalNominalMutasi = allDataBaru.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalNominalBerjalan = totalNominalBerjalanOnly + totalNominalMutasi;
             const totalNominalSebelumnya = allDataTS.reduce((s, d) => {
                 const nominalBulan = parseFloat(d.nominal_bulan) || 0;
                 const jumlahBulan  = parseFloat(d.jumlah_bulan) || 0;
@@ -2108,14 +2410,17 @@
             const siswaSet = new Set();
             allData.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
             allDataTS.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
+            allDataBaru.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
 
             const bulanSet = new Set();
             allData.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
+            allDataBaru.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
             document.getElementById('statNominalBerjalan').textContent = 'Rp ' + totalNominalBerjalan.toLocaleString('id-ID');
             document.getElementById('statNominalSebelumnya').textContent = 'Rp ' + totalNominalSebelumnya.toLocaleString('id-ID');
+            document.getElementById('statNominalMutasi').textContent = 'Rp ' + totalNominalMutasi.toLocaleString('id-ID');
             document.getElementById('statSiswa').textContent = siswaSet.size;
             document.getElementById('statBulan').textContent = bulanSet.size;
         }
@@ -2127,12 +2432,134 @@
             currentTableTab = tab;
             document.getElementById('tableTabBtnBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tableTabBtnSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tableTabBtnBaru').classList.toggle('active', tab === 'baru');
             document.getElementById('tablePaneBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tablePaneSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tablePaneBaru').classList.toggle('active', tab === 'baru');
 
             if (tab === 'sebelumnya' && !tsLoaded) {
                 loadDataTS();
             }
+        }
+
+        // =============================================
+        // Tabel Siswa Mutasi (UI/UX dulu — belum tersambung database)
+        // Struktur & fungsi disiapkan mengikuti pola sumbangankomite.html
+        // supaya tinggal disambungkan ke Supabase pada tahap berikutnya.
+        // =============================================
+        function buildFiltersBaru() {
+            const kelasListBaru = [...new Set(allDataBaru.map(d => d.kelas).filter(Boolean))].sort();
+            const tahunListBaru = [...new Set(allDataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
+            const bulanListBaru = BULAN_ORDER.filter(b => allDataBaru.some(d => d.bulan_bayar === b));
+
+            document.getElementById('filterKelasBaru').innerHTML = '<option value="">Semua Kelas</option>' +
+                kelasListBaru.map(k => `<option value="${k}">${k}</option>`).join('');
+            document.getElementById('filterTahunBaru').innerHTML = '<option value="">Semua Tahun</option>' +
+                tahunListBaru.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('filterBulanBaru').innerHTML = '<option value="">Semua Bulan</option>' +
+                bulanListBaru.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        function filterDataBaru() {
+            const searchEl = document.getElementById('searchInputBaru');
+            const kelasEl  = document.getElementById('filterKelasBaru');
+            const bulanEl  = document.getElementById('filterBulanBaru');
+            const tahunEl  = document.getElementById('filterTahunBaru');
+            if (!searchEl) return;
+
+            const q     = searchEl.value.toLowerCase();
+            const kelas = kelasEl.value;
+            const bulan = bulanEl.value;
+            const tahun = tahunEl.value;
+
+            filteredDataBaru = allDataBaru.filter(d => {
+                const matchQ = !q ||
+                    (d.nama_siswa || '').toLowerCase().includes(q) ||
+                    (d.nisn || '').toLowerCase().includes(q);
+                const matchK = !kelas || d.kelas === kelas;
+                const matchB = !bulan || d.bulan_bayar === bulan;
+                const matchT = !tahun || d.tahun_pelajaran === tahun;
+                return matchQ && matchK && matchB && matchT;
+            });
+
+            currentPageBaru = 1;
+            renderTableBaru();
+        }
+
+        function renderTableBaru() {
+            const tbody = document.getElementById('tableBodyBaru');
+            if (!tbody) return;
+            const total = filteredDataBaru.length;
+
+            if (total === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="10">
+                        <div class="empty-state">
+                            <i class="fas fa-plug"></i>
+                            <p>Tab Siswa Mutasi sudah siap.<br>Data akan tampil setelah database tersambung.</p>
+                        </div>
+                    </td></tr>`;
+                document.getElementById('paginationInfoBaru').textContent = 'Tidak ada data';
+                document.getElementById('paginationBtnsBaru').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(total / PAGE_SIZE);
+            if (currentPageBaru > totalPages) currentPageBaru = totalPages;
+            const start = (currentPageBaru - 1) * PAGE_SIZE;
+            const slice = filteredDataBaru.slice(start, start + PAGE_SIZE);
+
+            tbody.innerHTML = slice.map((d, i) => `
+                <tr>
+                    <td style="color:#94a3b8;font-size:0.8rem;">${start + i + 1}</td>
+                    <td><strong>${escHtml(d.nama_siswa || '-')}</strong></td>
+                    <td style="font-family:monospace;color:#475569;">${escHtml(d.nisn || '-')}</td>
+                    <td><span class="badge-kelas">${escHtml(d.kelas || '-')}</span></td>
+                    <td><span class="badge-tahun">${escHtml(d.tahun_pelajaran || '-')}</span></td>
+                    <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
+                    <td style="font-size:0.82rem;color:#475569;">${d.tanggal_bayar ? fmtDate(d.tanggal_bayar) : '-'}</td>
+                    <td class="nominal-text">Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
+                    <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-delete" onclick="openConfirmBaru('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('paginationInfoBaru').textContent =
+                `Menampilkan ${start + 1}–${Math.min(start + PAGE_SIZE, total)} dari ${total} transaksi`;
+
+            const btnsEl = document.getElementById('paginationBtnsBaru');
+            let btnsHtml = `<button class="btn-page" onclick="goPageBaru(${currentPageBaru-1})" ${currentPageBaru<=1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+            for (let p = 1; p <= totalPages; p++) {
+                if (totalPages <= 7 || Math.abs(p - currentPageBaru) <= 2 || p === 1 || p === totalPages) {
+                    btnsHtml += `<button class="btn-page ${p===currentPageBaru?'active':''}" onclick="goPageBaru(${p})">${p}</button>`;
+                } else if (Math.abs(p - currentPageBaru) === 3) {
+                    btnsHtml += `<span style="padding:4px;color:#94a3b8;">…</span>`;
+                }
+            }
+            btnsHtml += `<button class="btn-page" onclick="goPageBaru(${currentPageBaru+1})" ${currentPageBaru>=totalPages?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+            btnsEl.innerHTML = btnsHtml;
+        }
+
+        function goPageBaru(p) {
+            const totalPages = Math.ceil(filteredDataBaru.length / PAGE_SIZE);
+            if (p < 1 || p > totalPages) return;
+            currentPageBaru = p;
+            renderTableBaru();
+        }
+
+        function openConfirmBaru(id, nama, bulan) {
+            deleteTargetId = id;
+            deleteTargetTable = 'pemasukantik';
+            deleteTargetSource = 'baru';
+            document.getElementById('confirmText').textContent =
+                `Hapus transaksi "${nama}" bulan ${bulan} (Siswa Mutasi)? Data tidak dapat dikembalikan.`;
+            document.getElementById('modalConfirm').classList.add('active');
         }
 
         // =============================================
@@ -2593,8 +3020,10 @@
             currentTransTab = tab;
             document.getElementById('tabBtnBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tabBtnSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tabBtnBaru').classList.toggle('active', tab === 'baru');
             document.getElementById('tabPaneBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tabPaneSebelumnya').classList.toggle('active', tab === 'sebelumnya');
+            document.getElementById('tabPaneBaru').classList.toggle('active', tab === 'baru');
 
             if (tab === 'sebelumnya') {
                 // Isi otomatis saat pertama kali dibuka: ID pembayaran, tanggal, bendahara
@@ -2606,6 +3035,10 @@
                 }
                 document.getElementById('tsBendahara').value = 'Bendahara TIK';
                 loadDaftarSiswaTS();
+            }
+
+            if (tab === 'baru') {
+                resetTabBaru();
             }
         }
 
@@ -2632,6 +3065,380 @@
             document.getElementById('tsTotalPembayaran').value = '';
             document.getElementById('tsKeterangan').value = '';
             document.getElementById('tsBendahara').value = '';
+        }
+
+        // =================================================================
+        // TAB 3: Siswa Mutasi (UI/UX dulu — belum tersambung database)
+        // Mengikuti pola sumbangankomite.html: transaksi akan disimpan ke
+        // tabel 'pemasukantik' dengan id berprefix 'MUT-', dan maping siswa
+        // mutasi khusus akan memakai tabel baru 'mappingmutasitik'.
+        // Semua fungsi di bawah ini murni interaksi front-end untuk saat ini.
+        // =================================================================
+        let lookedUpSiswaSb = null;
+        let riwayatBulanStateSb = [];
+
+        function resetTabBaru() {
+            lookedUpSiswaSb = null;
+            riwayatBulanStateSb = [];
+            document.getElementById('sbNisn').value = '';
+            document.getElementById('sbNama').value = '';
+            document.getElementById('sbKelas').value = '';
+            const selT = document.getElementById('sbTahun');
+            selT.innerHTML = '<option value="">— Pilih siswa dahulu —</option>';
+            selT.disabled = true;
+            selT.onchange = null;
+            document.getElementById('sbNominal').value = '';
+            document.getElementById('sbBulanMasuk').value = '';
+            document.getElementById('sbKeterangan').value = '';
+            document.getElementById('lookupInfoSb').className = 'lookup-info';
+            document.getElementById('lookupInfoSb').textContent = '';
+            document.getElementById('siswaDetailBoxSb').classList.remove('show');
+            document.getElementById('riwayatSectionSb').classList.remove('show');
+            document.getElementById('riwayatBodySb').innerHTML =
+                '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">Pilih siswa dan Bulan Masuk terlebih dahulu</td></tr>';
+            document.getElementById('riwayatLunasWatermarkSb').classList.remove('show');
+            closeAcDropdownSb();
+            if (document.getElementById('acSearchSb')) document.getElementById('acSearchSb').value = '';
+            populateBulanMasukOptions();
+        }
+
+        function populateBulanMasukOptions() {
+            const sel = document.getElementById('sbBulanMasuk');
+            if (!sel || sel.options.length > 1) return; // sudah terisi
+            sel.innerHTML = '<option value="">— Pilih bulan masuk —</option>' +
+                BULAN_ORDER.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        // Daftar bulan wajib bayar, dimulai dari Bulan Masuk s.d. akhir tahun ajaran (Juni)
+        function getSbBulanList() {
+            const bulanMasuk = document.getElementById('sbBulanMasuk').value;
+            const idx = BULAN_ORDER.indexOf(bulanMasuk);
+            return idx === -1 ? BULAN_ORDER : BULAN_ORDER.slice(idx);
+        }
+
+        function onBulanMasukChangeSb() {
+            const bulanMasuk = document.getElementById('sbBulanMasuk').value;
+            if (!bulanMasuk) return;
+            renderRiwayatSectionSb();
+        }
+
+        // TODO integrasi database: cek transaksi 'MUT-' yang sudah tersimpan
+        // di tabel 'pemasukantik' untuk NISN & tahun terkait, supaya baris
+        // yang sudah lunas otomatis tertandai. Untuk saat ini seluruh baris
+        // dianggap "Belum" sebagai pratinjau UI/UX.
+        function renderRiwayatSectionSb() {
+            const bulanListSb = getSbBulanList();
+            const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+            const nisn  = document.getElementById('sbNisn').value.trim();
+            const tahun = document.getElementById('sbTahun').value.trim();
+
+            document.getElementById('riwayatSectionSb').classList.add('show');
+            document.getElementById('riwayatLunasWatermarkSb').classList.remove('show');
+
+            const infoEl = document.getElementById('riwayatInfoSb');
+            infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#f97316;margin-right:4px;"></i>
+                Pratinjau UI/UX — belum tersambung database. Centang bulan yang akan dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu <strong>Simpan Transaksi</strong>.`;
+
+            riwayatBulanStateSb = bulanListSb.map((bulan, idx) => {
+                const bulanKode = bulan.substring(0,3).toUpperCase();
+                const tahunKode = tahun ? tahun.replace(/[^0-9]/g,'').substring(0,4) : '';
+                const generatedId = `MUT-${nisn || 'XXXX'}-${bulanKode}-${tahunKode}`;
+                return {
+                    idx, bulan, existing: null, generatedId,
+                    checked: false, tanggal: '', jumlah: nominal, status: 'Belum'
+                };
+            });
+
+            renderRiwayatTableSb();
+        }
+
+        function renderRiwayatTableSb() {
+            const body = document.getElementById('riwayatBodySb');
+            if (riwayatBulanStateSb.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">Pilih siswa dan Bulan Masuk terlebih dahulu</td></tr>';
+                return;
+            }
+
+            body.innerHTML = riwayatBulanStateSb.map(row => {
+                const trClass = row.checked ? 'akan-bayar' : '';
+                return `<tr class="${trClass}" id="riwayat-row-sb-${row.idx}">
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="chk-bayar" id="chkBulanSb-${row.idx}"
+                            ${row.checked ? 'checked' : ''}
+                            onchange="onBulanCheckSb(${row.idx}, this.checked)">
+                    </td>
+                    <td class="col-id">${row.checked
+                        ? `<span style="color:#ea580c;font-weight:600;">${row.generatedId}</span>`
+                        : '<span style="color:#cbd5e1;">—</span>'}</td>
+                    <td style="font-weight:600;white-space:nowrap;">${row.bulan}</td>
+                    <td>
+                        <input type="date" id="tglSb-${row.idx}"
+                            value="${row.tanggal || ''}"
+                            onchange="riwayatBulanStateSb[${row.idx}].tanggal = this.value">
+                    </td>
+                    <td>
+                        <input type="number" id="jmlSb-${row.idx}"
+                            value="${row.jumlah || ''}" min="0"
+                            onchange="riwayatBulanStateSb[${row.idx}].jumlah = parseFloat(this.value)||0">
+                    </td>
+                    <td>
+                        ${row.checked
+                            ? '<span class="badge-lunas"><i class="fas fa-check-circle"></i> Lunas</span>'
+                            : '<span class="badge-belum"><i class="fas fa-clock"></i> Belum</span>'}
+                    </td>
+                    <td>
+                        <button class="btn-bayar" onclick="isiBayarSb(${row.idx})"><i class="fas fa-money-bill-wave"></i> Bayar</button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            const chkAll = document.getElementById('chkAllBulanSb');
+            if (chkAll) {
+                chkAll.disabled = riwayatBulanStateSb.length === 0;
+                chkAll.checked  = riwayatBulanStateSb.length > 0 && riwayatBulanStateSb.every(r => r.checked);
+                chkAll.indeterminate = riwayatBulanStateSb.some(r => r.checked) && !riwayatBulanStateSb.every(r => r.checked);
+            }
+        }
+
+        function isiBayarSb(idx) {
+            const row = riwayatBulanStateSb[idx];
+            if (!row) return;
+            const today = new Date().toISOString().split('T')[0];
+            const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+            row.tanggal = today;
+            row.jumlah  = nominal;
+            row.checked = true;
+            row.status  = 'Lunas';
+            renderRiwayatTableSb();
+        }
+
+        function onBulanCheckSb(idx, checked) {
+            const row = riwayatBulanStateSb[idx];
+            if (!row) return;
+            row.checked = checked;
+            if (checked && !row.tanggal) {
+                row.tanggal = new Date().toISOString().split('T')[0];
+                row.jumlah  = parseFloat(document.getElementById('sbNominal').value) || 0;
+            }
+            row.status = checked ? 'Lunas' : 'Belum';
+            renderRiwayatTableSb();
+        }
+
+        function toggleAllBulanSb(checked) {
+            const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+            const today   = new Date().toISOString().split('T')[0];
+            riwayatBulanStateSb.forEach(row => {
+                row.checked = checked;
+                if (checked && !row.tanggal) {
+                    row.tanggal = today;
+                    row.jumlah  = nominal;
+                }
+                row.status = checked ? 'Lunas' : 'Belum';
+            });
+            renderRiwayatTableSb();
+        }
+
+        // --- NISN Lookup (TODO: sambungkan ke tabel 'mappingsumbangantik') ---
+        async function lookupNisnSb() {
+            const nisn = document.getElementById('sbNisn').value.trim();
+            if (!nisn) { showToast('Masukkan NISN terlebih dahulu.', 'error'); return; }
+
+            const info = document.getElementById('lookupInfoSb');
+            info.className = 'lookup-info not-found';
+            info.innerHTML = '<i class="fas fa-plug"></i> Pencarian NISN akan aktif setelah integrasi database.';
+            showToast('Fitur pencarian NISN akan disambungkan ke database pada tahap berikutnya.', 'error');
+        }
+
+        function clearFormFieldsSb() {
+            document.getElementById('sbNama').value = '';
+            document.getElementById('sbKelas').value = '';
+            const selTahun = document.getElementById('sbTahun');
+            selTahun.innerHTML = '<option value="">— Pilih siswa dahulu —</option>';
+            selTahun.disabled = true;
+            selTahun.onchange = null;
+            document.getElementById('sbNominal').value = '';
+        }
+
+        // --- Autocomplete Nama Siswa (TODO: sambungkan ke tabel 'mappingmutasitik') ---
+        let acOpenSb = false;
+        let acCurrentListSb = [];
+
+        function toggleAcDropdownSb() {
+            if (acOpenSb) { closeAcDropdownSb(); return; }
+            openAcDropdownSb();
+        }
+
+        function openAcDropdownSb() {
+            acOpenSb = true;
+            const dropdown = document.getElementById('acDropdownSb');
+            const chevron  = document.getElementById('acChevronSb');
+            dropdown.classList.add('open');
+            chevron.style.transform = 'translateY(-50%) rotate(180deg)';
+            chevron.style.transition = 'transform 0.2s';
+
+            renderAcListSb([]); // TODO: ganti dengan data dari tabel 'mappingmutasitik'
+
+            setTimeout(() => {
+                const s = document.getElementById('acSearchSb');
+                if (s) { s.value = ''; s.focus(); }
+            }, 60);
+        }
+
+        function closeAcDropdownSb() {
+            acOpenSb = false;
+            const dropdown = document.getElementById('acDropdownSb');
+            const chevron  = document.getElementById('acChevronSb');
+            if (dropdown) dropdown.classList.remove('open');
+            if (chevron) chevron.style.transform = 'translateY(-50%) rotate(0deg)';
+        }
+
+        function renderAcListSb(data) {
+            acCurrentListSb = data || [];
+            const ul = document.getElementById('acListSb');
+            if (acCurrentListSb.length === 0) {
+                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-plug" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Data siswa mutasi akan tampil setelah database tersambung</div>';
+                return;
+            }
+            ul.innerHTML = acCurrentListSb.map((s, idx) => `
+                <div class="ac-item" tabindex="0"
+                    onclick="selectSiswaSb(${idx})"
+                    onkeydown="if(event.key==='Enter') selectSiswaSb(${idx})">
+                    <div class="ac-item-name">${escHtml(s.nama_siswa || '-')}</div>
+                    <div class="ac-item-sub">
+                        <span><i class="fas fa-id-card"></i>${escHtml(s.nisn || '-')}</span>
+                        <span><i class="fas fa-school"></i>${escHtml(s.kelas || '-')}</span>
+                        <span><i class="fas fa-calendar"></i>${escHtml(s.tahun_pelajaran || '-')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterAcListSb() {
+            const q = document.getElementById('acSearchSb').value.toLowerCase();
+            const filtered = acCurrentListSb.filter(s =>
+                (s.nama_siswa || '').toLowerCase().includes(q) ||
+                (s.nisn || '').toLowerCase().includes(q) ||
+                (s.kelas || '').toLowerCase().includes(q)
+            );
+            renderAcListSb(filtered);
+        }
+
+        function selectSiswaSb(idx) {
+            const s = acCurrentListSb[idx];
+            if (!s) return;
+            document.getElementById('sbNisn').value    = s.nisn || '';
+            document.getElementById('sbNama').value    = s.nama_siswa || '';
+            document.getElementById('sbKelas').value   = s.kelas || '';
+            document.getElementById('sbNominal').value = s.nominal || '';
+
+            document.getElementById('sbDetailNama').textContent    = s.nama_siswa;
+            document.getElementById('sbDetailKelas').textContent   = s.kelas;
+            document.getElementById('sbDetailTahun').textContent   = s.tahun_pelajaran || '';
+            document.getElementById('sbDetailNominal').textContent = 'Rp ' + (parseFloat(s.nominal)||0).toLocaleString('id-ID') + '/bln';
+            document.getElementById('siswaDetailBoxSb').classList.add('show');
+
+            const info = document.getElementById('lookupInfoSb');
+            info.className = 'lookup-info found';
+            info.innerHTML = `<i class="fas fa-check-circle"></i> Siswa dipilih: <strong>${escHtml(s.nama_siswa)}</strong>`;
+
+            closeAcDropdownSb();
+
+            populateBulanMasukOptions();
+            const bulanMasukSel = document.getElementById('sbBulanMasuk');
+            if (bulanMasukSel && s.bulan_masuk && BULAN_ORDER.includes(s.bulan_masuk)) {
+                bulanMasukSel.value = s.bulan_masuk;
+                onBulanMasukChangeSb();
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('acWrapSb');
+            if (wrap && !wrap.contains(e.target)) {
+                closeAcDropdownSb();
+            }
+        });
+
+        // --- Simpan Transaksi Siswa Mutasi ---
+        // TODO integrasi database: insert ke tabel 'pemasukantik' dengan
+        // id berprefix 'MUT-' (mengikuti pola sumbangankomite.html)
+        async function saveDataSb() {
+            const nama       = document.getElementById('sbNama').value.trim();
+            const bulanMasuk = document.getElementById('sbBulanMasuk').value.trim();
+
+            if (!nama) {
+                showToast('Pilih siswa terlebih dahulu!', 'error');
+                return;
+            }
+            if (!bulanMasuk) {
+                showToast('Pilih Bulan Masuk terlebih dahulu!', 'error');
+                return;
+            }
+            const toInsert = riwayatBulanStateSb.filter(r => r.checked);
+            if (toInsert.length === 0) {
+                showToast('Centang minimal 1 bulan yang akan dibayar!', 'error');
+                return;
+            }
+
+            showToast('UI Siswa Mutasi siap — fitur simpan akan aktif setelah integrasi database.', 'error');
+        }
+
+        // =================================================================
+        // MODAL: Maping Siswa Mutasi (TODO: tabel 'mappingmutasitik')
+        // =================================================================
+        function generateIdMappingMutasi() {
+            const rand5 = Math.floor(10000 + Math.random() * 90000);
+            return `MAP-${rand5}`;
+        }
+
+        function populateBulanMasukOptionsMm() {
+            const sel = document.getElementById('mmBulanMasuk');
+            if (!sel || sel.options.length > 1) return;
+            sel.innerHTML = '<option value="">— Pilih bulan masuk —</option>' +
+                BULAN_ORDER.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        function resetMappingMutasiForm() {
+            document.getElementById('mmId').value = generateIdMappingMutasi();
+            document.getElementById('mmNamaSiswa').innerHTML = '<option value="">— Data siswa akan dimuat setelah database tersambung —</option>';
+            document.getElementById('mmNisn').value = '';
+            document.getElementById('mmKelas').value = '';
+            document.getElementById('mmTahunPelajaran').value = '';
+            document.getElementById('mmNominal').value = '';
+            document.getElementById('mmBulanMasuk').value = '';
+        }
+
+        function onMappingNamaSiswaChange() {
+            // TODO: isi otomatis dari cache siswa (tabel 'mappingsumbangantik')
+            // setelah database tersambung.
+        }
+
+        function openMappingMutasiModal() {
+            document.getElementById('modalMappingMutasi').classList.add('active');
+            resetMappingMutasiForm();
+            populateBulanMasukOptionsMm();
+            loadMappingMutasiTable();
+        }
+
+        function closeMappingMutasiModal() {
+            document.getElementById('modalMappingMutasi').classList.remove('active');
+        }
+
+        function loadMappingMutasiTable() {
+            const body = document.getElementById('mmTableBody');
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">Data akan tampil setelah database tersambung</td></tr>';
+        }
+
+        function saveMappingMutasi() {
+            const nama = document.getElementById('mmNamaSiswa').value;
+            if (!nama) {
+                showToast('Pilih nama siswa terlebih dahulu!', 'error');
+                return;
+            }
+            showToast('UI Maping Siswa Mutasi siap — fitur simpan akan aktif setelah integrasi database.', 'error');
+        }
+
+        function deleteMappingMutasi(id) {
+            showToast('Fitur hapus akan aktif setelah integrasi database.', 'error');
         }
 
         // =============================================
@@ -3067,6 +3874,9 @@
             if (currentTransTab === 'sebelumnya') {
                 return saveDataTS();
             }
+            if (currentTransTab === 'baru') {
+                return saveDataSb();
+            }
             const editId     = document.getElementById('editId').value.trim();
             const nisn       = document.getElementById('fNisn').value.trim();
             const nama       = document.getElementById('fNama').value.trim();
@@ -3291,6 +4101,7 @@
         function openConfirm(id, nama, bulan) {
             deleteTargetId = id;
             deleteTargetTable = 'pemasukantik';
+            deleteTargetSource = 'berjalan';
             document.getElementById('confirmText').textContent =
                 `Hapus transaksi "${nama}" bulan ${bulan}? Data tidak dapat dikembalikan.`;
             document.getElementById('modalConfirm').classList.add('active');
@@ -3299,6 +4110,7 @@
         function openConfirmTS(id, nama) {
             deleteTargetId = id;
             deleteTargetTable = 'tiktahunsebelumnya';
+            deleteTargetSource = 'sebelumnya';
             document.getElementById('confirmText').textContent =
                 `Hapus transaksi "${nama}" (Pembayaran Tahun Sebelumnya)? Data tidak dapat dikembalikan.`;
             document.getElementById('modalConfirm').classList.add('active');
@@ -3319,9 +4131,11 @@
                 if (error) throw error;
                 showToast('Transaksi berhasil dihapus!', 'success');
                 closeConfirm();
-                if (deleteTargetTable === 'tiktahunsebelumnya') {
+                if (deleteTargetSource === 'sebelumnya') {
                     tsLoaded = false;
                     await loadDataTS();
+                } else if (deleteTargetSource === 'baru') {
+                    await loadDataBaru();
                 } else {
                     await loadData();
                 }
@@ -3331,6 +4145,7 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-trash"></i> Hapus';
                 deleteTargetTable = 'pemasukantik';
+                deleteTargetSource = 'berjalan';
             }
         }
 
@@ -3707,9 +4522,13 @@
             loadSchoolIdentity();
             loadData();
             loadDataTS();
+            loadDataBaru();
 
             document.getElementById('fNisn').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') lookupNisn();
+            });
+            document.getElementById('sbNisn').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') lookupNisnSb();
             });
 
             document.getElementById('modalForm').addEventListener('click', function(e) {
@@ -3717,6 +4536,9 @@
             });
             document.getElementById('modalConfirm').addEventListener('click', function(e) {
                 if (e.target === this) closeConfirm();
+            });
+            document.getElementById('modalMappingMutasi').addEventListener('click', function(e) {
+                if (e.target === this) closeMappingMutasiModal();
             });
         });
     </script>
