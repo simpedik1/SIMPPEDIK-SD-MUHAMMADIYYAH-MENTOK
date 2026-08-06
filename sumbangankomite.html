@@ -1676,13 +1676,14 @@
                             <th>Jumlah Bulan</th>
                             <th>Untuk Bulan</th>
                             <th>Total Pembayaran</th>
+                            <th>Metode Bayar</th>
                             <th>Bendahara</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBodyTS">
                         <tr class="loading-row">
-                            <td colspan="11"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
+                            <td colspan="12"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1959,9 +1960,19 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label><i class="fas fa-user-tie" style="margin-right:4px;color:#10b981"></i>Nama Bendahara</label>
-                        <input type="text" id="tsBendahara" readonly>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#10b981"></i>Metode Bayar</label>
+                            <select id="tsMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                                <option value="">— Pilih Metode Pembayaran —</option>
+                                <option value="Transfer Bank">Transfer Bank</option>
+                                <option value="Tunai">Tunai</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tie" style="margin-right:4px;color:#10b981"></i>Nama Bendahara</label>
+                            <input type="text" id="tsBendahara" readonly>
+                        </div>
                     </div>
 
                 </div>
@@ -2048,9 +2059,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#10b981"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
-                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                        <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#10b981"></i>Metode Bayar</label>
+                        <select id="sbMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih Metode Pembayaran —</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="Tunai">Tunai</option>
+                        </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#10b981"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                    <textarea id="sbKeterangan" placeholder="Catatan pembayaran..."></textarea>
                 </div>
 
                 <!-- Tabel Riwayat & Input Pembayaran Per Bulan -->
@@ -2263,6 +2283,83 @@
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeEditTransaksi()">Batal</button>
                 <button class="btn-save" id="btnSimpanEdit" onclick="saveEditTransaksi()">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Transaksi Pembayaran Tahun Sebelumnya -->
+    <div class="modal-overlay" id="modalEditTransaksiTS">
+        <div class="modal-box">
+            <div class="modal-header" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
+                <h3><i class="fas fa-pen"></i> Edit Pembayaran Tahun Sebelumnya</h3>
+                <button class="modal-close" onclick="closeEditTransaksiTS()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag" style="margin-right:4px;color:#2563eb"></i>ID Pembayaran</label>
+                    <input type="text" id="etsId" readonly style="background:#f8fafc;color:#64748b;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#2563eb"></i>Nama Siswa</label>
+                        <input type="text" id="etsNama" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card" style="margin-right:4px;color:#2563eb"></i>NISN</label>
+                        <input type="text" id="etsNisn" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-day" style="margin-right:4px;color:#2563eb"></i>Tanggal Bayar</label>
+                        <input type="date" id="etsTanggal">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#2563eb"></i>Nominal/Bulan (Rp)</label>
+                        <input type="number" id="etsNominal" min="0" oninput="hitungTotalEditTS()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calculator" style="margin-right:4px;color:#2563eb"></i>Jumlah Bulan Bayar</label>
+                        <input type="number" id="etsJumlahBulan" min="1" oninput="hitungTotalEditTS()">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-coins" style="margin-right:4px;color:#2563eb"></i>Total Pembayaran (Rp)</label>
+                        <input type="text" id="etsTotalPembayaran" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-week" style="margin-right:4px;color:#2563eb"></i>Untuk Pembayaran Bulan</label>
+                        <input type="text" id="etsBulanBayar" placeholder="Contoh: Januari-Agustus">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#2563eb"></i>Metode Bayar</label>
+                        <select id="etsMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih Metode Pembayaran —</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="Tunai">Tunai</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-tie" style="margin-right:4px;color:#2563eb"></i>Nama Bendahara</label>
+                    <input type="text" id="etsBendahara" readonly style="background:#f8fafc;color:#64748b;">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeEditTransaksiTS()">Batal</button>
+                <button class="btn-save" id="btnSimpanEditTS" onclick="saveEditTransaksiTS()">
                     <i class="fas fa-save"></i> Simpan Perubahan
                 </button>
             </div>
@@ -2662,7 +2759,7 @@
                 filterDataTS();
             } catch(err) {
                 document.getElementById('tableBodyTS').innerHTML =
-                    `<tr class="loading-row"><td colspan="11" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+                    `<tr class="loading-row"><td colspan="12" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
             }
         }
 
@@ -2683,7 +2780,7 @@
 
             if (total === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="11">
+                    <tr><td colspan="12">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <p>Tidak ada data pembayaran tahun sebelumnya.</p>
@@ -2710,9 +2807,13 @@
                     <td style="text-align:center;">${escHtml(d.jumlah_bulan || '-')}</td>
                     <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
                     <td class="nominal-text">${escHtml(d.total_bayar || '-')}</td>
+                    <td style="font-size:0.82rem;color:#475569;">${escHtml(d.metode_bayar || '-')}</td>
                     <td style="font-size:0.82rem;color:#475569;">${escHtml(d.bendahara || '-')}</td>
                     <td>
                         <div class="action-btns">
+                            <button class="btn-icon btn-edit" onclick="openEditTransaksiTS('${escHtml(d.id)}')" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </button>
                             <button class="btn-icon btn-delete" onclick="openConfirmTS('${d.id}', '${escHtml(d.nama_siswa||'')}')" title="Hapus">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -3172,6 +3273,7 @@
             document.getElementById('tsJumlahBulan').value = '';
             document.getElementById('tsBulanBayar').value = '';
             document.getElementById('tsTotalPembayaran').value = '';
+            document.getElementById('tsMetodeBayar').value = '';
             document.getElementById('tsBendahara').value = '';
         }
 
@@ -3199,6 +3301,7 @@
             selT.onchange = null;
             document.getElementById('sbNominal').value = '';
             document.getElementById('sbBulanMasuk').value = '';
+            document.getElementById('sbMetodeBayar').value = '';
             document.getElementById('sbKeterangan').value = '';
             document.getElementById('lookupInfoSb').className = 'lookup-info';
             document.getElementById('lookupInfoSb').textContent = '';
@@ -3821,6 +3924,7 @@
             const bulanMasuk  = document.getElementById('sbBulanMasuk').value.trim();
             const keteranganInput = document.getElementById('sbKeterangan').value.trim();
             const keterangan  = keteranganInput || `Siswa Mutasi (Masuk ${bulanMasuk})`;
+            const metodeBayar = document.getElementById('sbMetodeBayar').value;
 
             if (!nisn || !nama || !kelas || !tahun) {
                 showToast('Pilih siswa terlebih dahulu!', 'error');
@@ -3828,6 +3932,11 @@
             }
             if (!bulanMasuk) {
                 showToast('Pilih Bulan Masuk terlebih dahulu!', 'error');
+                return;
+            }
+            if (!metodeBayar) {
+                showToast('⚠️ Silahkan memilih metode bayar terlebih dahulu', 'error');
+                document.getElementById('sbMetodeBayar').focus();
                 return;
             }
 
@@ -3854,7 +3963,8 @@
                     bulan_bayar: r.bulan,
                     tanggal_bayar: r.tanggal,
                     nominal: r.jumlah,
-                    keterangan
+                    keterangan,
+                    metode_bayar: metodeBayar
                 }));
 
                 const { error } = await db.from('sumbangankomite').insert(payloads);
@@ -4381,10 +4491,16 @@
             const jumlahBulan   = parseFloat(document.getElementById('tsJumlahBulan').value) || 0;
             const bulanBayar    = document.getElementById('tsBulanBayar').value.trim();
             const totalBayar    = document.getElementById('tsTotalPembayaran').value.trim();
+            const metodeBayar   = document.getElementById('tsMetodeBayar').value;
             const bendahara     = document.getElementById('tsBendahara').value.trim();
 
             if (!tanggalBayar || !namaSiswa || !nisn || !nominalBulan || !jumlahBulan || !bulanBayar) {
                 showToast('Lengkapi semua data Pembayaran Tahun Sebelumnya!', 'error');
+                return;
+            }
+            if (!metodeBayar) {
+                showToast('⚠️ Silahkan memilih metode bayar terlebih dahulu', 'error');
+                document.getElementById('tsMetodeBayar').focus();
                 return;
             }
 
@@ -4402,6 +4518,7 @@
                     jumlah_bulan: jumlahBulan,
                     bulan_bayar: bulanBayar,
                     total_bayar: totalBayar,
+                    metode_bayar: metodeBayar,
                     bendahara
                 });
                 if (error) throw error;
@@ -4550,6 +4667,92 @@
                 showToast('✅ Perubahan transaksi berhasil disimpan!', 'success');
                 closeEditTransaksi();
                 await loadData();
+            } catch(err) {
+                showToast('Gagal menyimpan perubahan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+            }
+        }
+
+        // =============================================
+        // Edit Transaksi Pembayaran Tahun Sebelumnya
+        // (tabel: ipptahunsebelumnya)
+        // =============================================
+        let editTransaksiIdTS = null;
+
+        function openEditTransaksiTS(id) {
+            const d = allDataTS.find(x => String(x.id) === String(id));
+            if (!d) {
+                showToast('Data transaksi tidak ditemukan!', 'error');
+                return;
+            }
+            editTransaksiIdTS = d.id;
+            document.getElementById('etsId').value       = d.id || '';
+            document.getElementById('etsNama').value      = d.nama_siswa || '';
+            document.getElementById('etsNisn').value      = d.nisn || '';
+            document.getElementById('etsTanggal').value   = d.tanggal_bayar ? String(d.tanggal_bayar).slice(0, 10) : '';
+            document.getElementById('etsNominal').value   = d.nominal_bulan || '';
+            document.getElementById('etsJumlahBulan').value = d.jumlah_bulan || '';
+            document.getElementById('etsBulanBayar').value  = d.bulan_bayar || '';
+            document.getElementById('etsTotalPembayaran').value = d.total_bayar || '';
+            document.getElementById('etsMetodeBayar').value = d.metode_bayar || '';
+            document.getElementById('etsBendahara').value   = d.bendahara || '';
+            document.getElementById('modalEditTransaksiTS').classList.add('active');
+        }
+
+        function closeEditTransaksiTS() {
+            editTransaksiIdTS = null;
+            document.getElementById('modalEditTransaksiTS').classList.remove('active');
+        }
+
+        function hitungTotalEditTS() {
+            const nominal = parseFloat(document.getElementById('etsNominal').value) || 0;
+            const jumlahBulan = parseFloat(document.getElementById('etsJumlahBulan').value) || 0;
+            const total = nominal * jumlahBulan;
+            document.getElementById('etsTotalPembayaran').value = total > 0 ? 'Rp ' + total.toLocaleString('id-ID') : '';
+        }
+
+        async function saveEditTransaksiTS() {
+            if (!editTransaksiIdTS) return;
+
+            const tanggal      = document.getElementById('etsTanggal').value;
+            const nominalBulan = parseFloat(document.getElementById('etsNominal').value) || 0;
+            const jumlahBulan  = parseFloat(document.getElementById('etsJumlahBulan').value) || 0;
+            const bulanBayar   = document.getElementById('etsBulanBayar').value.trim();
+            const totalBayar   = document.getElementById('etsTotalPembayaran').value.trim();
+            const metodeBayar  = document.getElementById('etsMetodeBayar').value;
+
+            if (!tanggal || !nominalBulan || !jumlahBulan || !bulanBayar) {
+                showToast('Lengkapi semua data Pembayaran Tahun Sebelumnya!', 'error');
+                return;
+            }
+            if (!metodeBayar) {
+                showToast('⚠️ Silahkan memilih metode bayar terlebih dahulu', 'error');
+                document.getElementById('etsMetodeBayar').focus();
+                return;
+            }
+
+            const btn = document.getElementById('btnSimpanEditTS');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const payload = {
+                    tanggal_bayar: tanggal,
+                    nominal_bulan: nominalBulan,
+                    jumlah_bulan: jumlahBulan,
+                    bulan_bayar: bulanBayar,
+                    total_bayar: totalBayar,
+                    metode_bayar: metodeBayar
+                };
+                const { error } = await db.from('ipptahunsebelumnya').update(payload).eq('id', editTransaksiIdTS);
+                if (error) throw error;
+
+                showToast('✅ Perubahan pembayaran berhasil disimpan!', 'success');
+                closeEditTransaksiTS();
+                tsLoaded = false;
+                await loadDataTS();
             } catch(err) {
                 showToast('Gagal menyimpan perubahan: ' + err.message, 'error');
             } finally {
@@ -4949,6 +5152,9 @@
             });
             document.getElementById('modalEditTransaksi').addEventListener('click', function(e) {
                 if (e.target === this) closeEditTransaksi();
+            });
+            document.getElementById('modalEditTransaksiTS').addEventListener('click', function(e) {
+                if (e.target === this) closeEditTransaksiTS();
             });
         });
     </script>
