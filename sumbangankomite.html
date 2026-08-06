@@ -1629,13 +1629,14 @@
                             <th>Bulan Bayar</th>
                             <th>Tgl Bayar</th>
                             <th>Nominal</th>
+                            <th>Metode Bayar</th>
                             <th>Keterangan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr class="loading-row">
-                            <td colspan="10"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
+                            <td colspan="11"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1842,6 +1843,15 @@
                         <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#10b981"></i>Nominal/Bulan (Rp)</label>
                         <input type="number" id="fNominal" placeholder="Otomatis dari siswa" readonly>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#10b981"></i>Metode Bayar</label>
+                    <select id="fMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                        <option value="">— Pilih Metode Pembayaran —</option>
+                        <option value="Transfer Bank">Transfer Bank</option>
+                        <option value="Tunai">Tunai</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -2182,6 +2192,83 @@
         </div>
     </div>
 
+    <!-- Modal Edit Transaksi Pembayaran -->
+    <div class="modal-overlay" id="modalEditTransaksi">
+        <div class="modal-box">
+            <div class="modal-header" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
+                <h3><i class="fas fa-pen"></i> Edit Transaksi Pembayaran</h3>
+                <button class="modal-close" onclick="closeEditTransaksi()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag" style="margin-right:4px;color:#2563eb"></i>ID Pembayaran</label>
+                    <input type="text" id="etId" readonly style="background:#f8fafc;color:#64748b;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#2563eb"></i>Nama Siswa</label>
+                        <input type="text" id="etNama" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card" style="margin-right:4px;color:#2563eb"></i>NISN</label>
+                        <input type="text" id="etNisn" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-school" style="margin-right:4px;color:#2563eb"></i>Kelas</label>
+                        <input type="text" id="etKelas" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar" style="margin-right:4px;color:#2563eb"></i>Tahun Pelajaran</label>
+                        <input type="text" id="etTahun" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-check" style="margin-right:4px;color:#2563eb"></i>Bulan Bayar</label>
+                        <input type="text" id="etBulan" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-day" style="margin-right:4px;color:#2563eb"></i>Tanggal Bayar</label>
+                        <input type="date" id="etTanggal">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#2563eb"></i>Nominal (Rp)</label>
+                        <input type="number" id="etNominal">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#2563eb"></i>Metode Bayar</label>
+                        <select id="etMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih Metode Pembayaran —</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="Tunai">Tunai</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#2563eb"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                    <textarea id="etKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeEditTransaksi()">Batal</button>
+                <button class="btn-save" id="btnSimpanEdit" onclick="saveEditTransaksi()">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Konfirmasi Hapus -->
     <div class="modal-overlay" id="modalConfirm">
         <div class="modal-box" style="max-width:380px;">
@@ -2288,6 +2375,7 @@
         let filteredData = [];
         let deleteTargetId = null;
         let deleteTargetTable = 'sumbangankomite';
+        let deleteTargetSource = 'berjalan'; // 'berjalan' | 'sebelumnya' | 'baru' - dipakai untuk menentukan fungsi reload karena tab Berjalan & Siswa Mutasi kini berbagi tabel yang sama
         let lookedUpSiswa = null;
         const PAGE_SIZE = 15;
         let currentPage = 1;
@@ -2300,7 +2388,7 @@
         let tsLoaded = false;
 
         // State - Tabel Siswa Mutasi
-        // (tabel: pemasukaniuranmutasi)
+        // (tabel: sumbangankomite, id berprefix 'MUT-')
         let allDataBaru = [];
         let filteredDataBaru = [];
         let currentPageBaru = 1;
@@ -2342,6 +2430,7 @@
                 const { data, error } = await db
                     .from('sumbangankomite')
                     .select('*')
+                    .not('id', 'like', 'MUT-%')
                     .order('tanggal_bayar', { ascending: false });
 
                 if (error) throw error;
@@ -2351,18 +2440,19 @@
                 filterData();
             } catch(err) {
                 document.getElementById('tableBody').innerHTML =
-                    `<tr class="loading-row"><td colspan="10" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+                    `<tr class="loading-row"><td colspan="11" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
             }
         }
 
         // =============================================
-        // Load & Render - Siswa Mutasi (tabel: pemasukaniuranmutasi)
+        // Load & Render - Siswa Mutasi (tabel: sumbangankomite, id berprefix 'MUT-')
         // =============================================
         async function loadDataBaru() {
             try {
                 const { data, error } = await db
-                    .from('pemasukaniuranmutasi')
+                    .from('sumbangankomite')
                     .select('*')
+                    .like('id', 'MUT-%')
                     .order('tanggal_bayar', { ascending: false });
 
                 if (error) throw error;
@@ -2395,7 +2485,7 @@
                 bulanList.map(b => `<option value="${b}">${b}</option>`).join('');
         }
 
-        // Filter khusus tabel Siswa Mutasi (sumber: pemasukaniuranmutasi)
+        // Filter khusus tabel Siswa Mutasi (sumber: sumbangankomite, id berprefix 'MUT-')
         function buildFiltersBaru() {
             const kelasListBaru = [...new Set(allDataBaru.map(d => d.kelas).filter(Boolean))].sort();
             const tahunListBaru = [...new Set(allDataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
@@ -2410,7 +2500,7 @@
         }
 
         // =============================================
-        // Update Stats (gabungan tabel sumbangankomite + ipptahunsebelumnya + pemasukaniuranmutasi)
+        // Update Stats (gabungan tabel sumbangankomite + ipptahunsebelumnya, data mutasi dipisah via prefix id 'MUT-')
         // =============================================
         function updateStats() {
             const total = allData.length + allDataTS.length + allDataBaru.length;
@@ -2473,7 +2563,7 @@
 
             if (total === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="10">
+                    <tr><td colspan="11">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <p>Tidak ada data transaksi yang ditemukan.</p>
@@ -2499,9 +2589,13 @@
                     <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
                     <td style="font-size:0.82rem;color:#475569;">${d.tanggal_bayar ? fmtDate(d.tanggal_bayar) : '-'}</td>
                     <td class="nominal-text">Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
+                    <td style="font-size:0.82rem;color:#475569;">${escHtml(d.metode_bayar || '-')}</td>
                     <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
                     <td>
                         <div class="action-btns">
+                            <button class="btn-icon btn-edit" onclick="openEditTransaksi('${escHtml(d.id)}')" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </button>
                             <button class="btn-icon btn-delete" onclick="openConfirm('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -2652,7 +2746,7 @@
 
         // =============================================
         // Filter & Render - Tabel Siswa Mutasi
-        // (sumber: tabel pemasukaniuranmutasi)
+        // (sumber: tabel sumbangankomite, id berprefix 'MUT-')
         // =============================================
         function filterDataBaru() {
             const searchEl = document.getElementById('searchInputBaru');
@@ -2750,6 +2844,7 @@
         function openConfirmTS(id, nama) {
             deleteTargetId = id;
             deleteTargetTable = 'ipptahunsebelumnya';
+            deleteTargetSource = 'sebelumnya';
             document.getElementById('confirmText').textContent =
                 `Hapus transaksi "${nama}" (Pembayaran Tahun Sebelumnya)? Data tidak dapat dikembalikan.`;
             document.getElementById('modalConfirm').classList.add('active');
@@ -3083,10 +3178,11 @@
         // =============================================================
         // TAB 3: Siswa Mutasi
         // (siswa yang masuk sekolah tidak dimulai dari bulan Juli)
-        // Data disimpan ke tabel tersendiri 'pemasukaniuranmutasi',
-        // daftar bulan yang wajib dibayar dimulai dari
-        // "Bulan Masuk" yang dipilih, bukan selalu dari Juli.
-        // ID transaksi diberi prefix "MUT-" supaya mudah dikenali.
+        // Data disimpan ke tabel 'sumbangankomite' (sama dengan tab
+        // Pembayaran Tahun Berjalan), daftar bulan yang wajib dibayar
+        // dimulai dari "Bulan Masuk" yang dipilih, bukan selalu dari Juli.
+        // ID transaksi diberi prefix "MUT-" supaya mudah dikenali dan
+        // dipisahkan dari data pembayaran tahun berjalan (prefix "SK-").
         // =============================================================
         let lookedUpSiswaSb = null;
         let riwayatBulanStateSb = [];
@@ -3569,10 +3665,11 @@
             let sudahBayarCount = 0;
             try {
                 const { data, error } = await db
-                    .from('pemasukaniuranmutasi')
+                    .from('sumbangankomite')
                     .select('bulan_bayar, tanggal_bayar, nominal, id, keterangan')
                     .eq('nisn', nisn)
-                    .eq('tahun_pelajaran', tahun);
+                    .eq('tahun_pelajaran', tahun)
+                    .like('id', 'MUT-%');
                 if (!error && data) {
                     data.forEach(d => { sudahBayar[d.bulan_bayar] = d; });
                     sudahBayarCount = data.filter(d => bulanListSb.includes(d.bulan_bayar)).length;
@@ -3715,7 +3812,7 @@
         }
 
         // --- Simpan Transaksi Siswa Mutasi ---
-        // (tabel: pemasukaniuranmutasi)
+        // (tabel: sumbangankomite, id berprefix 'MUT-' untuk membedakan dari pembayaran tahun berjalan)
         async function saveDataSb() {
             const nisn        = document.getElementById('sbNisn').value.trim();
             const nama        = document.getElementById('sbNama').value.trim();
@@ -3760,7 +3857,7 @@
                     keterangan
                 }));
 
-                const { error } = await db.from('pemasukaniuranmutasi').insert(payloads);
+                const { error } = await db.from('sumbangankomite').insert(payloads);
                 if (error) throw error;
                 showToast(`✅ ${payloads.length} transaksi siswa mutasi berhasil disimpan!`, 'success');
 
@@ -3893,6 +3990,7 @@
             selT.disabled = true;
             selT.onchange = null;
             document.getElementById('fNominal').value = '';
+            document.getElementById('fMetodeBayar').value = '';
             document.getElementById('fKeterangan').value = '';
             document.getElementById('lookupInfo').className = 'lookup-info';
             document.getElementById('lookupInfo').textContent = '';
@@ -4140,9 +4238,15 @@
             const tahun      = document.getElementById('fTahun').value.trim();
             const keteranganInput = document.getElementById('fKeterangan').value.trim();
             const keterangan = keteranganInput || 'Lunas';
+            const metodeBayar = document.getElementById('fMetodeBayar').value;
 
             if (!nisn || !nama || !kelas || !tahun) {
                 showToast('Pilih siswa terlebih dahulu!', 'error');
+                return;
+            }
+            if (!metodeBayar) {
+                showToast('⚠️ Silahkan memilih metode bayar terlebih dahulu', 'error');
+                document.getElementById('fMetodeBayar').focus();
                 return;
             }
 
@@ -4171,7 +4275,8 @@
                     bulan_bayar: r.bulan,
                     tanggal_bayar: r.tanggal,
                     nominal: r.jumlah,
-                    keterangan
+                    keterangan,
+                    metode_bayar: metodeBayar
                 }));
 
                 const { error } = await db.from('sumbangankomite').insert(payloads);
@@ -4329,6 +4434,7 @@
         function openConfirm(id, nama, bulan) {
             deleteTargetId = id;
             deleteTargetTable = 'sumbangankomite';
+            deleteTargetSource = 'berjalan';
             document.getElementById('confirmText').textContent =
                 `Hapus transaksi "${nama}" bulan ${bulan}? Data tidak dapat dikembalikan.`;
             document.getElementById('modalConfirm').classList.add('active');
@@ -4336,7 +4442,8 @@
 
         function openConfirmBaru(id, nama, bulan) {
             deleteTargetId = id;
-            deleteTargetTable = 'pemasukaniuranmutasi';
+            deleteTargetTable = 'sumbangankomite';
+            deleteTargetSource = 'baru';
             document.getElementById('confirmText').textContent =
                 `Hapus transaksi "${nama}" bulan ${bulan}? Data tidak dapat dikembalikan.`;
             document.getElementById('modalConfirm').classList.add('active');
@@ -4357,9 +4464,9 @@
                 if (error) throw error;
                 showToast('Transaksi berhasil dihapus!', 'success');
                 closeConfirm();
-                if (deleteTargetTable === 'ipptahunsebelumnya') {
+                if (deleteTargetSource === 'sebelumnya') {
                     await loadDataTS();
-                } else if (deleteTargetTable === 'pemasukaniuranmutasi') {
+                } else if (deleteTargetSource === 'baru') {
                     await loadDataBaru();
                 } else {
                     await loadData();
@@ -4370,6 +4477,84 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-trash"></i> Hapus';
                 deleteTargetTable = 'sumbangankomite';
+                deleteTargetSource = 'berjalan';
+            }
+        }
+
+        // =============================================
+        // Edit Transaksi Pembayaran (Tahun Berjalan)
+        // =============================================
+        let editTransaksiId = null;
+
+        function openEditTransaksi(id) {
+            const d = allData.find(x => String(x.id) === String(id));
+            if (!d) {
+                showToast('Data transaksi tidak ditemukan!', 'error');
+                return;
+            }
+            editTransaksiId = d.id;
+            document.getElementById('etId').value       = d.id || '';
+            document.getElementById('etNama').value      = d.nama_siswa || '';
+            document.getElementById('etNisn').value      = d.nisn || '';
+            document.getElementById('etKelas').value     = d.kelas || '';
+            document.getElementById('etTahun').value     = d.tahun_pelajaran || '';
+            document.getElementById('etBulan').value     = d.bulan_bayar || '';
+            document.getElementById('etTanggal').value   = d.tanggal_bayar ? String(d.tanggal_bayar).slice(0, 10) : '';
+            document.getElementById('etNominal').value   = d.nominal || '';
+            document.getElementById('etMetodeBayar').value = d.metode_bayar || '';
+            document.getElementById('etKeterangan').value  = d.keterangan || '';
+            document.getElementById('modalEditTransaksi').classList.add('active');
+        }
+
+        function closeEditTransaksi() {
+            editTransaksiId = null;
+            document.getElementById('modalEditTransaksi').classList.remove('active');
+        }
+
+        async function saveEditTransaksi() {
+            if (!editTransaksiId) return;
+
+            const tanggal = document.getElementById('etTanggal').value;
+            const nominal = parseFloat(document.getElementById('etNominal').value) || 0;
+            const metodeBayar = document.getElementById('etMetodeBayar').value;
+            const keterangan = document.getElementById('etKeterangan').value.trim();
+
+            if (!tanggal) {
+                showToast('Tanggal Bayar tidak boleh kosong!', 'error');
+                return;
+            }
+            if (!nominal) {
+                showToast('Nominal tidak boleh kosong!', 'error');
+                return;
+            }
+            if (!metodeBayar) {
+                showToast('⚠️ Silahkan memilih metode bayar terlebih dahulu', 'error');
+                document.getElementById('etMetodeBayar').focus();
+                return;
+            }
+
+            const btn = document.getElementById('btnSimpanEdit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const payload = {
+                    tanggal_bayar: tanggal,
+                    nominal: nominal,
+                    metode_bayar: metodeBayar,
+                    keterangan: keterangan || 'Lunas'
+                };
+                const { error } = await db.from('sumbangankomite').update(payload).eq('id', editTransaksiId);
+                if (error) throw error;
+
+                showToast('✅ Perubahan transaksi berhasil disimpan!', 'success');
+                closeEditTransaksi();
+                await loadData();
+            } catch(err) {
+                showToast('Gagal menyimpan perubahan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
             }
         }
 
@@ -4761,6 +4946,9 @@
             });
             document.getElementById('modalMappingMutasi').addEventListener('click', function(e) {
                 if (e.target === this) closeMappingMutasiModal();
+            });
+            document.getElementById('modalEditTransaksi').addEventListener('click', function(e) {
+                if (e.target === this) closeEditTransaksi();
             });
         });
     </script>
