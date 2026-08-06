@@ -588,8 +588,12 @@
                 return;
             }
 
+            // --- Waktu mengikuti perangkat pengguna ---
             const now = new Date();
-            const tanggal = now.toISOString().slice(0, 10); // YYYY-MM-DD
+            const tahun = now.getFullYear();
+            const bulan = String(now.getMonth() + 1).padStart(2, '0');
+            const tgl = String(now.getDate()).padStart(2, '0');
+            const tanggal = `${tahun}-${bulan}-${tgl}`; // YYYY-MM-DD
             const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
             // --- Batas Waktu Tepat Waktu: 06:45 ---
