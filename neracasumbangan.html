@@ -17,11 +17,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html, body {
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-light);
@@ -144,7 +139,6 @@
         .stat-card.c-red    { border-color: #dc2626; }
         .stat-card.c-blue   { border-color: #1d4ed8; }
         .stat-card.c-amber  { border-color: #f59e0b; }
-        .stat-card.c-teal   { border-color: #0d9488; }
 
         .stat-icon {
             width: 44px; height: 44px;
@@ -158,7 +152,6 @@
         .si-red    { background: linear-gradient(135deg, #dc2626, #b91c1c); }
         .si-blue   { background: linear-gradient(135deg, #1d4ed8, #1e3a8a); }
         .si-amber  { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .si-teal   { background: linear-gradient(135deg, #0d9488, #0f766e); }
 
         .stat-info h3 { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1; }
         .stat-info p  { font-size: 0.76rem; color: #64748b; margin-top: 3px; }
@@ -583,11 +576,7 @@
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem 5px;
-                max-width: 100%;
-                overflow-x: hidden;
-            }
+            .main-content { padding: 1rem 0.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
             .saldo-banner { flex-direction: column; align-items: stretch; }
             .saldo-item { width: 100%; }
@@ -617,26 +606,6 @@
                 width: 100%;
                 justify-content: center;
             }
-            /* Judul halaman & tombol export: jangan sampai memaksa lebar di luar kontainer */
-            .page-header, .page-title { width: 100%; max-width: 100%; }
-            .page-title h2 { white-space: normal; }
-            .btn-export-global {
-                white-space: normal;
-                width: 100%;
-                justify-content: center;
-                text-align: center;
-            }
-            /* Dashboard card & tabs: kunci lebar ke kontainer, konten lebar di-scroll horizontal di dalamnya */
-            .dashboard-card {
-                width: 100%;
-                max-width: 100%;
-                overflow-x: auto;
-            }
-            .card-title { flex-direction: column; align-items: flex-start; }
-            .tabs-source { width: 100%; max-width: 100%; }
-            /* Modal & preview: konten lebar (tabel struk/riwayat) di-scroll horizontal, bukan meluber ke luar layar */
-            .saldo-history-scroll { overflow-x: auto; }
-            .pdf-body { overflow-x: auto; }
         }
 
         /* Print styles */
@@ -678,7 +647,6 @@
             background: white;
             width: 100%;
             max-width: 760px;
-            max-height: calc(100vh - 20px);
             border-radius: 14px;
             box-shadow: 0 24px 60px rgba(0,0,0,0.35);
             animation: slideDown 0.3s ease;
@@ -1228,67 +1196,34 @@
                 </div>
             </div>
 
-            <!-- Preview Ringkasan Rencana vs Realisasi Pemasukan (generik per sumber dana) -->
-            <div class="stats-grid" id="planPreview" style="margin-bottom:1rem;">
+            <!-- Preview Ringkasan Rencana vs Realisasi Pemasukan IPP -->
+            <div class="stats-grid" id="ippPlanPreview" style="margin-bottom:1rem;">
                 <div class="stat-card c-blue">
                     <div class="stat-icon si-blue"><i class="fas fa-bullseye"></i></div>
                     <div class="stat-info">
-                        <h3 id="planRencana">Rp 0</h3>
-                        <p>Total Rencana Pemasukan TP <span id="planTahun">-</span></p>
+                        <h3 id="ippPlanRencana">Rp 0</h3>
+                        <p>Total Rencana Pemasukan TP <span id="ippPlanTahun">-</span></p>
                     </div>
                 </div>
                 <div class="stat-card c-green">
                     <div class="stat-icon si-green"><i class="fas fa-hand-holding-dollar"></i></div>
                     <div class="stat-info">
-                        <h3 id="planTerbayar">Rp 0</h3>
+                        <h3 id="ippPlanTerbayar">Rp 0</h3>
                         <p>Total Terbayar (Pemasukan)</p>
                     </div>
                 </div>
                 <div class="stat-card c-red">
                     <div class="stat-icon si-red"><i class="fas fa-money-bill-transfer"></i></div>
                     <div class="stat-info">
-                        <h3 id="planKeluar">Rp 0</h3>
+                        <h3 id="ippPlanKeluar">Rp 0</h3>
                         <p>Total Pengeluaran</p>
-                    </div>
-                </div>
-                <div class="stat-card c-teal">
-                    <div class="stat-icon si-teal"><i class="fas fa-wallet"></i></div>
-                    <div class="stat-info">
-                        <h3 id="planSisaSaldo">Rp 0</h3>
-                        <p>Sisa Saldo Saat ini</p>
                     </div>
                 </div>
                 <div class="stat-card c-amber">
                     <div class="stat-icon si-amber"><i class="fas fa-triangle-exclamation"></i></div>
                     <div class="stat-info">
-                        <h3 id="planBelum">Rp 0</h3>
-                        <p>Total <span id="planBelumLabel">IPP</span> Belum Terbayar</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview Ringkasan Sederhana (Pemasukan, Pengeluaran, Sisa Saldo) -->
-            <!-- Dipakai untuk sumber dana tanpa rencana/tagihan, mis. Infaq Jum'at -->
-            <div class="stats-grid" id="simplePreview" style="margin-bottom:1rem; display:none;">
-                <div class="stat-card c-green">
-                    <div class="stat-icon si-green"><i class="fas fa-hand-holding-dollar"></i></div>
-                    <div class="stat-info">
-                        <h3 id="simpleMasuk">Rp 0</h3>
-                        <p>Total Pemasukan</p>
-                    </div>
-                </div>
-                <div class="stat-card c-red">
-                    <div class="stat-icon si-red"><i class="fas fa-money-bill-transfer"></i></div>
-                    <div class="stat-info">
-                        <h3 id="simpleKeluar">Rp 0</h3>
-                        <p>Total Pengeluaran</p>
-                    </div>
-                </div>
-                <div class="stat-card c-teal">
-                    <div class="stat-icon si-teal"><i class="fas fa-wallet"></i></div>
-                    <div class="stat-info">
-                        <h3 id="simpleSisaSaldo">Rp 0</h3>
-                        <p>Sisa Saldo Saat ini</p>
+                        <h3 id="ippPlanBelum">Rp 0</h3>
+                        <p>Total IPP Belum Terbayar</p>
                     </div>
                 </div>
             </div>
@@ -1339,7 +1274,7 @@
         </div>
 
         <div class="main-footer">
-            &copy; <span id="yearNow"></span> SD Muhammadiyyah Mentok
+            &copy; <span id="yearNow"></span> Komite SMK Negeri 1 Simpang Teritip
         </div>
     </main>
 
@@ -1363,7 +1298,7 @@
     <div class="modal-saldo-overlay" id="modalSaldoAwal">
         <div class="saldo-box">
             <div class="saldo-header-bar">
-                <h3><i class="fas fa-coins"></i> Update Saldo Bank &amp; Saldo Tunai</h3>
+                <h3><i class="fas fa-coins"></i> Update Saldo Awal (Bank Manual, Tunai Otomatis)</h3>
                 <button class="btn-close-saldo" onclick="closeSaldoAwalModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="saldo-body">
@@ -1373,11 +1308,9 @@
                     <input type="text" id="inputSaldoBank" placeholder="0" inputmode="numeric" oninput="formatSaldoAwalInput(this)">
                 </div>
 
-                <label for="inputSaldoTunai" style="margin-top:12px;display:block;">Nominal Saldo Tunai</label>
-                <div class="saldo-input-wrap">
-                    <span>Rp</span>
-                    <input type="text" id="inputSaldoTunai" placeholder="0" inputmode="numeric" oninput="formatSaldoAwalInput(this)">
-                </div>
+                <label style="margin-top:12px;display:block;">Nominal Saldo Tunai</label>
+                <div class="readonly-datetime" id="inputSaldoTunaiAuto"><i class="fas fa-calculator"></i> <span id="inputSaldoTunaiAutoText">Rp 0</span></div>
+                <div class="saldo-hint" style="margin-top:4px;">Saldo Tunai otomatis dihitung dari total pemasukan tabel <b>Sumbangan Komite</b> &amp; <b>IPP Tahun Sebelumnya</b> dengan Metode Bayar <b>Tunai</b> (tidak dapat diisi manual).</div>
 
                 <label for="inputSaldoBulan" style="margin-top:12px;display:block;">Bulan</label>
                 <input type="text" id="inputSaldoBulan" class="plain" placeholder="Contoh: Agustus 2026" style="margin-bottom:6px;">
@@ -1484,7 +1417,6 @@
                 masukTable: 'sumbangankomite',
                 masukPrevTable: 'ipptahunsebelumnya',
                 keluarTable: 'pengeluaransumbangan',
-                planTable: 'tagihansumbangan', // tabel rencana/tagihan per TP, kolom: tahun_pelajaran, nominal_per_bulan
                 mapMasuk: d => ({
                     tanggal: d.tanggal_bayar,
                     sumber: 'berjalan',
@@ -1518,7 +1450,6 @@
                 masukTable: 'pemasukantik',
                 masukPrevTable: 'tiktahunsebelumnya',
                 keluarTable: 'pengeluarantik',
-                planTable: 'mappingsumbangantik', // tabel rencana/tagihan Iuran TIK, kolom: tahun_pelajaran, nominal_per_bulan
                 mapMasuk: d => ({
                     tanggal: d.tanggal_bayar,
                     sumber: 'berjalan',
@@ -1548,7 +1479,6 @@
                 labelFull: "Infaq Jum'at",
                 icon: 'fa-mosque',
                 enabled: true,
-                simplePreview: true, // tampilkan preview sederhana: Pemasukan, Pengeluaran, Sisa Saldo
                 saldoTable: 'infaqjumat_saldoawal',
                 masukTable: 'pemasukaninfaq',
                 keluarTable: 'pengeluaraninfaq',
@@ -1569,7 +1499,6 @@
                 labelFull: 'Kantin',
                 icon: 'fa-store',
                 enabled: true,
-                simplePreview: true, // tampilkan preview sederhana: Pemasukan, Pengeluaran, Sisa Saldo
                 saldoTable: 'kantin_saldoawal',
                 masukTable: 'pemasukankantin',
                 keluarTable: 'pengeluarankantin',
@@ -1639,18 +1568,15 @@
         // Ganti Tab Sumber Keuangan
         // =============================================
         // =============================================
-        // Preview Ringkasan Rencana vs Realisasi Pemasukan
-        // (generik: dipakai untuk sumber dana apapun yang punya
-        // planTable di config SOURCES, misal IPP & Iuran TIK)
+        // Preview Ringkasan Rencana vs Realisasi Pemasukan IPP
+        // (Total Rencana dari mapping 'tagihansumbangan', dibandingkan
+        // dengan realisasi pemasukan & pengeluaran sumber IPP)
         // =============================================
-        async function loadPlanPreview(key) {
-            const cfg = SOURCES[key];
-            if (!cfg || !cfg.planTable) return;
-
+        async function loadIppPlanPreview() {
             let totalRencana = 0;
             let tahunLabel = '-';
             try {
-                const { data, error } = await db.from(cfg.planTable).select('tahun_pelajaran, nominal_per_bulan');
+                const { data, error } = await db.from('tagihansumbangan').select('tahun_pelajaran, nominal_per_bulan');
                 if (!error && data) {
                     totalRencana = data.reduce((s, d) => s + (parseFloat(d.nominal_per_bulan) || 0), 0) * 12;
                     const freq = {};
@@ -1660,53 +1586,18 @@
                 }
             } catch (e) {}
 
-            const t = await computeSourceTotals(key);
+            const t = await computeSourceTotals('ipp');
             const totalTerbayar = t.masukBerjalan + t.masukSebelumnya;
             const totalKeluar = t.keluar;
             const totalBelum = totalRencana - totalTerbayar;
-            const sisaSaldo = totalTerbayar - totalKeluar;
 
-            // Kalau user sudah pindah tab lagi sebelum data ini selesai dimuat,
-            // jangan timpa preview tab yang sedang aktif sekarang.
-            if (activeSource !== key) return;
-
-            document.getElementById('planBelumLabel').textContent = cfg.label;
-            document.getElementById('planTahun').textContent = tahunLabel;
-            document.getElementById('planRencana').textContent = 'Rp ' + totalRencana.toLocaleString('id-ID');
-            document.getElementById('planTerbayar').textContent = 'Rp ' + totalTerbayar.toLocaleString('id-ID');
-            document.getElementById('planKeluar').textContent = 'Rp ' + totalKeluar.toLocaleString('id-ID');
-            const sisaSaldoEl = document.getElementById('planSisaSaldo');
-            sisaSaldoEl.textContent = 'Rp ' + sisaSaldo.toLocaleString('id-ID');
-            sisaSaldoEl.classList.toggle('negative', sisaSaldo < 0);
-            const belumEl = document.getElementById('planBelum');
+            document.getElementById('ippPlanTahun').textContent = tahunLabel;
+            document.getElementById('ippPlanRencana').textContent = 'Rp ' + totalRencana.toLocaleString('id-ID');
+            document.getElementById('ippPlanTerbayar').textContent = 'Rp ' + totalTerbayar.toLocaleString('id-ID');
+            document.getElementById('ippPlanKeluar').textContent = 'Rp ' + totalKeluar.toLocaleString('id-ID');
+            const belumEl = document.getElementById('ippPlanBelum');
             belumEl.textContent = 'Rp ' + totalBelum.toLocaleString('id-ID');
             belumEl.classList.toggle('negative', totalBelum < 0);
-        }
-
-        // =============================================
-        // Preview Ringkasan Sederhana (generik per sumber dana)
-        // Dipakai untuk sumber dana tanpa rencana/tagihan (simplePreview: true),
-        // saat ini: Infaq Jum'at. Menampilkan Total Pemasukan, Total Pengeluaran,
-        // dan Sisa Saldo Saat ini (Total Pemasukan - Total Pengeluaran).
-        // =============================================
-        async function loadSimplePreview(key) {
-            const cfg = SOURCES[key];
-            if (!cfg || !cfg.simplePreview) return;
-
-            const t = await computeSourceTotals(key);
-            const totalMasuk = t.masukBerjalan + t.masukSebelumnya;
-            const totalKeluar = t.keluar;
-            const sisaSaldo = totalMasuk - totalKeluar;
-
-            // Kalau user sudah pindah tab lagi sebelum data ini selesai dimuat,
-            // jangan timpa preview tab yang sedang aktif sekarang.
-            if (activeSource !== key) return;
-
-            document.getElementById('simpleMasuk').textContent = 'Rp ' + totalMasuk.toLocaleString('id-ID');
-            document.getElementById('simpleKeluar').textContent = 'Rp ' + totalKeluar.toLocaleString('id-ID');
-            const sisaSaldoEl = document.getElementById('simpleSisaSaldo');
-            sisaSaldoEl.textContent = 'Rp ' + sisaSaldo.toLocaleString('id-ID');
-            sisaSaldoEl.classList.toggle('negative', sisaSaldo < 0);
         }
 
         function switchSource(key) {
@@ -1722,24 +1613,13 @@
             document.getElementById('chartCardTitle').textContent = `Grafik Pemasukan vs Pengeluaran per Bulan - ${cfg.label}`;
             document.getElementById('ledgerCardTitle').textContent = `Riwayat Arus Kas (Buku Besar) - ${cfg.label}`;
 
-            // Preview Rencana vs Realisasi ditampilkan untuk semua sumber dana
-            // yang punya planTable di config SOURCES (saat ini: IPP & Iuran TIK)
-            const planPreviewEl = document.getElementById('planPreview');
-            if (cfg.planTable) {
-                planPreviewEl.style.display = '';
-                loadPlanPreview(key);
+            // Preview Rencana vs Realisasi hanya relevan untuk sumber IPP
+            const ippPreviewEl = document.getElementById('ippPlanPreview');
+            if (key === 'ipp') {
+                ippPreviewEl.style.display = '';
+                loadIppPlanPreview();
             } else {
-                planPreviewEl.style.display = 'none';
-            }
-
-            // Preview Sederhana (Pemasukan, Pengeluaran, Sisa Saldo) ditampilkan
-            // untuk sumber dana dengan simplePreview: true (saat ini: Infaq Jum'at)
-            const simplePreviewEl = document.getElementById('simplePreview');
-            if (cfg.simplePreview) {
-                simplePreviewEl.style.display = '';
-                loadSimplePreview(key);
-            } else {
-                simplePreviewEl.style.display = 'none';
+                ippPreviewEl.style.display = 'none';
             }
 
             // Reset filter & pencarian saat pindah tab
@@ -2153,10 +2033,10 @@
                     </tbody>
                 </table>
                 <div class="pdf-summary">
-                    ${cfg.planTable ? `
+                    ${activeSource === 'ipp' ? `
                     <div class="pdf-summary-box">
-                        <div class="total-label">Total ${escHtml(cfg.label)} Belum Terbayar</div>
-                        <div class="total-val amber">${escHtml(document.getElementById('planBelum')?.textContent || 'Rp 0')}</div>
+                        <div class="total-label">Total IPP Belum Terbayar</div>
+                        <div class="total-val amber">${escHtml(document.getElementById('ippPlanBelum')?.textContent || 'Rp 0')}</div>
                     </div>` : ''}
                     <div class="pdf-summary-box">
                         <div class="total-label">Total Pemasukan</div>
@@ -2572,6 +2452,35 @@
         // Jika tabel ini belum ada, buat dulu di Supabase sebelum tombol edit dipakai.
         const globalSaldo = { bank: 0, tunai: 0, id: null, bulan: '', tanggalRecord: null };
 
+        // Menghitung total Saldo Tunai dari gabungan tabel 'sumbangankomite'
+        // (IPP Tahun Berjalan + Siswa Mutasi) dan 'ipptahunsebelumnya'
+        // (IPP Tahun Sebelumnya), khusus transaksi dengan metode_bayar = 'Tunai'.
+        async function hitungSaldoTunaiTransaksi() {
+            let total = 0;
+            try {
+                const { data, error } = await db
+                    .from('sumbangankomite')
+                    .select('nominal, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('ipptahunsebelumnya')
+                    .select('nominal_bulan, jumlah_bulan, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) =>
+                        s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            return total;
+        }
+
         async function loadSaldoSekolah() {
             try {
                 // Ambil record TERBARU berdasarkan Tanggal Record (created_at),
@@ -2586,13 +2495,15 @@
                 if (data) {
                     globalSaldo.id = data.id;
                     globalSaldo.bank = parseFloat(data.saldo_bank) || 0;
-                    globalSaldo.tunai = parseFloat(data.saldo_tunai) || 0;
                     globalSaldo.bulan = data.bulan || '';
                     globalSaldo.tanggalRecord = data.created_at || null;
                 }
             } catch (e) {
                 // Tabel belum ada / belum ada data -> biarkan default 0
             }
+            // Saldo Tunai tidak lagi diambil dari record manual 'saldoawal',
+            // melainkan dihitung otomatis dari transaksi bermetode Tunai.
+            globalSaldo.tunai = await hitungSaldoTunaiTransaksi();
             renderSaldoAwalPreview();
         }
 
@@ -2625,7 +2536,7 @@
 
         function openSaldoAwalModal() {
             document.getElementById('inputSaldoBank').value = globalSaldo.bank ? globalSaldo.bank.toLocaleString('id-ID') : '';
-            document.getElementById('inputSaldoTunai').value = globalSaldo.tunai ? globalSaldo.tunai.toLocaleString('id-ID') : '';
+            document.getElementById('inputSaldoTunaiAutoText').textContent = 'Rp ' + globalSaldo.tunai.toLocaleString('id-ID');
             document.getElementById('inputSaldoBulan').value = globalSaldo.bulan || '';
             // Tanggal Record tidak dapat diubah user -> otomatis mengikuti
             // waktu saat ini (hari, tanggal, bulan, tahun, jam:menit:detik)
@@ -2646,9 +2557,7 @@
 
         async function saveSaldoAwal() {
             const rawBank = document.getElementById('inputSaldoBank').value.replace(/\D/g, '');
-            const rawTunai = document.getElementById('inputSaldoTunai').value.replace(/\D/g, '');
             const bankBaru = rawBank ? parseInt(rawBank, 10) : 0;
-            const tunaiBaru = rawTunai ? parseInt(rawTunai, 10) : 0;
             const bulanBaru = document.getElementById('inputSaldoBulan').value.trim();
 
             const btn = document.querySelector('.btn-save-saldo');
@@ -2661,6 +2570,8 @@
                 // perubahan saldo awal tetap tercatat sebagai riwayat.
                 // Tanggal Record tidak bisa diubah user -> otomatis diisi
                 // dari waktu presisi (detik) saat tombol Simpan diklik.
+                // Saldo Tunai disertakan sebagai catatan riwayat sesuai nilai
+                // otomatis (hasil hitung transaksi Tunai) saat itu.
                 const idBaru = 'saldoawal-' + Date.now();
                 const waktuSimpan = new Date();
                 const createdAtIso = waktuSimpan.toISOString();
@@ -2670,7 +2581,7 @@
                     .insert({
                         id: idBaru,
                         saldo_bank: bankBaru,
-                        saldo_tunai: tunaiBaru,
+                        saldo_tunai: globalSaldo.tunai,
                         bulan: bulanBaru || null,
                         created_at: createdAtIso
                     });
@@ -2884,7 +2795,7 @@
         loadSaldoSekolah();
         loadGlobalSummary();
         loadData('ipp');
-        loadPlanPreview('ipp');
+        loadIppPlanPreview();
     </script>
 </body>
 </html>
