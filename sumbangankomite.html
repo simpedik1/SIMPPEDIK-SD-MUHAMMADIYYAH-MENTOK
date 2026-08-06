@@ -1427,7 +1427,6 @@
         }
         .struk-ttd-box .ttd-name {
             font-weight: 700;
-            border-top: 1.5px solid #374151;
             padding-top: 4px;
             min-width: 160px;
             font-size: 0.76rem;
@@ -1476,7 +1475,6 @@
             .struk-tabel { border: 1.5px solid #000 !important; }
             .struk-tabel thead th { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .struk-badge-lunas { background: transparent !important; border: 1px solid #000 !important; color: #000 !important; }
-            .struk-ttd-box .ttd-name { border-top: 1px solid #000 !important; }
             .struk-ttd-box .ttd-name-line { border-bottom: 1px solid #000 !important; }
 
             /* --- PDF Riwayat Pembayaran --- */
@@ -1967,10 +1965,17 @@
                 <!-- NISN Lookup -->
                 <div class="form-group" id="nisnLookupGroupSb">
                     <label><i class="fas fa-id-card" style="margin-right:4px;color:#10b981"></i>NISN Siswa</label>
-                    <div class="nisn-lookup-wrap">
-                        <input type="text" id="sbNisn" placeholder="Masukkan NISN lalu klik Cari">
-                        <button class="btn-lookup" id="btnLookupSb" onclick="lookupNisnSb()">
-                            <i class="fas fa-search"></i> Cari
+                    <div style="display:flex;gap:8px;align-items:stretch;">
+                        <div class="nisn-lookup-wrap" style="flex:1;">
+                            <input type="text" id="sbNisn" placeholder="Masukkan NISN lalu klik Cari">
+                            <button class="btn-lookup" id="btnLookupSb" onclick="lookupNisnSb()">
+                                <i class="fas fa-search"></i> Cari
+                            </button>
+                        </div>
+                        <button type="button" class="btn-lookup" id="btnMappingMutasi"
+                            style="position:static;white-space:nowrap;padding:0 14px;background:linear-gradient(135deg,#7c3aed,#a855f7);"
+                            onclick="openMappingMutasiModal()">
+                            <i class="fas fa-route"></i> Maping Siswa Mutasi
                         </button>
                     </div>
                     <div class="lookup-info" id="lookupInfoSb"></div>
@@ -2078,6 +2083,98 @@
                 <button class="btn-cancel" onclick="closeModal()">Batal</button>
                 <button class="btn-save" id="btnSimpan" onclick="saveData()">
                     <i class="fas fa-save"></i> Simpan Transaksi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Maping Siswa Mutasi -->
+    <div class="modal-overlay" id="modalMappingMutasi">
+        <div class="modal-box modal-box-wide">
+            <div class="modal-header" style="background:linear-gradient(135deg,#6d28d9,#7c3aed);">
+                <h3><i class="fas fa-route"></i> Maping Siswa Mutasi</h3>
+                <button class="modal-close" onclick="closeMappingMutasiModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag" style="margin-right:4px;color:#7c3aed"></i>Id</label>
+                        <input type="text" id="mmId" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="margin-right:4px;color:#7c3aed"></i>Nama Siswa</label>
+                        <select id="mmNamaSiswa" onchange="onMappingNamaSiswaChange()" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Memuat data siswa... —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card" style="margin-right:4px;color:#7c3aed"></i>NISN</label>
+                        <input type="text" id="mmNisn" placeholder="Otomatis dari siswa" readonly style="background:#f8fafc;color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-school" style="margin-right:4px;color:#7c3aed"></i>Kelas</label>
+                        <input type="text" id="mmKelas" placeholder="Otomatis dari siswa">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar" style="margin-right:4px;color:#7c3aed"></i>Tahun Pelajaran</label>
+                        <input type="text" id="mmTahunPelajaran" placeholder="Otomatis dari siswa">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#7c3aed"></i>Nominal/Bulan (Rp)</label>
+                        <input type="number" id="mmNominal" placeholder="Otomatis dari siswa">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-door-open" style="margin-right:4px;color:#7c3aed"></i>Bulan Masuk Sekolah</label>
+                        <select id="mmBulanMasuk" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="">— Pilih bulan masuk —</option>
+                        </select>
+                    </div>
+                    <div class="form-group"></div>
+                </div>
+
+                <!-- Tabel Data Maping Siswa Mutasi -->
+                <div class="riwayat-section show" style="margin-top:8px;">
+                    <div class="riwayat-title">
+                        <i class="fas fa-table"></i> Data Maping Siswa Mutasi
+                    </div>
+                    <div class="riwayat-wrap">
+                        <table class="riwayat-table">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Nama Siswa</th>
+                                    <th>NISN</th>
+                                    <th>Kelas</th>
+                                    <th>Tahun Pelajaran</th>
+                                    <th>Nominal/Bulan</th>
+                                    <th>Bulan Masuk</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mmTableBody">
+                                <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">
+                                    <i class="fas fa-spinner fa-spin"></i> Memuat data...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeMappingMutasiModal()">Cancel</button>
+                <button class="btn-save" id="btnMmKonfirmasi" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="saveMappingMutasi()">
+                    <i class="fas fa-check"></i> Konfirmasi
                 </button>
             </div>
         </div>
@@ -2201,7 +2298,8 @@
         let tsLoaded = false;
 
         // State - Tabel Siswa Mutasi
-        // (subset dari allData: id transaksi berawalan "SKB-")
+        // (tabel: pemasukaniuranmutasi)
+        let allDataBaru = [];
         let filteredDataBaru = [];
         let currentPageBaru = 1;
 
@@ -2249,10 +2347,33 @@
                 buildFilters();
                 updateStats();
                 filterData();
-                filterDataBaru();
             } catch(err) {
                 document.getElementById('tableBody').innerHTML =
                     `<tr class="loading-row"><td colspan="10" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+            }
+        }
+
+        // =============================================
+        // Load & Render - Siswa Mutasi (tabel: pemasukaniuranmutasi)
+        // =============================================
+        async function loadDataBaru() {
+            try {
+                const { data, error } = await db
+                    .from('pemasukaniuranmutasi')
+                    .select('*')
+                    .order('tanggal_bayar', { ascending: false });
+
+                if (error) throw error;
+                allDataBaru = data || [];
+                buildFiltersBaru();
+                updateStats();
+                filterDataBaru();
+            } catch(err) {
+                const tbody = document.getElementById('tableBodyBaru');
+                if (tbody) {
+                    tbody.innerHTML =
+                        `<tr class="loading-row"><td colspan="10" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+                }
             }
         }
 
@@ -2270,12 +2391,13 @@
                 tahunList.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('filterBulan').innerHTML = '<option value="">Semua Bulan</option>' +
                 bulanList.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
 
-            // Filter khusus tabel Siswa Mutasi (subset id "SKB-")
-            const dataBaru = allData.filter(d => (d.id || '').startsWith('SKB-'));
-            const kelasListBaru = [...new Set(dataBaru.map(d => d.kelas).filter(Boolean))].sort();
-            const tahunListBaru = [...new Set(dataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
-            const bulanListBaru = BULAN_ORDER.filter(b => dataBaru.some(d => d.bulan_bayar === b));
+        // Filter khusus tabel Siswa Mutasi (sumber: pemasukaniuranmutasi)
+        function buildFiltersBaru() {
+            const kelasListBaru = [...new Set(allDataBaru.map(d => d.kelas).filter(Boolean))].sort();
+            const tahunListBaru = [...new Set(allDataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
+            const bulanListBaru = BULAN_ORDER.filter(b => allDataBaru.some(d => d.bulan_bayar === b));
 
             document.getElementById('filterKelasBaru').innerHTML = '<option value="">Semua Kelas</option>' +
                 kelasListBaru.map(k => `<option value="${k}">${k}</option>`).join('');
@@ -2286,12 +2408,13 @@
         }
 
         // =============================================
-        // Update Stats (gabungan tabel sumbangankomite + ipptahunsebelumnya)
+        // Update Stats (gabungan tabel sumbangankomite + ipptahunsebelumnya + pemasukaniuranmutasi)
         // =============================================
         function updateStats() {
-            const total = allData.length + allDataTS.length;
+            const total = allData.length + allDataTS.length + allDataBaru.length;
 
-            const totalNominalBerjalan = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalNominalBerjalan = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0)
+                + allDataBaru.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
             const totalNominalSebelumnya = allDataTS.reduce((s, d) => {
                 const nominalBulan = parseFloat(d.nominal_bulan) || 0;
                 const jumlahBulan  = parseFloat(d.jumlah_bulan) || 0;
@@ -2302,10 +2425,12 @@
             const siswaSet = new Set();
             allData.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
             allDataTS.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
+            allDataBaru.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
 
             const bulanSet = new Set();
             allData.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
             allDataTS.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
+            allDataBaru.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
@@ -2523,7 +2648,7 @@
 
         // =============================================
         // Filter & Render - Tabel Siswa Mutasi
-        // (subset dari tabel sumbangankomite: id berawalan "SKB-")
+        // (sumber: tabel pemasukaniuranmutasi)
         // =============================================
         function filterDataBaru() {
             const searchEl = document.getElementById('searchInputBaru');
@@ -2537,8 +2662,7 @@
             const bulan = bulanEl.value;
             const tahun = tahunEl.value;
 
-            filteredDataBaru = allData.filter(d => {
-                if (!(d.id || '').startsWith('SKB-')) return false;
+            filteredDataBaru = allDataBaru.filter(d => {
                 const matchQ = !q ||
                     (d.nama_siswa || '').toLowerCase().includes(q) ||
                     (d.nisn || '').toLowerCase().includes(q);
@@ -2588,7 +2712,7 @@
                     <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn-icon btn-delete" onclick="openConfirm('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
+                            <button class="btn-icon btn-delete" onclick="openConfirmBaru('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2955,11 +3079,10 @@
         // =============================================================
         // TAB 3: Siswa Mutasi
         // (siswa yang masuk sekolah tidak dimulai dari bulan Juli)
-        // Data tetap disimpan ke tabel 'sumbangankomite' seperti Tab 1,
-        // hanya saja daftar bulan yang wajib dibayar dimulai dari
+        // Data disimpan ke tabel tersendiri 'pemasukaniuranmutasi',
+        // daftar bulan yang wajib dibayar dimulai dari
         // "Bulan Masuk" yang dipilih, bukan selalu dari Juli.
-        // ID transaksi diberi prefix "SKB-" supaya bisa dibedakan/
-        // difilter di tabel "Daftar Riwayat Pembayaran".
+        // ID transaksi diberi prefix "MUT-" supaya mudah dikenali.
         // =============================================================
         let lookedUpSiswaSb = null;
         let riwayatBulanStateSb = [];
@@ -3007,6 +3130,167 @@
         function onBulanMasukChangeSb() {
             if (lookedUpSiswaSb) {
                 loadAndRenderRiwayatSb(lookedUpSiswaSb);
+            }
+        }
+
+        // =============================================================
+        // MODAL: Maping Siswa Mutasi (tabel: mappingmutasi)
+        // =============================================================
+        function generateIdMappingMutasi() {
+            const rand5 = Math.floor(10000 + Math.random() * 90000);
+            return `MAP-${rand5}`;
+        }
+
+        function populateBulanMasukOptionsMm() {
+            const sel = document.getElementById('mmBulanMasuk');
+            if (!sel || sel.options.length > 1) return; // sudah terisi
+            sel.innerHTML = '<option value="">— Pilih bulan masuk —</option>' +
+                BULAN_LIST.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        function resetMappingMutasiForm() {
+            document.getElementById('mmId').value = generateIdMappingMutasi();
+            document.getElementById('mmNamaSiswa').value = '';
+            document.getElementById('mmNisn').value = '';
+            document.getElementById('mmKelas').value = '';
+            document.getElementById('mmTahunPelajaran').value = '';
+            document.getElementById('mmNominal').value = '';
+            document.getElementById('mmBulanMasuk').value = '';
+        }
+
+        async function populateMappingNamaSiswaSelect() {
+            const sel = document.getElementById('mmNamaSiswa');
+            const list = await loadSiswaList();
+            if (!list || list.length === 0) {
+                sel.innerHTML = '<option value="">— Tidak ada data siswa —</option>';
+                return;
+            }
+            sel.innerHTML = '<option value="">— Pilih nama siswa —</option>' +
+                list.map(s => `<option value="${escHtml(s.nisn || '')}">${escHtml(s.nama_siswa || '-')} (${escHtml(s.nisn || '-')})</option>`).join('');
+        }
+
+        function onMappingNamaSiswaChange() {
+            const nisn = document.getElementById('mmNamaSiswa').value;
+            if (!nisn) {
+                document.getElementById('mmNisn').value = '';
+                document.getElementById('mmKelas').value = '';
+                document.getElementById('mmTahunPelajaran').value = '';
+                document.getElementById('mmNominal').value = '';
+                return;
+            }
+            const s = (siswaCacheList || []).find(x => String(x.nisn) === String(nisn));
+            if (!s) return;
+            document.getElementById('mmNisn').value = s.nisn || '';
+            document.getElementById('mmKelas').value = s.kelas || '';
+            document.getElementById('mmTahunPelajaran').value = s.tahun_pelajaran || '';
+            document.getElementById('mmNominal').value = s.nominal_per_bulan || '';
+        }
+
+        async function openMappingMutasiModal() {
+            document.getElementById('modalMappingMutasi').classList.add('active');
+            resetMappingMutasiForm();
+            populateBulanMasukOptionsMm();
+            populateMappingNamaSiswaSelect();
+            loadMappingMutasiTable();
+        }
+
+        function closeMappingMutasiModal() {
+            document.getElementById('modalMappingMutasi').classList.remove('active');
+        }
+
+        async function loadMappingMutasiTable() {
+            const body = document.getElementById('mmTableBody');
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>';
+            try {
+                const { data, error } = await db
+                    .from('mappingmutasi')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data maping siswa mutasi</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = data.map(d => `
+                    <tr>
+                        <td style="font-family:monospace;color:#475569;">${escHtml(d.id || '-')}</td>
+                        <td><strong>${escHtml(d.nama_siswa || '-')}</strong></td>
+                        <td style="font-family:monospace;color:#475569;">${escHtml(d.nisn || '-')}</td>
+                        <td><span class="badge-kelas">${escHtml(d.kelas || '-')}</span></td>
+                        <td><span class="badge-tahun" style="background:#f3e8ff;color:#6b21a8;">${escHtml(d.tahun_pelajaran || '-')}</span></td>
+                        <td>Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
+                        <td><span class="badge-bulan">${escHtml(d.bulan_masuk || '-')}</span></td>
+                        <td>
+                            <button class="btn-icon btn-delete" onclick="deleteMappingMutasi('${escHtml(d.id)}')" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#dc2626;padding:20px;">Gagal memuat data: ${escHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        async function saveMappingMutasi() {
+            const id = document.getElementById('mmId').value.trim();
+            const namaSiswaSel = document.getElementById('mmNamaSiswa');
+            const nisn = document.getElementById('mmNisn').value.trim();
+            const namaSiswa = nisn ? (namaSiswaSel.options[namaSiswaSel.selectedIndex].text || '').replace(/\s*\(.*\)$/, '') : '';
+            const kelas = document.getElementById('mmKelas').value.trim();
+            const tahunPelajaran = document.getElementById('mmTahunPelajaran').value.trim();
+            const nominal = document.getElementById('mmNominal').value;
+            const bulanMasuk = document.getElementById('mmBulanMasuk').value;
+
+            if (!nisn) { showToast('Pilih Nama Siswa terlebih dahulu!', 'error'); return; }
+            if (!kelas) { showToast('Kelas tidak boleh kosong!', 'error'); return; }
+            if (!tahunPelajaran) { showToast('Tahun Pelajaran tidak boleh kosong!', 'error'); return; }
+            if (!nominal) { showToast('Nominal/Bulan tidak boleh kosong!', 'error'); return; }
+            if (!bulanMasuk) { showToast('Pilih Bulan Masuk Sekolah terlebih dahulu!', 'error'); return; }
+
+            const btn = document.getElementById('btnMmKonfirmasi');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const payload = {
+                    id: id,
+                    nama_siswa: namaSiswa,
+                    nisn: nisn,
+                    kelas: kelas,
+                    tahun_pelajaran: tahunPelajaran,
+                    nominal: nominal,
+                    bulan_masuk: bulanMasuk
+                };
+                const { error } = await db.from('mappingmutasi').insert([payload]);
+                if (error) throw error;
+
+                showToast('✅ Data maping siswa mutasi berhasil disimpan!', 'success');
+                mappingSiswaCacheList = null; // invalidate cache supaya dropdown Nama Siswa ter-update
+                resetMappingMutasiForm();
+                document.getElementById('mmNamaSiswa').value = '';
+                loadMappingMutasiTable();
+            } catch (err) {
+                showToast('Gagal menyimpan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Konfirmasi';
+            }
+        }
+
+        async function deleteMappingMutasi(id) {
+            if (!confirm('Hapus data maping siswa mutasi ini?')) return;
+            try {
+                const { error } = await db.from('mappingmutasi').delete().eq('id', id);
+                if (error) throw error;
+                showToast('Data berhasil dihapus.', 'success');
+                mappingSiswaCacheList = null; // invalidate cache supaya dropdown Nama Siswa ter-update
+                loadMappingMutasiTable();
+            } catch (err) {
+                showToast('Gagal menghapus: ' + err.message, 'error');
             }
         }
 
@@ -3077,9 +3361,24 @@
             document.getElementById('sbNominal').value = '';
         }
 
-        // --- Autocomplete Nama Siswa (pakai cache yang sama dengan Tab 1) ---
+        // --- Autocomplete Nama Siswa (sumber data: tabel mappingmutasi) ---
         let acOpenSb = false;
         let acCurrentListSb = [];
+        let mappingSiswaCacheList = null; // cache setelah pertama load
+
+        async function loadMappingSiswaList(forceRefresh = false) {
+            if (mappingSiswaCacheList !== null && !forceRefresh) return mappingSiswaCacheList;
+            try {
+                const { data, error } = await db
+                    .from('mappingmutasi')
+                    .select('id, nisn, nama_siswa, kelas, tahun_pelajaran, nominal, bulan_masuk')
+                    .order('nama_siswa', { ascending: true });
+                mappingSiswaCacheList = (error || !data) ? [] : data;
+            } catch(e) {
+                mappingSiswaCacheList = [];
+            }
+            return mappingSiswaCacheList;
+        }
 
         async function toggleAcDropdownSb() {
             if (acOpenSb) { closeAcDropdownSb(); return; }
@@ -3094,7 +3393,7 @@
             chevron.style.transform = 'translateY(-50%) rotate(180deg)';
             chevron.style.transition = 'transform 0.2s';
 
-            const list = await loadSiswaList();
+            const list = await loadMappingSiswaList();
             renderAcListSb(list);
 
             setTimeout(() => {
@@ -3115,7 +3414,7 @@
             acCurrentListSb = data || [];
             const ul = document.getElementById('acListSb');
             if (acCurrentListSb.length === 0) {
-                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-user-slash" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Tidak ada data siswa</div>';
+                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-user-slash" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Tidak ada data maping siswa mutasi</div>';
                 return;
             }
             ul.innerHTML = acCurrentListSb.map((s, idx) => `
@@ -3127,6 +3426,7 @@
                         <span><i class="fas fa-id-card"></i>${escHtml(s.nisn || '-')}</span>
                         <span><i class="fas fa-school"></i>${escHtml(s.kelas || '-')}</span>
                         <span><i class="fas fa-calendar"></i>${escHtml(s.tahun_pelajaran || '-')}</span>
+                        <span><i class="fas fa-door-open"></i>${escHtml(s.bulan_masuk || '-')}</span>
                     </div>
                 </div>
             `).join('');
@@ -3134,7 +3434,7 @@
 
         function filterAcListSb() {
             const q = document.getElementById('acSearchSb').value.toLowerCase();
-            const src = siswaCacheList || [];
+            const src = mappingSiswaCacheList || [];
             const filtered = src.filter(s =>
                 (s.nama_siswa || '').toLowerCase().includes(q) ||
                 (s.nisn || '').toLowerCase().includes(q) ||
@@ -3149,12 +3449,12 @@
             document.getElementById('sbNisn').value    = s.nisn || '';
             document.getElementById('sbNama').value    = s.nama_siswa || '';
             document.getElementById('sbKelas').value   = s.kelas || '';
-            document.getElementById('sbNominal').value = s.nominal_per_bulan || '';
+            document.getElementById('sbNominal').value = s.nominal || '';
 
             document.getElementById('sbDetailNama').textContent    = s.nama_siswa;
             document.getElementById('sbDetailKelas').textContent   = s.kelas;
             document.getElementById('sbDetailTahun').textContent   = s.tahun_pelajaran || '';
-            document.getElementById('sbDetailNominal').textContent = 'Rp ' + (parseFloat(s.nominal_per_bulan)||0).toLocaleString('id-ID') + '/bln';
+            document.getElementById('sbDetailNominal').textContent = 'Rp ' + (parseFloat(s.nominal)||0).toLocaleString('id-ID') + '/bln';
             document.getElementById('siswaDetailBoxSb').classList.add('show');
 
             const info = document.getElementById('lookupInfoSb');
@@ -3163,8 +3463,18 @@
 
             closeAcDropdownSb();
 
+            // Auto-isi Bulan Masuk dari data maping (jika tersedia)
+            populateBulanMasukOptions();
+            const bulanMasukSel = document.getElementById('sbBulanMasuk');
+            if (bulanMasukSel && s.bulan_masuk && BULAN_LIST.includes(s.bulan_masuk)) {
+                bulanMasukSel.value = s.bulan_masuk;
+            }
+
             loadTahunOptionsSb(s.nisn, s.tahun_pelajaran).then(tahunTerpilih => {
-                const siswaCtx = Object.assign({}, s, { tahun_pelajaran: tahunTerpilih || s.tahun_pelajaran });
+                const siswaCtx = Object.assign({}, s, {
+                    nominal_per_bulan: s.nominal,
+                    tahun_pelajaran: tahunTerpilih || s.tahun_pelajaran
+                });
                 lookedUpSiswaSb = siswaCtx;
                 if (document.getElementById('sbBulanMasuk').value) {
                     loadAndRenderRiwayatSb(siswaCtx);
@@ -3255,7 +3565,7 @@
             let sudahBayarCount = 0;
             try {
                 const { data, error } = await db
-                    .from('sumbangankomite')
+                    .from('pemasukaniuranmutasi')
                     .select('bulan_bayar, tanggal_bayar, nominal, id, keterangan')
                     .eq('nisn', nisn)
                     .eq('tahun_pelajaran', tahun);
@@ -3282,7 +3592,7 @@
                 const tahunKode = tahun ? tahun.replace(/[^0-9]/g,'').substring(0,4) : '';
                 const generatedId = existing
                     ? existing.id
-                    : `SKB-${nisn}-${bulanKode}-${tahunKode}`;
+                    : `MUT-${nisn}-${bulanKode}-${tahunKode}`;
                 return {
                     idx,
                     bulan,
@@ -3401,7 +3711,7 @@
         }
 
         // --- Simpan Transaksi Siswa Mutasi ---
-        // (tabel: sumbangankomite, sama seperti Tab 1 — id diberi prefix "SKB-")
+        // (tabel: pemasukaniuranmutasi)
         async function saveDataSb() {
             const nisn        = document.getElementById('sbNisn').value.trim();
             const nama        = document.getElementById('sbNama').value.trim();
@@ -3446,7 +3756,7 @@
                     keterangan
                 }));
 
-                const { error } = await db.from('sumbangankomite').insert(payloads);
+                const { error } = await db.from('pemasukaniuranmutasi').insert(payloads);
                 if (error) throw error;
                 showToast(`✅ ${payloads.length} transaksi siswa mutasi berhasil disimpan!`, 'success');
 
@@ -3464,7 +3774,7 @@
                 });
 
                 closeModal();
-                await loadData();
+                await loadDataBaru();
             } catch(err) {
                 showToast('Gagal menyimpan: ' + err.message, 'error');
             } finally {
@@ -4020,6 +4330,14 @@
             document.getElementById('modalConfirm').classList.add('active');
         }
 
+        function openConfirmBaru(id, nama, bulan) {
+            deleteTargetId = id;
+            deleteTargetTable = 'pemasukaniuranmutasi';
+            document.getElementById('confirmText').textContent =
+                `Hapus transaksi "${nama}" bulan ${bulan}? Data tidak dapat dikembalikan.`;
+            document.getElementById('modalConfirm').classList.add('active');
+        }
+
         function closeConfirm() {
             deleteTargetId = null;
             document.getElementById('modalConfirm').classList.remove('active');
@@ -4037,6 +4355,8 @@
                 closeConfirm();
                 if (deleteTargetTable === 'ipptahunsebelumnya') {
                     await loadDataTS();
+                } else if (deleteTargetTable === 'pemasukaniuranmutasi') {
+                    await loadDataBaru();
                 } else {
                     await loadData();
                 }
@@ -4189,9 +4509,9 @@
 
                 <div class="struk-ttd">
                     <div class="struk-ttd-box">
-                        <div class="ttd-label">${escHtml(getBendaharaNama())}</div>
+                        <div class="ttd-label">Mentok, ${tglCetak}<br>Bendahara Sekolah</div>
                         <div class="ttd-space"></div>
-                        <div class="ttd-name">(.................................)</div>
+                        <div class="ttd-name">${escHtml(getBendaharaNama())}</div>
                     </div>
                 </div>
             `;
@@ -4257,9 +4577,9 @@
 
                 <div class="struk-ttd">
                     <div class="struk-ttd-box">
-                        <div class="ttd-label">${escHtml(d.bendahara)}</div>
+                        <div class="ttd-label">Mentok, ${tglCetak}<br>Bendahara Sekolah</div>
                         <div class="ttd-space"></div>
-                        <div class="ttd-name">(.................................)</div>
+                        <div class="ttd-name">${escHtml(d.bendahara)}</div>
                     </div>
                 </div>
             `;
@@ -4423,6 +4743,7 @@
             loadSchoolIdentity();
             loadData();
             loadDataTS();
+            loadDataBaru();
 
             document.getElementById('fNisn').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') lookupNisn();
@@ -4433,6 +4754,9 @@
             });
             document.getElementById('modalConfirm').addEventListener('click', function(e) {
                 if (e.target === this) closeConfirm();
+            });
+            document.getElementById('modalMappingMutasi').addEventListener('click', function(e) {
+                if (e.target === this) closeMappingMutasiModal();
             });
         });
     </script>
