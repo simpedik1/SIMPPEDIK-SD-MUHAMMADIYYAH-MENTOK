@@ -2612,8 +2612,13 @@
         // Init
         // =============================================
         loadSchoolIdentity();
-        loadSaldoSekolah();
-        loadGlobalSummary();
+        (async function initSaldo() {
+            // Saldo Awal (saldo_bank & saldo_tunai) harus selesai dimuat dulu
+            // sebelum Saldo Kas Akhir (Saldo Awal - Total Pengeluaran) dihitung,
+            // supaya tidak sempat menampilkan hasil dengan Saldo Awal = 0.
+            await loadSaldoSekolah();
+            await loadGlobalSummary();
+        })();
         loadData('ipp');
         loadIppPlanPreview();
     </script>
