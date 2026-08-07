@@ -371,22 +371,6 @@
             opacity: 0.75;
         }
 
-        .btn-edit-saldo-awal {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px; height: 22px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 0.72rem;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-        .btn-edit-saldo-awal:hover { background: rgba(255,255,255,0.36); }
-
         .btn-view-saldo-history {
             display: inline-flex;
             align-items: center;
@@ -874,25 +858,6 @@
             border-color: #1d4ed8;
             box-shadow: 0 0 0 3px rgba(29,78,216,0.12);
         }
-        .saldo-body input[type="text"].plain {
-            padding-left: 12px;
-        }
-        .saldo-body .readonly-datetime {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #64748b;
-            background: #f8fafc;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: not-allowed;
-        }
-        .saldo-body .readonly-datetime i { color: #94a3b8; }
         .saldo-hint {
             font-size: 0.76rem;
             color: #94a3b8;
@@ -1046,12 +1011,12 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="admintu.html" class="navbar-brand">
+        <a href="adminkepsek.html" class="navbar-brand">
             <img src="" alt="Logo" id="navLogo" style="display:none;">
-            <span id="navSchoolName">SMKN 1 Simpang Teritip</span>
+            <span id="navSchoolName">SD Muhammadiyyah Muntok</span>
         </a>
         <div class="navbar-right">
-            <a href="admintu.html" class="btn-back">
+            <a href="adminkepsek.html" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </div>
@@ -1077,9 +1042,6 @@
             <div class="saldo-item">
                 <div class="saldo-item-head">
                     <span class="saldo-label">Preview Saldo Awal</span>
-                    <button class="btn-edit-saldo-awal icon-tooltip" data-tooltip="Input Saldo Awal Kas" onclick="openSaldoAwalModal()" aria-label="Input Saldo Awal Kas">
-                        <i class="fas fa-pen"></i>
-                    </button>
                     <button class="btn-view-saldo-history icon-tooltip" data-tooltip="Riwayat Record Saldo Awal:" onclick="openSaldoHistoryModal()" aria-label="Riwayat Record Saldo Awal">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -1089,7 +1051,7 @@
                     <span><span class="saldo-dot saldo-dot-green"></span> Saldo Bank: <strong id="saldoBank">Rp 0</strong></span>
                     <span><span class="saldo-dot saldo-dot-purple"></span> Saldo Tunai: <strong id="saldoTunai">Rp 0</strong></span>
                 </div>
-                <div class="saldo-note">Update data Saldo Bank dan Saldo Tunai setiap tutup bulan.</div>
+                <div class="saldo-note">Data saldo awal terbaru berdasarkan Tanggal Record. Klik ikon mata untuk melihat riwayat.</div>
             </div>
             <div class="saldo-item">
                 <div class="saldo-item-head"><span class="saldo-label">Total Pemasukan</span></div>
@@ -1291,39 +1253,6 @@
                 </div>
             </div>
             <div class="pdf-body" id="pdfContent"></div>
-        </div>
-    </div>
-
-    <!-- Modal Update Saldo Awal -->
-    <div class="modal-saldo-overlay" id="modalSaldoAwal">
-        <div class="saldo-box">
-            <div class="saldo-header-bar">
-                <h3><i class="fas fa-coins"></i> Update Saldo Awal (Bank Manual, Tunai Otomatis)</h3>
-                <button class="btn-close-saldo" onclick="closeSaldoAwalModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="saldo-body">
-                <label for="inputSaldoBank">Nominal Saldo Bank</label>
-                <div class="saldo-input-wrap">
-                    <span>Rp</span>
-                    <input type="text" id="inputSaldoBank" placeholder="0" inputmode="numeric" oninput="formatSaldoAwalInput(this)">
-                </div>
-
-                <label style="margin-top:12px;display:block;">Nominal Saldo Tunai</label>
-                <div class="readonly-datetime" id="inputSaldoTunaiAuto"><i class="fas fa-calculator"></i> <span id="inputSaldoTunaiAutoText">Rp 0</span></div>
-                <div class="saldo-hint" style="margin-top:4px;">Saldo Tunai otomatis dihitung dari total pemasukan tabel <b>Sumbangan Komite</b> &amp; <b>IPP Tahun Sebelumnya</b> dengan Metode Bayar <b>Tunai</b> (tidak dapat diisi manual).</div>
-
-                <label for="inputSaldoBulan" style="margin-top:12px;display:block;">Bulan</label>
-                <input type="text" id="inputSaldoBulan" class="plain" placeholder="Contoh: Agustus 2026" style="margin-bottom:6px;">
-
-                <label for="inputSaldoTanggal" style="margin-top:12px;display:block;">Tanggal Record</label>
-                <div class="readonly-datetime" id="inputSaldoTanggal"><i class="fas fa-lock"></i> <span id="inputSaldoTanggalText">-</span></div>
-
-                <div class="saldo-hint">Setiap kali disimpan, data akan selalu <b>ditambahkan sebagai record baru</b> (bukan menimpa data lama) agar riwayat perubahan saldo tetap tercatat. Tanggal Record otomatis terisi sesuai waktu penyimpanan (tidak dapat diubah). Data yang ditampilkan di dashboard adalah record dengan Tanggal Record terbaru.</div>
-            </div>
-            <div class="saldo-footer">
-                <button class="btn-cancel-saldo" onclick="closeSaldoAwalModal()">Cancel</button>
-                <button class="btn-save-saldo" onclick="saveSaldoAwal()"><i class="fas fa-check"></i> Simpan</button>
-            </div>
         </div>
     </div>
 
@@ -2447,16 +2376,34 @@
             if (e.target === this) closeSourceSaldoModal();
         });
 
-        // ---- Modal Saldo Awal Gabungan (Preview Saldo Awal - Bank & Tunai) ----
-        // Disimpan di tabel Supabase 'saldoawal' (kolom: id, saldo_bank, saldo_tunai).
-        // Jika tabel ini belum ada, buat dulu di Supabase sebelum tombol edit dipakai.
+        // ---- Preview Saldo Awal Gabungan (Bank & Tunai) ----
+        // Saldo Bank dibaca dari record TERBARU tabel Supabase 'saldoawal'
+        // (kolom: id, saldo_bank, bulan, created_at) yang diinput manual dari
+        // halaman Neraca Sumbangan; di halaman ini hanya ditampilkan (read-only),
+        // dan bisa dilihat riwayatnya lewat ikon mata.
+        // Saldo Tunai TIDAK dibaca dari kolom tersimpan, melainkan dihitung
+        // live dari transaksi bermetode Tunai - sama persis seperti halaman
+        // Neraca Sumbangan - dari gabungan tabel 'sumbangankomite'
+        // (IPP Tahun Berjalan + Siswa Mutasi), 'ipptahunsebelumnya'
+        // (IPP Tahun Sebelumnya), 'pemasukantik' (TIK Tahun Berjalan + Siswa
+        // Mutasi), dan 'tiktahunsebelumnya' (TIK Tahun Sebelumnya).
         const globalSaldo = { bank: 0, tunai: 0, id: null, bulan: '', tanggalRecord: null };
 
-        // Menghitung total Saldo Tunai dari gabungan tabel 'sumbangankomite'
-        // (IPP Tahun Berjalan + Siswa Mutasi), 'ipptahunsebelumnya'
-        // (IPP Tahun Sebelumnya), 'pemasukantik' (TIK Tahun Berjalan + Siswa Mutasi),
-        // dan 'tiktahunsebelumnya' (TIK Tahun Sebelumnya).
+        // Menghitung total Saldo Tunai via RPC (fungsi SQL 'hitung_saldo_tunai'),
+        // supaya database yang menjumlahkan (SUM) langsung di sisi server dan
+        // hanya mengirim SATU ANGKA ke browser - jauh lebih hemat egress
+        // dibanding menarik semua baris lalu dijumlah di JavaScript.
+        // Fallback ke cara lama (tarik semua baris) jika RPC belum dibuat di Supabase,
+        // supaya halaman tetap berfungsi sebelum SQL function-nya dijalankan.
         async function hitungSaldoTunaiTransaksi() {
+            try {
+                const { data, error } = await db.rpc('hitung_saldo_tunai');
+                if (!error && data !== null && data !== undefined) {
+                    return parseFloat(data) || 0;
+                }
+            } catch (e) { /* RPC belum tersedia -> lanjut ke fallback di bawah */ }
+
+            // ---- Fallback: cara lama (tarik semua baris, jumlah di client) ----
             let total = 0;
             try {
                 const { data, error } = await db
@@ -2505,9 +2452,6 @@
 
         async function loadSaldoSekolah() {
             try {
-                // Ambil record TERBARU berdasarkan Tanggal Record (created_at),
-                // bukan berdasarkan urutan insert. Ini penting karena data
-                // selalu ditambahkan (insert) dan tidak pernah di-update.
                 const { data } = await db
                     .from('saldoawal')
                     .select('*')
@@ -2523,8 +2467,7 @@
             } catch (e) {
                 // Tabel belum ada / belum ada data -> biarkan default 0
             }
-            // Saldo Tunai tidak lagi diambil dari record manual 'saldoawal',
-            // melainkan dihitung otomatis dari transaksi bermetode Tunai.
+            // Saldo Tunai dihitung live, bukan dari kolom saldo_tunai tersimpan.
             globalSaldo.tunai = await hitungSaldoTunaiTransaksi();
             renderSaldoAwalPreview();
         }
@@ -2548,84 +2491,6 @@
             const dtk = String(d.getSeconds()).padStart(2, '0');
             return `${hari}, ${tgl} ${bulanNama} ${thn} ${jam}:${mnt}:${dtk}`;
         }
-
-        let saldoAwalClockInterval = null;
-
-        function tickSaldoAwalClock() {
-            const el = document.getElementById('inputSaldoTanggalText');
-            if (el) el.textContent = formatTanggalRecordIndo(new Date());
-        }
-
-        function openSaldoAwalModal() {
-            document.getElementById('inputSaldoBank').value = globalSaldo.bank ? globalSaldo.bank.toLocaleString('id-ID') : '';
-            document.getElementById('inputSaldoTunaiAutoText').textContent = 'Rp ' + globalSaldo.tunai.toLocaleString('id-ID');
-            document.getElementById('inputSaldoBulan').value = globalSaldo.bulan || '';
-            // Tanggal Record tidak dapat diubah user -> otomatis mengikuti
-            // waktu saat ini (hari, tanggal, bulan, tahun, jam:menit:detik)
-            // dan terus berjalan (live) selama modal terbuka.
-            tickSaldoAwalClock();
-            if (saldoAwalClockInterval) clearInterval(saldoAwalClockInterval);
-            saldoAwalClockInterval = setInterval(tickSaldoAwalClock, 1000);
-            document.getElementById('modalSaldoAwal').classList.add('active');
-        }
-
-        function closeSaldoAwalModal() {
-            document.getElementById('modalSaldoAwal').classList.remove('active');
-            if (saldoAwalClockInterval) {
-                clearInterval(saldoAwalClockInterval);
-                saldoAwalClockInterval = null;
-            }
-        }
-
-        async function saveSaldoAwal() {
-            const rawBank = document.getElementById('inputSaldoBank').value.replace(/\D/g, '');
-            const bankBaru = rawBank ? parseInt(rawBank, 10) : 0;
-            const bulanBaru = document.getElementById('inputSaldoBulan').value.trim();
-
-            const btn = document.querySelector('.btn-save-saldo');
-            const btnHtmlAsli = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-
-            try {
-                // Selalu INSERT record baru (tidak pernah update) agar setiap
-                // perubahan saldo awal tetap tercatat sebagai riwayat.
-                // Tanggal Record tidak bisa diubah user -> otomatis diisi
-                // dari waktu presisi (detik) saat tombol Simpan diklik.
-                // Saldo Tunai disertakan sebagai catatan riwayat sesuai nilai
-                // otomatis (hasil hitung transaksi Tunai) saat itu.
-                const idBaru = 'saldoawal-' + Date.now();
-                const waktuSimpan = new Date();
-                const createdAtIso = waktuSimpan.toISOString();
-
-                const { error } = await db
-                    .from('saldoawal')
-                    .insert({
-                        id: idBaru,
-                        saldo_bank: bankBaru,
-                        saldo_tunai: globalSaldo.tunai,
-                        bulan: bulanBaru || null,
-                        created_at: createdAtIso
-                    });
-                if (error) throw error;
-
-                closeSaldoAwalModal();
-                showToast('Record Saldo Bank & Saldo Tunai berhasil ditambahkan (' + formatTanggalRecordIndo(waktuSimpan) + ').');
-
-                // Muat ulang data terbaru berdasarkan Tanggal Record (created_at).
-                await loadSaldoSekolah();
-                updateSaldoAkhirPreview();
-            } catch (err) {
-                showToast('Gagal menyimpan saldo: ' + err.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = btnHtmlAsli;
-            }
-        }
-
-        document.getElementById('modalSaldoAwal').addEventListener('click', function(e) {
-            if (e.target === this) closeSaldoAwalModal();
-        });
 
         // ---- Modal Riwayat Record Saldo Awal ----
         let saldoHistoryCache = [];
@@ -2814,8 +2679,13 @@
         // Init
         // =============================================
         loadSchoolIdentity();
-        loadSaldoSekolah();
-        loadGlobalSummary();
+        (async function initSaldo() {
+            // Saldo Awal (saldo_bank & saldo_tunai) harus selesai dimuat dulu
+            // sebelum Saldo Kas Akhir (Saldo Awal - Total Pengeluaran) dihitung,
+            // supaya tidak sempat menampilkan hasil dengan Saldo Awal = 0.
+            await loadSaldoSekolah();
+            await loadGlobalSummary();
+        })();
         loadData('ipp');
         loadIppPlanPreview();
     </script>
