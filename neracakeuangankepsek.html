@@ -2377,12 +2377,78 @@
         });
 
         // ---- Preview Saldo Awal Gabungan (Bank & Tunai) ----
-        // Disimpan di tabel Supabase 'saldoawal' (kolom: id, saldo_bank,
-        // saldo_tunai, bulan, created_at). Data selalu ditambahkan (insert)
-        // dari halaman Neraca Sumbangan; di halaman ini hanya ditampilkan
-        // (read-only) berdasarkan record TERBARU menurut created_at
-        // (Tanggal Record), dan bisa dilihat riwayatnya lewat ikon mata.
+        // Saldo Bank dibaca dari record TERBARU tabel Supabase 'saldoawal'
+        // (kolom: id, saldo_bank, bulan, created_at) yang diinput manual dari
+        // halaman Neraca Sumbangan; di halaman ini hanya ditampilkan (read-only),
+        // dan bisa dilihat riwayatnya lewat ikon mata.
+        // Saldo Tunai TIDAK dibaca dari kolom tersimpan, melainkan dihitung
+        // live dari transaksi bermetode Tunai - sama persis seperti halaman
+        // Neraca Sumbangan - dari gabungan tabel 'sumbangankomite'
+        // (IPP Tahun Berjalan + Siswa Mutasi), 'ipptahunsebelumnya'
+        // (IPP Tahun Sebelumnya), 'pemasukantik' (TIK Tahun Berjalan + Siswa
+        // Mutasi), dan 'tiktahunsebelumnya' (TIK Tahun Sebelumnya).
         const globalSaldo = { bank: 0, tunai: 0, id: null, bulan: '', tanggalRecord: null };
+
+        // Menghitung total Saldo Tunai via RPC (fungsi SQL 'hitung_saldo_tunai'),
+        // supaya database yang menjumlahkan (SUM) langsung di sisi server dan
+        // hanya mengirim SATU ANGKA ke browser - jauh lebih hemat egress
+        // dibanding menarik semua baris lalu dijumlah di JavaScript.
+        // Fallback ke cara lama (tarik semua baris) jika RPC belum dibuat di Supabase,
+        // supaya halaman tetap berfungsi sebelum SQL function-nya dijalankan.
+        async function hitungSaldoTunaiTransaksi() {
+            try {
+                const { data, error } = await db.rpc('hitung_saldo_tunai');
+                if (!error && data !== null && data !== undefined) {
+                    return parseFloat(data) || 0;
+                }
+            } catch (e) { /* RPC belum tersedia -> lanjut ke fallback di bawah */ }
+
+            // ---- Fallback: cara lama (tarik semua baris, jumlah di client) ----
+            let total = 0;
+            try {
+                const { data, error } = await db
+                    .from('sumbangankomite')
+                    .select('nominal, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('ipptahunsebelumnya')
+                    .select('nominal_bulan, jumlah_bulan, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) =>
+                        s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('pemasukantik')
+                    .select('nominal, keterangan')
+                    .eq('keterangan', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('tiktahunsebelumnya')
+                    .select('nominal_bulan, jumlah_bulan, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) =>
+                        s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            return total;
+        }
 
         async function loadSaldoSekolah() {
             try {
@@ -2395,13 +2461,14 @@
                 if (data) {
                     globalSaldo.id = data.id;
                     globalSaldo.bank = parseFloat(data.saldo_bank) || 0;
-                    globalSaldo.tunai = parseFloat(data.saldo_tunai) || 0;
                     globalSaldo.bulan = data.bulan || '';
                     globalSaldo.tanggalRecord = data.created_at || null;
                 }
             } catch (e) {
                 // Tabel belum ada / belum ada data -> biarkan default 0
             }
+            // Saldo Tunai dihitung live, bukan dari kolom saldo_tunai tersimpan.
+            globalSaldo.tunai = await hitungSaldoTunaiTransaksi();
             renderSaldoAwalPreview();
         }
 
