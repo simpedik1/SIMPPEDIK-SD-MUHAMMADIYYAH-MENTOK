@@ -2453,8 +2453,9 @@
         const globalSaldo = { bank: 0, tunai: 0, id: null, bulan: '', tanggalRecord: null };
 
         // Menghitung total Saldo Tunai dari gabungan tabel 'sumbangankomite'
-        // (IPP Tahun Berjalan + Siswa Mutasi) dan 'ipptahunsebelumnya'
-        // (IPP Tahun Sebelumnya), khusus transaksi dengan metode_bayar = 'Tunai'.
+        // (IPP Tahun Berjalan + Siswa Mutasi), 'ipptahunsebelumnya'
+        // (IPP Tahun Sebelumnya), 'pemasukantik' (TIK Tahun Berjalan + Siswa Mutasi),
+        // dan 'tiktahunsebelumnya' (TIK Tahun Sebelumnya).
         async function hitungSaldoTunaiTransaksi() {
             let total = 0;
             try {
@@ -2470,6 +2471,27 @@
             try {
                 const { data, error } = await db
                     .from('ipptahunsebelumnya')
+                    .select('nominal_bulan, jumlah_bulan, metode_bayar')
+                    .eq('metode_bayar', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) =>
+                        s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('pemasukantik')
+                    .select('nominal, keterangan')
+                    .eq('keterangan', 'Tunai');
+                if (!error && data) {
+                    total += data.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+                }
+            } catch (e) { /* tabel/kolom belum siap -> abaikan */ }
+
+            try {
+                const { data, error } = await db
+                    .from('tiktahunsebelumnya')
                     .select('nominal_bulan, jumlah_bulan, metode_bayar')
                     .eq('metode_bayar', 'Tunai');
                 if (!error && data) {
