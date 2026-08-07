@@ -695,7 +695,8 @@
             border-color: #f97316;
             box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
         }
-        .form-group input[readonly] {
+        .form-group input[readonly],
+        .form-group textarea[readonly] {
             background: #f8fafc;
             color: #94a3b8;
             cursor: not-allowed;
@@ -1847,8 +1848,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
-                    <textarea id="fKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                    <textarea id="fKeterangan" placeholder="Catatan pembayaran..." readonly>Tunai</textarea>
                 </div>
 
                 <!-- Tabel Riwayat & Input Pembayaran Per Bulan -->
@@ -1952,6 +1953,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#f97316"></i>Metode Bayar</label>
+                        <input type="text" id="tsMetodeBayar" value="Tunai" readonly>
+                    </div>
+
+                    <div class="form-group">
                         <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
                         <textarea id="tsKeterangan" placeholder="Catatan pembayaran..."></textarea>
                     </div>
@@ -2045,8 +2051,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
-                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..."></textarea>
+                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
+                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..." readonly>Tunai</textarea>
                     </div>
                 </div>
 
@@ -3062,6 +3068,7 @@
             document.getElementById('tsNominal').value = '';
             document.getElementById('tsJumlahBulan').value = '';
             document.getElementById('tsBulanBayar').value = '';
+            document.getElementById('tsMetodeBayar').value = 'Tunai';
             document.getElementById('tsTotalPembayaran').value = '';
             document.getElementById('tsKeterangan').value = '';
             document.getElementById('tsBendahara').value = '';
@@ -3089,7 +3096,7 @@
             selT.onchange = null;
             document.getElementById('sbNominal').value = '';
             document.getElementById('sbBulanMasuk').value = '';
-            document.getElementById('sbKeterangan').value = '';
+            document.getElementById('sbKeterangan').value = 'Tunai';
             document.getElementById('lookupInfoSb').className = 'lookup-info';
             document.getElementById('lookupInfoSb').textContent = '';
             document.getElementById('siswaDetailBoxSb').classList.remove('show');
@@ -3554,7 +3561,7 @@
             selT.disabled = true;
             selT.onchange = null;
             document.getElementById('fNominal').value = '';
-            document.getElementById('fKeterangan').value = '';
+            document.getElementById('fKeterangan').value = 'Tunai';
             document.getElementById('lookupInfo').className = 'lookup-info';
             document.getElementById('lookupInfo').textContent = '';
             document.getElementById('siswaDetailBox').classList.remove('show');
@@ -3579,7 +3586,7 @@
                 document.getElementById('fNama').value       = row.nama_siswa || '';
                 document.getElementById('fKelas').value      = row.kelas || '';
                 document.getElementById('fNominal').value    = row.nominal || '';
-                document.getElementById('fKeterangan').value = row.keterangan || '';
+                document.getElementById('fKeterangan').value = row.keterangan || 'Tunai';
 
                 document.getElementById('fNama').readOnly   = false;
                 document.getElementById('fNama').onclick    = null;
@@ -3657,6 +3664,7 @@
             document.getElementById('tsJumlahBulan').value   = row.jumlah_bulan || '';
             document.getElementById('tsBulanBayar').value    = row.bulan_bayar || '';
             document.getElementById('tsTotalPembayaran').value = row.total_bayar || '';
+            document.getElementById('tsMetodeBayar').value   = row.metode_bayar || 'Tunai';
             document.getElementById('tsKeterangan').value    = row.keterangan || '';
             document.getElementById('tsBendahara').value     = row.bendahara || '';
 
@@ -3996,6 +4004,7 @@
             const jumlahBulan   = parseFloat(document.getElementById('tsJumlahBulan').value) || 0;
             const bulanBayar    = document.getElementById('tsBulanBayar').value.trim();
             const totalBayar    = document.getElementById('tsTotalPembayaran').value.trim();
+            const metodeBayar   = document.getElementById('tsMetodeBayar').value.trim() || 'Tunai';
             const keterangan    = document.getElementById('tsKeterangan').value.trim() || 'Lunas';
             const bendahara     = document.getElementById('tsBendahara').value.trim();
 
@@ -4017,6 +4026,7 @@
                     jumlah_bulan: jumlahBulan,
                     bulan_bayar: bulanBayar,
                     total_bayar: totalBayar,
+                    metode_bayar: metodeBayar,
                     keterangan,
                     bendahara
                 };
