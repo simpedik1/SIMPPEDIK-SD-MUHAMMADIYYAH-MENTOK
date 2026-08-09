@@ -1745,13 +1745,14 @@
                             <th>Jumlah Bulan</th>
                             <th>Untuk Bulan</th>
                             <th>Total Pembayaran</th>
+                            <th>Metode Bayar</th>
                             <th>Bendahara</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBodyTS">
                         <tr class="loading-row">
-                            <td colspan="11"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
+                            <td colspan="12"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1858,8 +1859,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
-                    <textarea id="fKeterangan" placeholder="Catatan pembayaran..." readonly>Tunai</textarea>
+                    <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar</label>
+                    <select id="fKeterangan" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                        <option value="Tunai">Tunai</option>
+                        <option value="Transfer Bank">Transfer Bank</option>
+                    </select>
                 </div>
 
                 <!-- Tabel Riwayat & Input Pembayaran Per Bulan -->
@@ -1964,7 +1968,10 @@
 
                     <div class="form-group">
                         <label><i class="fas fa-money-check-alt" style="margin-right:4px;color:#f97316"></i>Metode Bayar</label>
-                        <input type="text" id="tsMetodeBayar" value="Tunai" readonly>
+                        <select id="tsMetodeBayar" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -2061,8 +2068,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar <span style="color:#aaa;font-weight:400;font-size:0.75rem;">(opsional)</span></label>
-                        <textarea id="sbKeterangan" placeholder="Catatan pembayaran..." readonly>Tunai</textarea>
+                        <label><i class="fas fa-sticky-note" style="margin-right:4px;color:#f97316"></i>Keterangan Metode Bayar</label>
+                        <select id="sbKeterangan" style="width:100%;padding:8px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:0.88rem;color:#333;font-family:inherit;background:white;">
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                        </select>
                     </div>
                 </div>
 
@@ -2478,7 +2488,7 @@
                 filterDataTS();
             } catch(err) {
                 document.getElementById('tableBodyTS').innerHTML =
-                    `<tr class="loading-row"><td colspan="11" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+                    `<tr class="loading-row"><td colspan="12" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
             }
         }
 
@@ -2499,7 +2509,7 @@
 
             if (total === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="11">
+                    <tr><td colspan="12">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <p>Tidak ada data pembayaran tahun sebelumnya.</p>
@@ -2526,6 +2536,7 @@
                     <td style="text-align:center;">${escHtml(d.jumlah_bulan || '-')}</td>
                     <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
                     <td class="nominal-text">${escHtml(d.total_bayar || '-')}</td>
+                    <td style="font-size:0.82rem;color:#475569;">${escHtml(d.metode_bayar || '-')}</td>
                     <td style="font-size:0.82rem;color:#475569;">${escHtml(d.bendahara || '-')}</td>
                     <td>
                         <div class="action-btns">
@@ -3760,7 +3771,7 @@
                 document.getElementById('fNama').value       = row.nama_siswa || '';
                 document.getElementById('fKelas').value      = row.kelas || '';
                 document.getElementById('fNominal').value    = row.nominal || '';
-                document.getElementById('fKeterangan').value = row.keterangan || 'Tunai';
+                setMetodeBayarValue('fKeterangan', row.keterangan || 'Tunai');
 
                 document.getElementById('fNama').readOnly   = false;
                 document.getElementById('fNama').onclick    = null;
@@ -3838,7 +3849,7 @@
             document.getElementById('tsJumlahBulan').value   = row.jumlah_bulan || '';
             document.getElementById('tsBulanBayar').value    = row.bulan_bayar || '';
             document.getElementById('tsTotalPembayaran').value = row.total_bayar || '';
-            document.getElementById('tsMetodeBayar').value   = row.metode_bayar || 'Tunai';
+            setMetodeBayarValue('tsMetodeBayar', row.metode_bayar || 'Tunai');
             document.getElementById('tsKeterangan').value    = row.keterangan || '';
             document.getElementById('tsBendahara').value     = row.bendahara || '';
 
@@ -4341,6 +4352,17 @@
             t.className = `toast ${type} show`;
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Set nilai dropdown Metode Bayar (Tunai / Transfer Bank) dengan aman.
+        // Kalau data lama di Supabase bukan salah satu dari 2 pilihan tsb
+        // (mis. teks bebas peninggalan sebelum field ini jadi dropdown),
+        // fallback ke 'Tunai' supaya select tidak kosong/tidak terpilih.
+        function setMetodeBayarValue(elId, val) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const opsi = ['Tunai', 'Transfer Bank'];
+            el.value = opsi.includes(val) ? val : 'Tunai';
         }
 
         function escHtml(str) {
