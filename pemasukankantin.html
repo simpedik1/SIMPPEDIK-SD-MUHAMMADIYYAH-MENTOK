@@ -852,10 +852,10 @@
                 </div>
             </div>
             <div class="stat-card c-purple">
-                <div class="stat-icon si-purple"><i class="fas fa-user-tie"></i></div>
+                <div class="stat-icon si-purple"><i class="fas fa-wallet"></i></div>
                 <div class="stat-info">
-                    <h3 id="statPetugas">—</h3>
-                    <p>Petugas Aktif</p>
+                    <h3 id="statSisaSaldoKas">—</h3>
+                    <p>Sisa Saldo Kas</p>
                 </div>
             </div>
         </div>
@@ -1130,12 +1130,30 @@
                 })
                 .reduce((s, d) => s + (parseFloat(d.jumlah_setoran) || 0), 0);
 
-            const uniquePetugas = new Set(allData.map(d => d.petugas).filter(Boolean)).size;
-
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
             document.getElementById('statBulanIni').textContent = 'Rp ' + bulanIni.toLocaleString('id-ID');
-            document.getElementById('statPetugas').textContent = uniquePetugas;
+        }
+
+        // =============================================
+        // Load Sisa Saldo Kas (tabel: neracasaldokas, nama_kas = 'KANTIN')
+        // =============================================
+        async function loadSisaSaldoKas() {
+            const el = document.getElementById('statSisaSaldoKas');
+            try {
+                const { data, error } = await db
+                    .from('neracasaldokas')
+                    .select('sisasaldotunai')
+                    .eq('nama_kas', 'KANTIN')
+                    .single();
+
+                if (error) throw error;
+
+                const saldo = data ? (parseFloat(data.sisasaldotunai) || 0) : 0;
+                el.textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+            } catch (err) {
+                el.textContent = 'Rp 0';
+            }
         }
 
         // =============================================
@@ -1595,6 +1613,7 @@
         // =============================================
         loadSchoolIdentity();
         loadData();
+        loadSisaSaldoKas();
     </script>
 </body>
 </html>
