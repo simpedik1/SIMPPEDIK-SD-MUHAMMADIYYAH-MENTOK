@@ -153,6 +153,40 @@
         .si-amber  { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .si-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
+        /* Mini Stats (dalam tab pane) */
+        .mini-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .mini-stat-card {
+            background: #fafafa;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #eef2f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+        .mini-stat-card.ms-green { border-left-color: #10b981; }
+        .mini-stat-card.ms-blue  { border-left-color: #2563eb; }
+        .mini-stat-card.ms-amber { border-left-color: #f59e0b; }
+        .mini-stat-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        .mini-stat-card.ms-green .mini-stat-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .mini-stat-card.ms-blue  .mini-stat-icon { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .mini-stat-card.ms-amber .mini-stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .mini-stat-info h4 { font-size: 1.05rem; font-weight: 800; color: #1e293b; line-height: 1.1; }
+        .mini-stat-info p  { font-size: 0.71rem; color: #64748b; margin-top: 2px; }
+
         .stat-info h3 { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1; }
         .stat-info p  { font-size: 0.76rem; color: #64748b; margin-top: 3px; }
 
@@ -1558,10 +1592,10 @@
                 </div>
             </div>
             <div class="stat-card c-purple">
-                <div class="stat-icon si-purple"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-icon si-purple"><i class="fas fa-wallet"></i></div>
                 <div class="stat-info">
-                    <h3 id="statBulan">—</h3>
-                    <p>Bulan Dibayar</p>
+                    <h3 id="statSisaSaldoTunai">—</h3>
+                    <p>Sisa Saldo Tunai</p>
                 </div>
             </div>
         </div>
@@ -1598,6 +1632,31 @@
 
             <!-- TAB 1: Pembayaran Tahun Berjalan -->
             <div class="tab-pane active" id="tablePaneBerjalan">
+
+            <!-- Mini Stats: Ringkasan Tahun Berjalan -->
+            <div class="mini-stats-grid" id="miniStatsBerjalan">
+                <div class="mini-stat-card ms-green">
+                    <div class="mini-stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTotalTransaksi">—</h4>
+                        <p>Total Transaksi</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-blue">
+                    <div class="mini-stat-icon"><i class="fas fa-building-columns"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTotalTransferBank">—</h4>
+                        <p>Total Pemasukan: Transfer Bank</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-amber">
+                    <div class="mini-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTotalTunai">—</h4>
+                        <p>Total Pemasukan: Tunai</p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Toolbar -->
             <div class="toolbar">
@@ -1654,6 +1713,31 @@
             <!-- TAB 2: Pembayaran Tahun Sebelumnya -->
             <div class="tab-pane" id="tablePaneSebelumnya">
 
+            <!-- Mini Stats: Ringkasan Tahun Sebelumnya -->
+            <div class="mini-stats-grid" id="miniStatsSebelumnya">
+                <div class="mini-stat-card ms-green">
+                    <div class="mini-stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTsTotalTransaksi">—</h4>
+                        <p>Total Transaksi</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-blue">
+                    <div class="mini-stat-icon"><i class="fas fa-building-columns"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTsTotalTransferBank">—</h4>
+                        <p>Total Pemasukan: Transfer Bank</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-amber">
+                    <div class="mini-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTsTotalTunai">—</h4>
+                        <p>Total Pemasukan: Tunai</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Toolbar -->
             <div class="toolbar">
                 <div class="search-box">
@@ -1701,6 +1785,31 @@
             <!-- TAB 3: Siswa Mutasi -->
             <div class="tab-pane" id="tablePaneBaru">
 
+            <!-- Mini Stats: Ringkasan Siswa Mutasi -->
+            <div class="mini-stats-grid" id="miniStatsBaru">
+                <div class="mini-stat-card ms-green">
+                    <div class="mini-stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msBaruTotalTransaksi">—</h4>
+                        <p>Total Transaksi</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-blue">
+                    <div class="mini-stat-icon"><i class="fas fa-building-columns"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msBaruTotalTransferBank">—</h4>
+                        <p>Total Pemasukan: Transfer Bank</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-amber">
+                    <div class="mini-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msBaruTotalTunai">—</h4>
+                        <p>Total Pemasukan: Tunai</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Toolbar -->
             <div class="toolbar">
                 <div class="search-box">
@@ -1731,13 +1840,14 @@
                             <th>Bulan Bayar</th>
                             <th>Tgl Bayar</th>
                             <th>Nominal</th>
+                            <th>Metode Bayar</th>
                             <th>Keterangan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBodyBaru">
                         <tr class="loading-row">
-                            <td colspan="10"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
+                            <td colspan="11"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2561,7 +2671,7 @@
                 const tbody = document.getElementById('tableBodyBaru');
                 if (tbody) {
                     tbody.innerHTML =
-                        `<tr class="loading-row"><td colspan="10" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
+                        `<tr class="loading-row"><td colspan="11" style="color:#ef4444;"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Gagal memuat data: ${err.message}</td></tr>`;
                 }
             }
         }
@@ -2617,18 +2727,69 @@
             allDataTS.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
             allDataBaru.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
 
-            const bulanSet = new Set();
-            allData.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
-            allDataTS.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
-            allDataBaru.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
-
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
             document.getElementById('statNominalBerjalan').textContent = 'Rp ' + totalNominalBerjalan.toLocaleString('id-ID');
             document.getElementById('statNominalSebelumnya').textContent = 'Rp ' + totalNominalSebelumnya.toLocaleString('id-ID');
             document.getElementById('statNominalMutasi').textContent = 'Rp ' + totalNominalMutasi.toLocaleString('id-ID');
             document.getElementById('statSiswa').textContent = siswaSet.size;
-            document.getElementById('statBulan').textContent = bulanSet.size;
+
+            // Mini stats: Ringkasan Tahun Berjalan (khusus tab "Pembayaran Tahun Berjalan")
+            const totalTransferBank = allData
+                .filter(d => d.metode_bayar === 'Transfer Bank')
+                .reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalTunai = allData
+                .filter(d => d.metode_bayar === 'Tunai')
+                .reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+
+            document.getElementById('msTotalTransaksi').textContent = allData.length;
+            document.getElementById('msTotalTransferBank').textContent = 'Rp ' + totalTransferBank.toLocaleString('id-ID');
+            document.getElementById('msTotalTunai').textContent = 'Rp ' + totalTunai.toLocaleString('id-ID');
+
+            // Mini stats: Ringkasan Tahun Sebelumnya (khusus tab "Pembayaran Tahun Sebelumnya")
+            const totalTransferBankTS = allDataTS
+                .filter(d => d.metode_bayar === 'Transfer Bank')
+                .reduce((s, d) => s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+            const totalTunaiTS = allDataTS
+                .filter(d => d.metode_bayar === 'Tunai')
+                .reduce((s, d) => s + ((parseFloat(d.nominal_bulan) || 0) * (parseFloat(d.jumlah_bulan) || 0)), 0);
+
+            document.getElementById('msTsTotalTransaksi').textContent = allDataTS.length;
+            document.getElementById('msTsTotalTransferBank').textContent = 'Rp ' + totalTransferBankTS.toLocaleString('id-ID');
+            document.getElementById('msTsTotalTunai').textContent = 'Rp ' + totalTunaiTS.toLocaleString('id-ID');
+
+            // Mini stats: Ringkasan Siswa Mutasi (khusus tab "Siswa Mutasi")
+            const totalTransferBankBaru = allDataBaru
+                .filter(d => d.metode_bayar === 'Transfer Bank')
+                .reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalTunaiBaru = allDataBaru
+                .filter(d => d.metode_bayar === 'Tunai')
+                .reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+
+            document.getElementById('msBaruTotalTransaksi').textContent = allDataBaru.length;
+            document.getElementById('msBaruTotalTransferBank').textContent = 'Rp ' + totalTransferBankBaru.toLocaleString('id-ID');
+            document.getElementById('msBaruTotalTunai').textContent = 'Rp ' + totalTunaiBaru.toLocaleString('id-ID');
+        }
+
+        // =============================================
+        // Load Sisa Saldo Tunai (tabel: neracasaldokas, nama_kas = 'IPP')
+        // =============================================
+        async function loadSisaSaldoTunai() {
+            const el = document.getElementById('statSisaSaldoTunai');
+            try {
+                const { data, error } = await db
+                    .from('neracasaldokas')
+                    .select('sisasaldotunai')
+                    .eq('nama_kas', 'IPP')
+                    .single();
+
+                if (error) throw error;
+
+                const saldo = data ? (parseFloat(data.sisasaldotunai) || 0) : 0;
+                el.textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+            } catch (err) {
+                el.textContent = 'Rp 0';
+            }
         }
 
         // =============================================
@@ -2882,7 +3043,7 @@
 
             if (total === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="10">
+                    <tr><td colspan="11">
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <p>Tidak ada data transaksi siswa mutasi.</p>
@@ -2908,6 +3069,7 @@
                     <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
                     <td style="font-size:0.82rem;color:#475569;">${d.tanggal_bayar ? fmtDate(d.tanggal_bayar) : '-'}</td>
                     <td class="nominal-text">Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
+                    <td style="font-size:0.82rem;color:#475569;">${escHtml(d.metode_bayar || '-')}</td>
                     <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
                     <td>
                         <div class="action-btns">
@@ -3255,6 +3417,12 @@
         function generateIdTS() {
             const rand5 = Math.floor(10000 + Math.random() * 90000); // 5 angka random
             return `Ipp-TS.${rand5}`;
+        }
+
+        // Konversi string format rupiah ("Rp 400.000") menjadi angka murni (400000)
+        // Dipakai sebelum insert/update ke kolom total_bayar (tipe numeric di Supabase)
+        function parseRupiah(str) {
+            return parseFloat(String(str).replace(/[^0-9]/g, '')) || 0;
         }
 
         function hitungTotalTS() {
@@ -4490,7 +4658,7 @@
             const nominalBulan  = parseFloat(document.getElementById('tsNominal').value) || 0;
             const jumlahBulan   = parseFloat(document.getElementById('tsJumlahBulan').value) || 0;
             const bulanBayar    = document.getElementById('tsBulanBayar').value.trim();
-            const totalBayar    = document.getElementById('tsTotalPembayaran').value.trim();
+            const totalBayar    = parseRupiah(document.getElementById('tsTotalPembayaran').value);
             const metodeBayar   = document.getElementById('tsMetodeBayar').value;
             const bendahara     = document.getElementById('tsBendahara').value.trim();
 
@@ -4695,7 +4863,7 @@
             document.getElementById('etsNominal').value   = d.nominal_bulan || '';
             document.getElementById('etsJumlahBulan').value = d.jumlah_bulan || '';
             document.getElementById('etsBulanBayar').value  = d.bulan_bayar || '';
-            document.getElementById('etsTotalPembayaran').value = d.total_bayar || '';
+            document.getElementById('etsTotalPembayaran').value = d.total_bayar ? 'Rp ' + parseFloat(d.total_bayar).toLocaleString('id-ID') : '';
             document.getElementById('etsMetodeBayar').value = d.metode_bayar || '';
             document.getElementById('etsBendahara').value   = d.bendahara || '';
             document.getElementById('modalEditTransaksiTS').classList.add('active');
@@ -4720,7 +4888,7 @@
             const nominalBulan = parseFloat(document.getElementById('etsNominal').value) || 0;
             const jumlahBulan  = parseFloat(document.getElementById('etsJumlahBulan').value) || 0;
             const bulanBayar   = document.getElementById('etsBulanBayar').value.trim();
-            const totalBayar   = document.getElementById('etsTotalPembayaran').value.trim();
+            const totalBayar   = parseRupiah(document.getElementById('etsTotalPembayaran').value);
             const metodeBayar  = document.getElementById('etsMetodeBayar').value;
 
             if (!tanggal || !nominalBulan || !jumlahBulan || !bulanBayar) {
@@ -5136,6 +5304,7 @@
             loadData();
             loadDataTS();
             loadDataBaru();
+            loadSisaSaldoTunai();
 
             document.getElementById('fNisn').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') lookupNisn();
