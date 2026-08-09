@@ -920,10 +920,10 @@
                 </div>
             </div>
             <div class="stat-card c-purple">
-                <div class="stat-icon si-purple"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-icon si-purple"><i class="fas fa-wallet"></i></div>
                 <div class="stat-info">
-                    <h3 id="statBulan">—</h3>
-                    <p>Bulan Tercatat</p>
+                    <h3 id="statSisaSaldoKas">—</h3>
+                    <p>Sisa Saldo Kas</p>
                 </div>
             </div>
         </div>
@@ -1238,12 +1238,31 @@
             const total = allData.length;
             const totalNominal = allData.reduce((s, d) => s + (parseFloat(d.jumlah_infaq) || 0), 0);
             const kelasSet = new Set(allData.map(d => d.kelas).filter(Boolean));
-            const bulanSet = new Set(allData.map(d => d.bulan).filter(Boolean));
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
             document.getElementById('statKelas').textContent = kelasSet.size;
-            document.getElementById('statBulan').textContent = bulanSet.size;
+        }
+
+        // =============================================
+        // Load Sisa Saldo Kas (tabel: neracasaldokas, nama_kas = 'INFAQ')
+        // =============================================
+        async function loadSisaSaldoKas() {
+            const el = document.getElementById('statSisaSaldoKas');
+            try {
+                const { data, error } = await db
+                    .from('neracasaldokas')
+                    .select('sisasaldotunai')
+                    .eq('nama_kas', 'INFAQ')
+                    .single();
+
+                if (error) throw error;
+
+                const saldo = data ? (parseFloat(data.sisasaldotunai) || 0) : 0;
+                el.textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+            } catch (err) {
+                el.textContent = 'Rp 0';
+            }
         }
 
         // =============================================
@@ -1712,6 +1731,7 @@
             loadSchoolIdentity();
             loadKelasList();
             loadData();
+            loadSisaSaldoKas();
 
             document.getElementById('modalForm').addEventListener('click', function(e) {
                 if (e.target === this) closeModal();
