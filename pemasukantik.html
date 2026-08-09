@@ -153,6 +153,40 @@
         .si-amber  { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .si-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
+        /* Mini Stats (dalam tab pane) */
+        .mini-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .mini-stat-card {
+            background: #fafafa;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #eef2f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+        .mini-stat-card.ms-green { border-left-color: #10b981; }
+        .mini-stat-card.ms-blue  { border-left-color: #2563eb; }
+        .mini-stat-card.ms-amber { border-left-color: #f59e0b; }
+        .mini-stat-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        .mini-stat-card.ms-green .mini-stat-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .mini-stat-card.ms-blue  .mini-stat-icon { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .mini-stat-card.ms-amber .mini-stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .mini-stat-info h4 { font-size: 1.05rem; font-weight: 800; color: #1e293b; line-height: 1.1; }
+        .mini-stat-info p  { font-size: 0.71rem; color: #64748b; margin-top: 2px; }
+
         .stat-info h3 { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1; }
         .stat-info p  { font-size: 0.76rem; color: #64748b; margin-top: 3px; }
 
@@ -1561,10 +1595,10 @@
                 </div>
             </div>
             <div class="stat-card c-purple">
-                <div class="stat-icon si-purple"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-icon si-purple"><i class="fas fa-wallet"></i></div>
                 <div class="stat-info">
-                    <h3 id="statBulan">—</h3>
-                    <p>Bulan Dibayar</p>
+                    <h3 id="statSisaSaldoTunai">—</h3>
+                    <p>Sisa Saldo Tunai</p>
                 </div>
             </div>
         </div>
@@ -1594,13 +1628,28 @@
                 <button type="button" class="tab-btn" id="tableTabBtnSebelumnya" onclick="switchTableTab('sebelumnya')">
                     <i class="fas fa-history"></i> Pembayaran Tahun Sebelumnya
                 </button>
-                <button type="button" class="tab-btn" id="tableTabBtnBaru" onclick="switchTableTab('baru')">
-                    <i class="fas fa-user-graduate"></i> Siswa Mutasi
-                </button>
             </div>
 
             <!-- TAB 1: Pembayaran Tahun Berjalan -->
             <div class="tab-pane active" id="tablePaneBerjalan">
+
+            <!-- Mini Stats: Ringkasan Tahun Berjalan -->
+            <div class="mini-stats-grid" id="miniStatsBerjalan">
+                <div class="mini-stat-card ms-green">
+                    <div class="mini-stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTotalTransaksi">—</h4>
+                        <p>Total Transaksi</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-blue">
+                    <div class="mini-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTotalPemasukan">—</h4>
+                        <p>Total Pemasukan</p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Toolbar -->
             <div class="toolbar">
@@ -1656,6 +1705,24 @@
             <!-- TAB 2: Pembayaran Tahun Sebelumnya -->
             <div class="tab-pane" id="tablePaneSebelumnya">
 
+            <!-- Mini Stats: Ringkasan Tahun Sebelumnya -->
+            <div class="mini-stats-grid" id="miniStatsSebelumnya">
+                <div class="mini-stat-card ms-green">
+                    <div class="mini-stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTsTotalTransaksi">—</h4>
+                        <p>Total Transaksi</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card ms-blue">
+                    <div class="mini-stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="mini-stat-info">
+                        <h4 id="msTsTotalPemasukan">—</h4>
+                        <p>Total Pemasukan</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Toolbar -->
             <div class="toolbar">
                 <div class="search-box">
@@ -1698,63 +1765,6 @@
 
             </div>
             <!-- END TAB 2: Pembayaran Tahun Sebelumnya -->
-
-            <!-- TAB 3: Siswa Mutasi -->
-            <div class="tab-pane" id="tablePaneBaru">
-
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInputBaru" placeholder="Cari nama / NISN..." oninput="filterDataBaru()">
-                </div>
-                <select class="filter-select" id="filterKelasBaru" onchange="filterDataBaru()">
-                    <option value="">Semua Kelas</option>
-                </select>
-                <select class="filter-select" id="filterBulanBaru" onchange="filterDataBaru()">
-                    <option value="">Semua Bulan</option>
-                </select>
-                <select class="filter-select" id="filterTahunBaru" onchange="filterDataBaru()">
-                    <option value="">Semua Tahun</option>
-                </select>
-            </div>
-
-            <!-- Table -->
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Siswa</th>
-                            <th>NISN</th>
-                            <th>Kelas</th>
-                            <th>Tahun</th>
-                            <th>Bulan Bayar</th>
-                            <th>Tgl Bayar</th>
-                            <th>Nominal</th>
-                            <th>Keterangan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBodyBaru">
-                        <tr><td colspan="10">
-                            <div class="empty-state">
-                                <i class="fas fa-plug"></i>
-                                <p>Tab Siswa Mutasi sudah siap.<br>Data akan tampil setelah database tersambung.</p>
-                            </div>
-                        </td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                <div class="pagination-info" id="paginationInfoBaru">—</div>
-                <div class="pagination-btns" id="paginationBtnsBaru"></div>
-            </div>
-
-            </div>
-            <!-- END TAB 3: Siswa Mutasi -->
         </div>
 
         <footer class="main-footer">
@@ -2139,11 +2149,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label><i class="fas fa-calendar" style="margin-right:4px;color:#7c3aed"></i>Tahun Pelajaran</label>
-                        <input type="text" id="mmTahunPelajaran" placeholder="Otomatis dari siswa">
+                        <input type="text" id="mmTahunPelajaran" placeholder="Contoh: 2025/2026">
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-money-bill-wave" style="margin-right:4px;color:#7c3aed"></i>Nominal/Bulan (Rp)</label>
-                        <input type="number" id="mmNominal" placeholder="Otomatis dari siswa">
+                        <input type="number" id="mmNominal" placeholder="Masukkan nominal per bulan">
                     </div>
                 </div>
 
@@ -2307,17 +2317,10 @@
         let filteredData = [];
         let deleteTargetId = null;
         let deleteTargetTable = 'pemasukantik';
-        let deleteTargetSource = 'berjalan'; // 'berjalan' | 'sebelumnya' | 'baru'
+        let deleteTargetSource = 'berjalan'; // 'berjalan' | 'sebelumnya'
         let lookedUpSiswa = null;
         const PAGE_SIZE = 15;
         let currentPage = 1;
-
-        // State - Tabel Siswa Mutasi (UI/UX dulu, integrasi database menyusul)
-        // Rencana: tabel 'pemasukantik' dengan id berprefix 'MUT-' (sama pola dengan
-        // sumbangankomite.html), mapping khusus siswa mutasi di tabel 'mappingmutasitik'
-        let allDataBaru = [];
-        let filteredDataBaru = [];
-        let currentPageBaru = 1;
 
         const BULAN_ORDER = ['Juli','Agustus','September','Oktober','November','Desember',
                              'Januari','Februari','Maret','April','Mei','Juni'];
@@ -2370,18 +2373,6 @@
         }
 
         // =============================================
-        // Load Data - Siswa Mutasi (UI/UX dulu, belum tersambung database)
-        // TODO integrasi database: SELECT dari tabel 'pemasukantik'
-        // WHERE id LIKE 'MUT-%' (mengikuti pola sumbangankomite.html)
-        // =============================================
-        function loadDataBaru() {
-            filteredDataBaru = allDataBaru; // masih kosong sampai database tersambung
-            buildFiltersBaru();
-            updateStats();
-            renderTableBaru();
-        }
-
-        // =============================================
         // Build Filters
         // =============================================
         function buildFilters() {
@@ -2401,11 +2392,11 @@
         // Update Stats (gabungan tabel pemasukantik + tiktahunsebelumnya)
         // =============================================
         function updateStats() {
-            const total = allData.length + allDataTS.length + allDataBaru.length;
+            const total = allData.length + allDataTS.length;
 
-            const totalNominalBerjalanOnly = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
-            const totalNominalMutasi = allDataBaru.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
-            const totalNominalBerjalan = totalNominalBerjalanOnly + totalNominalMutasi;
+            const dataMutasi = allData.filter(d => String(d.id || '').startsWith('MUT-'));
+            const totalNominalBerjalan = allData.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
+            const totalNominalMutasi = dataMutasi.reduce((s, d) => s + (parseFloat(d.nominal) || 0), 0);
             const totalNominalSebelumnya = allDataTS.reduce((s, d) => {
                 const nominalBulan = parseFloat(d.nominal_bulan) || 0;
                 const jumlahBulan  = parseFloat(d.jumlah_bulan) || 0;
@@ -2416,11 +2407,6 @@
             const siswaSet = new Set();
             allData.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
             allDataTS.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
-            allDataBaru.forEach(d => { if (d.nisn) siswaSet.add(d.nisn); });
-
-            const bulanSet = new Set();
-            allData.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
-            allDataBaru.forEach(d => { if (d.bulan_bayar) bulanSet.add(d.bulan_bayar); });
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statTotalNominal').textContent = 'Rp ' + totalNominal.toLocaleString('id-ID');
@@ -2428,7 +2414,35 @@
             document.getElementById('statNominalSebelumnya').textContent = 'Rp ' + totalNominalSebelumnya.toLocaleString('id-ID');
             document.getElementById('statNominalMutasi').textContent = 'Rp ' + totalNominalMutasi.toLocaleString('id-ID');
             document.getElementById('statSiswa').textContent = siswaSet.size;
-            document.getElementById('statBulan').textContent = bulanSet.size;
+
+            // Mini stats: Ringkasan Tahun Berjalan (khusus tab "Pembayaran Tahun Berjalan")
+            document.getElementById('msTotalTransaksi').textContent = allData.length;
+            document.getElementById('msTotalPemasukan').textContent = 'Rp ' + totalNominalBerjalan.toLocaleString('id-ID');
+
+            // Mini stats: Ringkasan Tahun Sebelumnya (khusus tab "Pembayaran Tahun Sebelumnya")
+            document.getElementById('msTsTotalTransaksi').textContent = allDataTS.length;
+            document.getElementById('msTsTotalPemasukan').textContent = 'Rp ' + totalNominalSebelumnya.toLocaleString('id-ID');
+        }
+
+        // =============================================
+        // Load Sisa Saldo Tunai (tabel: neracasaldokas, nama_kas = 'TIK')
+        // =============================================
+        async function loadSisaSaldoTunai() {
+            const el = document.getElementById('statSisaSaldoTunai');
+            try {
+                const { data, error } = await db
+                    .from('neracasaldokas')
+                    .select('sisasaldotunai')
+                    .eq('nama_kas', 'TIK')
+                    .single();
+
+                if (error) throw error;
+
+                const saldo = data ? (parseFloat(data.sisasaldotunai) || 0) : 0;
+                el.textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+            } catch (err) {
+                el.textContent = 'Rp 0';
+            }
         }
 
         // =============================================
@@ -2438,134 +2452,12 @@
             currentTableTab = tab;
             document.getElementById('tableTabBtnBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tableTabBtnSebelumnya').classList.toggle('active', tab === 'sebelumnya');
-            document.getElementById('tableTabBtnBaru').classList.toggle('active', tab === 'baru');
             document.getElementById('tablePaneBerjalan').classList.toggle('active', tab === 'berjalan');
             document.getElementById('tablePaneSebelumnya').classList.toggle('active', tab === 'sebelumnya');
-            document.getElementById('tablePaneBaru').classList.toggle('active', tab === 'baru');
 
             if (tab === 'sebelumnya' && !tsLoaded) {
                 loadDataTS();
             }
-        }
-
-        // =============================================
-        // Tabel Siswa Mutasi (UI/UX dulu — belum tersambung database)
-        // Struktur & fungsi disiapkan mengikuti pola sumbangankomite.html
-        // supaya tinggal disambungkan ke Supabase pada tahap berikutnya.
-        // =============================================
-        function buildFiltersBaru() {
-            const kelasListBaru = [...new Set(allDataBaru.map(d => d.kelas).filter(Boolean))].sort();
-            const tahunListBaru = [...new Set(allDataBaru.map(d => d.tahun_pelajaran).filter(Boolean))].sort().reverse();
-            const bulanListBaru = BULAN_ORDER.filter(b => allDataBaru.some(d => d.bulan_bayar === b));
-
-            document.getElementById('filterKelasBaru').innerHTML = '<option value="">Semua Kelas</option>' +
-                kelasListBaru.map(k => `<option value="${k}">${k}</option>`).join('');
-            document.getElementById('filterTahunBaru').innerHTML = '<option value="">Semua Tahun</option>' +
-                tahunListBaru.map(t => `<option value="${t}">${t}</option>`).join('');
-            document.getElementById('filterBulanBaru').innerHTML = '<option value="">Semua Bulan</option>' +
-                bulanListBaru.map(b => `<option value="${b}">${b}</option>`).join('');
-        }
-
-        function filterDataBaru() {
-            const searchEl = document.getElementById('searchInputBaru');
-            const kelasEl  = document.getElementById('filterKelasBaru');
-            const bulanEl  = document.getElementById('filterBulanBaru');
-            const tahunEl  = document.getElementById('filterTahunBaru');
-            if (!searchEl) return;
-
-            const q     = searchEl.value.toLowerCase();
-            const kelas = kelasEl.value;
-            const bulan = bulanEl.value;
-            const tahun = tahunEl.value;
-
-            filteredDataBaru = allDataBaru.filter(d => {
-                const matchQ = !q ||
-                    (d.nama_siswa || '').toLowerCase().includes(q) ||
-                    (d.nisn || '').toLowerCase().includes(q);
-                const matchK = !kelas || d.kelas === kelas;
-                const matchB = !bulan || d.bulan_bayar === bulan;
-                const matchT = !tahun || d.tahun_pelajaran === tahun;
-                return matchQ && matchK && matchB && matchT;
-            });
-
-            currentPageBaru = 1;
-            renderTableBaru();
-        }
-
-        function renderTableBaru() {
-            const tbody = document.getElementById('tableBodyBaru');
-            if (!tbody) return;
-            const total = filteredDataBaru.length;
-
-            if (total === 0) {
-                tbody.innerHTML = `
-                    <tr><td colspan="10">
-                        <div class="empty-state">
-                            <i class="fas fa-plug"></i>
-                            <p>Tab Siswa Mutasi sudah siap.<br>Data akan tampil setelah database tersambung.</p>
-                        </div>
-                    </td></tr>`;
-                document.getElementById('paginationInfoBaru').textContent = 'Tidak ada data';
-                document.getElementById('paginationBtnsBaru').innerHTML = '';
-                return;
-            }
-
-            const totalPages = Math.ceil(total / PAGE_SIZE);
-            if (currentPageBaru > totalPages) currentPageBaru = totalPages;
-            const start = (currentPageBaru - 1) * PAGE_SIZE;
-            const slice = filteredDataBaru.slice(start, start + PAGE_SIZE);
-
-            tbody.innerHTML = slice.map((d, i) => `
-                <tr>
-                    <td style="color:#94a3b8;font-size:0.8rem;">${start + i + 1}</td>
-                    <td><strong>${escHtml(d.nama_siswa || '-')}</strong></td>
-                    <td style="font-family:monospace;color:#475569;">${escHtml(d.nisn || '-')}</td>
-                    <td><span class="badge-kelas">${escHtml(d.kelas || '-')}</span></td>
-                    <td><span class="badge-tahun">${escHtml(d.tahun_pelajaran || '-')}</span></td>
-                    <td><span class="badge-bulan">${escHtml(d.bulan_bayar || '-')}</span></td>
-                    <td style="font-size:0.82rem;color:#475569;">${d.tanggal_bayar ? fmtDate(d.tanggal_bayar) : '-'}</td>
-                    <td class="nominal-text">Rp ${(parseFloat(d.nominal)||0).toLocaleString('id-ID')}</td>
-                    <td style="font-size:0.82rem;color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(d.keterangan||'')}">${escHtml(d.keterangan || '-')}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn-icon btn-delete" onclick="openConfirmBaru('${d.id}', '${escHtml(d.nama_siswa||'')}', '${escHtml(d.bulan_bayar||'')}')" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-
-            document.getElementById('paginationInfoBaru').textContent =
-                `Menampilkan ${start + 1}–${Math.min(start + PAGE_SIZE, total)} dari ${total} transaksi`;
-
-            const btnsEl = document.getElementById('paginationBtnsBaru');
-            let btnsHtml = `<button class="btn-page" onclick="goPageBaru(${currentPageBaru-1})" ${currentPageBaru<=1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
-            for (let p = 1; p <= totalPages; p++) {
-                if (totalPages <= 7 || Math.abs(p - currentPageBaru) <= 2 || p === 1 || p === totalPages) {
-                    btnsHtml += `<button class="btn-page ${p===currentPageBaru?'active':''}" onclick="goPageBaru(${p})">${p}</button>`;
-                } else if (Math.abs(p - currentPageBaru) === 3) {
-                    btnsHtml += `<span style="padding:4px;color:#94a3b8;">…</span>`;
-                }
-            }
-            btnsHtml += `<button class="btn-page" onclick="goPageBaru(${currentPageBaru+1})" ${currentPageBaru>=totalPages?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
-            btnsEl.innerHTML = btnsHtml;
-        }
-
-        function goPageBaru(p) {
-            const totalPages = Math.ceil(filteredDataBaru.length / PAGE_SIZE);
-            if (p < 1 || p > totalPages) return;
-            currentPageBaru = p;
-            renderTableBaru();
-        }
-
-        function openConfirmBaru(id, nama, bulan) {
-            deleteTargetId = id;
-            deleteTargetTable = 'pemasukantik';
-            deleteTargetSource = 'baru';
-            document.getElementById('confirmText').textContent =
-                `Hapus transaksi "${nama}" bulan ${bulan} (Siswa Mutasi)? Data tidak dapat dikembalikan.`;
-            document.getElementById('modalConfirm').classList.add('active');
         }
 
         // =============================================
@@ -3129,32 +3021,70 @@
             renderRiwayatSectionSb();
         }
 
-        // TODO integrasi database: cek transaksi 'MUT-' yang sudah tersimpan
-        // di tabel 'pemasukantik' untuk NISN & tahun terkait, supaya baris
-        // yang sudah lunas otomatis tertandai. Untuk saat ini seluruh baris
-        // dianggap "Belum" sebagai pratinjau UI/UX.
-        function renderRiwayatSectionSb() {
+        // Cek transaksi 'MUT-' yang sudah tersimpan di tabel 'pemasukantik'
+        // untuk NISN & tahun terkait, supaya baris yang sudah lunas otomatis tertandai.
+        async function renderRiwayatSectionSb() {
             const bulanListSb = getSbBulanList();
             const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
             const nisn  = document.getElementById('sbNisn').value.trim();
+            const nama  = document.getElementById('sbNama').value.trim();
             const tahun = document.getElementById('sbTahun').value.trim();
 
             document.getElementById('riwayatSectionSb').classList.add('show');
             document.getElementById('riwayatLunasWatermarkSb').classList.remove('show');
 
             const infoEl = document.getElementById('riwayatInfoSb');
-            infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#f97316;margin-right:4px;"></i>
-                Pratinjau UI/UX — belum tersambung database. Centang bulan yang akan dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu <strong>Simpan Transaksi</strong>.`;
+            infoEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="color:#f97316;margin-right:4px;"></i> Memuat riwayat...';
+
+            // Ambil data yang sudah bayar untuk NISN + tahun ini dari tabel pemasukantik
+            let sudahBayar = {};
+            let sudahBayarCount = 0;
+            try {
+                const { data, error } = await db
+                    .from('pemasukantik')
+                    .select('bulan_bayar, tanggal_bayar, nominal, id, keterangan')
+                    .eq('nisn', nisn)
+                    .eq('tahun_pelajaran', tahun);
+                if (!error && data) {
+                    data.forEach(d => { sudahBayar[d.bulan_bayar] = d; });
+                    sudahBayarCount = data.length;
+                }
+            } catch (e) {}
+
+            if (sudahBayarCount > 0) {
+                infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#f97316;margin-right:4px;"></i>
+                    <strong>${escHtml(nama)}</strong> — ${sudahBayarCount} bulan sudah dibayar (baris hijau).
+                    Centang bulan yang akan dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu klik <strong>Simpan Transaksi</strong>.`;
+            } else {
+                infoEl.innerHTML = `<i class="fas fa-info-circle" style="color:#f97316;margin-right:4px;"></i>
+                    Belum ada pembayaran untuk <strong>${escHtml(nama)}</strong> tahun ini.
+                    Centang bulan yang akan dibayar, klik <strong>Bayar</strong> untuk mengisi otomatis, lalu klik <strong>Simpan Transaksi</strong>.`;
+            }
 
             riwayatBulanStateSb = bulanListSb.map((bulan, idx) => {
+                const existing = sudahBayar[bulan] || null;
                 const bulanKode = bulan.substring(0,3).toUpperCase();
                 const tahunKode = tahun ? tahun.replace(/[^0-9]/g,'').substring(0,4) : '';
-                const generatedId = `MUT-${nisn || 'XXXX'}-${bulanKode}-${tahunKode}`;
+                const generatedId = existing
+                    ? existing.id
+                    : `MUT-${nisn || 'XXXX'}-${bulanKode}-${tahunKode}`;
                 return {
-                    idx, bulan, existing: null, generatedId,
-                    checked: false, tanggal: '', jumlah: nominal, status: 'Belum'
+                    idx, bulan, existing, generatedId,
+                    checked: false,
+                    tanggal: existing ? existing.tanggal_bayar : '',
+                    jumlah:  existing ? (existing.nominal || nominal) : nominal,
+                    status:  existing ? 'Lunas' : 'Belum'
                 };
             });
+
+            // Jika seluruh bulan (mulai dari Bulan Masuk) sudah lunas: matikan tombol
+            // Simpan Transaksi dan tampilkan watermark "LUNAS".
+            const sudahLunasSemua = riwayatBulanStateSb.length > 0 &&
+                riwayatBulanStateSb.every(r => !!r.existing);
+            const btnSimpanEl = document.getElementById('btnSimpan');
+            const watermarkEl = document.getElementById('riwayatLunasWatermarkSb');
+            if (btnSimpanEl) btnSimpanEl.disabled = sudahLunasSemua;
+            if (watermarkEl) watermarkEl.classList.toggle('show', sudahLunasSemua);
 
             renderRiwayatTableSb();
         }
@@ -3167,49 +3097,60 @@
             }
 
             body.innerHTML = riwayatBulanStateSb.map(row => {
-                const trClass = row.checked ? 'akan-bayar' : '';
+                const isExisting = !!row.existing;
+                const trClass = isExisting ? 'sudah-bayar' : (row.checked ? 'akan-bayar' : '');
                 return `<tr class="${trClass}" id="riwayat-row-sb-${row.idx}">
                     <td style="text-align:center;">
                         <input type="checkbox" class="chk-bayar" id="chkBulanSb-${row.idx}"
-                            ${row.checked ? 'checked' : ''}
+                            ${isExisting ? 'checked disabled' : (row.checked ? 'checked' : '')}
                             onchange="onBulanCheckSb(${row.idx}, this.checked)">
                     </td>
-                    <td class="col-id">${row.checked
-                        ? `<span style="color:#ea580c;font-weight:600;">${row.generatedId}</span>`
-                        : '<span style="color:#cbd5e1;">—</span>'}</td>
+                    <td class="col-id">${isExisting
+                        ? row.existing.id
+                        : (row.checked
+                            ? `<span style="color:#ea580c;font-weight:600;">${row.generatedId}</span>`
+                            : '<span style="color:#cbd5e1;">—</span>')
+                    }</td>
                     <td style="font-weight:600;white-space:nowrap;">${row.bulan}</td>
                     <td>
                         <input type="date" id="tglSb-${row.idx}"
                             value="${row.tanggal || ''}"
+                            ${isExisting ? 'readonly' : ''}
                             onchange="riwayatBulanStateSb[${row.idx}].tanggal = this.value">
                     </td>
                     <td>
                         <input type="number" id="jmlSb-${row.idx}"
                             value="${row.jumlah || ''}" min="0"
+                            ${isExisting ? 'readonly' : ''}
                             onchange="riwayatBulanStateSb[${row.idx}].jumlah = parseFloat(this.value)||0">
                     </td>
                     <td>
-                        ${row.checked
-                            ? '<span class="badge-lunas"><i class="fas fa-check-circle"></i> Lunas</span>'
-                            : '<span class="badge-belum"><i class="fas fa-clock"></i> Belum</span>'}
+                        ${isExisting
+                            ? '<span class="badge-existing"><i class="fas fa-check-circle"></i> Sudah</span>'
+                            : (row.checked
+                                ? '<span class="badge-lunas"><i class="fas fa-check-circle"></i> Lunas</span>'
+                                : '<span class="badge-belum"><i class="fas fa-clock"></i> Belum</span>')}
                     </td>
                     <td>
-                        <button class="btn-bayar" onclick="isiBayarSb(${row.idx})"><i class="fas fa-money-bill-wave"></i> Bayar</button>
+                        ${isExisting
+                            ? '<span style="color:#94a3b8;font-size:0.75rem;">Tersimpan</span>'
+                            : `<button class="btn-bayar" onclick="isiBayarSb(${row.idx})"><i class="fas fa-money-bill-wave"></i> Bayar</button>`}
                     </td>
                 </tr>`;
             }).join('');
 
             const chkAll = document.getElementById('chkAllBulanSb');
             if (chkAll) {
-                chkAll.disabled = riwayatBulanStateSb.length === 0;
-                chkAll.checked  = riwayatBulanStateSb.length > 0 && riwayatBulanStateSb.every(r => r.checked);
-                chkAll.indeterminate = riwayatBulanStateSb.some(r => r.checked) && !riwayatBulanStateSb.every(r => r.checked);
+                const belum = riwayatBulanStateSb.filter(r => !r.existing);
+                chkAll.disabled = belum.length === 0;
+                chkAll.checked  = belum.length > 0 && belum.every(r => r.checked);
+                chkAll.indeterminate = belum.some(r => r.checked) && !belum.every(r => r.checked);
             }
         }
 
         function isiBayarSb(idx) {
             const row = riwayatBulanStateSb[idx];
-            if (!row) return;
+            if (!row || row.existing) return;
             const today = new Date().toISOString().split('T')[0];
             const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
             row.tanggal = today;
@@ -3221,7 +3162,7 @@
 
         function onBulanCheckSb(idx, checked) {
             const row = riwayatBulanStateSb[idx];
-            if (!row) return;
+            if (!row || row.existing) return;
             row.checked = checked;
             if (checked && !row.tanggal) {
                 row.tanggal = new Date().toISOString().split('T')[0];
@@ -3235,6 +3176,7 @@
             const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
             const today   = new Date().toISOString().split('T')[0];
             riwayatBulanStateSb.forEach(row => {
+                if (row.existing) return;
                 row.checked = checked;
                 if (checked && !row.tanggal) {
                     row.tanggal = today;
@@ -3266,16 +3208,33 @@
             document.getElementById('sbNominal').value = '';
         }
 
-        // --- Autocomplete Nama Siswa (TODO: sambungkan ke tabel 'mappingmutasitik') ---
+        // --- Autocomplete Nama Siswa (tabel: mappingmutasi) ---
         let acOpenSb = false;
         let acCurrentListSb = [];
+        let mmMutasiCacheList = null; // cache data siswa dari tabel mappingmutasi
+
+        async function loadSiswaListSb() {
+            if (mmMutasiCacheList !== null) return mmMutasiCacheList;
+            try {
+                const { data, error } = await db
+                    .from('mappingmutasi')
+                    .select('*')
+                    .order('nama_siswa', { ascending: true });
+                if (error) throw error;
+                mmMutasiCacheList = data || [];
+            } catch (err) {
+                console.error('Gagal memuat data siswa dari mappingmutasi:', err);
+                mmMutasiCacheList = [];
+            }
+            return mmMutasiCacheList;
+        }
 
         function toggleAcDropdownSb() {
             if (acOpenSb) { closeAcDropdownSb(); return; }
             openAcDropdownSb();
         }
 
-        function openAcDropdownSb() {
+        async function openAcDropdownSb() {
             acOpenSb = true;
             const dropdown = document.getElementById('acDropdownSb');
             const chevron  = document.getElementById('acChevronSb');
@@ -3283,7 +3242,11 @@
             chevron.style.transform = 'translateY(-50%) rotate(180deg)';
             chevron.style.transition = 'transform 0.2s';
 
-            renderAcListSb([]); // TODO: ganti dengan data dari tabel 'mappingmutasitik'
+            const ul = document.getElementById('acListSb');
+            ul.innerHTML = '<div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>';
+
+            const list = await loadSiswaListSb();
+            renderAcListSb(list);
 
             setTimeout(() => {
                 const s = document.getElementById('acSearchSb');
@@ -3303,7 +3266,7 @@
             acCurrentListSb = data || [];
             const ul = document.getElementById('acListSb');
             if (acCurrentListSb.length === 0) {
-                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-plug" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Data siswa mutasi akan tampil setelah database tersambung</div>';
+                ul.innerHTML = '<div class="ac-empty"><i class="fas fa-user-slash" style="display:block;font-size:1.5rem;margin-bottom:6px;"></i>Tidak ada data siswa mutasi</div>';
                 return;
             }
             ul.innerHTML = acCurrentListSb.map((s, idx) => `
@@ -3322,9 +3285,10 @@
 
         function filterAcListSb() {
             const q = document.getElementById('acSearchSb').value.toLowerCase();
-            const filtered = acCurrentListSb.filter(s =>
+            const src = mmMutasiCacheList || [];
+            const filtered = src.filter(s =>
                 (s.nama_siswa || '').toLowerCase().includes(q) ||
-                (s.nisn || '').toLowerCase().includes(q) ||
+                String(s.nisn || '').toLowerCase().includes(q) ||
                 (s.kelas || '').toLowerCase().includes(q)
             );
             renderAcListSb(filtered);
@@ -3337,6 +3301,15 @@
             document.getElementById('sbNama').value    = s.nama_siswa || '';
             document.getElementById('sbKelas').value   = s.kelas || '';
             document.getElementById('sbNominal').value = s.nominal || '';
+
+            // Isi otomatis Tahun Pelajaran dari data siswa yang dipilih
+            const selTahun = document.getElementById('sbTahun');
+            if (s.tahun_pelajaran) {
+                selTahun.innerHTML = `<option value="${escHtml(s.tahun_pelajaran)}" selected>${escHtml(s.tahun_pelajaran)}</option>`;
+            } else {
+                selTahun.innerHTML = '<option value="">— Tahun pelajaran tidak tersedia —</option>';
+            }
+            selTahun.disabled = true; // otomatis dari data siswa, tidak perlu diubah manual
 
             document.getElementById('sbDetailNama').textContent    = s.nama_siswa;
             document.getElementById('sbDetailKelas').textContent   = s.kelas;
@@ -3366,11 +3339,16 @@
         });
 
         // --- Simpan Transaksi Siswa Mutasi ---
-        // TODO integrasi database: insert ke tabel 'pemasukantik' dengan
-        // id berprefix 'MUT-' (mengikuti pola sumbangankomite.html)
+        // Insert ke tabel 'pemasukantik' dengan id berprefix 'MUT-'
+        // (sama seperti Simpan Transaksi di tab Pembayaran Tahun Berjalan)
         async function saveDataSb() {
-            const nama       = document.getElementById('sbNama').value.trim();
-            const bulanMasuk = document.getElementById('sbBulanMasuk').value.trim();
+            const nisn        = document.getElementById('sbNisn').value.trim();
+            const nama         = document.getElementById('sbNama').value.trim();
+            const kelas         = document.getElementById('sbKelas').value.trim();
+            const tahun         = document.getElementById('sbTahun').value.trim();
+            const bulanMasuk    = document.getElementById('sbBulanMasuk').value.trim();
+            const keteranganInput = document.getElementById('sbKeterangan').value.trim();
+            const keterangan    = keteranganInput || 'Lunas';
 
             if (!nama) {
                 showToast('Pilih siswa terlebih dahulu!', 'error');
@@ -3380,13 +3358,52 @@
                 showToast('Pilih Bulan Masuk terlebih dahulu!', 'error');
                 return;
             }
+
             const toInsert = riwayatBulanStateSb.filter(r => r.checked);
             if (toInsert.length === 0) {
                 showToast('Centang minimal 1 bulan yang akan dibayar!', 'error');
                 return;
             }
+            // Validasi tanggal semua baris yang dipilih
+            const noDate = toInsert.find(r => !r.tanggal);
+            if (noDate) {
+                showToast(`Tanggal bulan ${noDate.bulan} belum diisi!`, 'error');
+                return;
+            }
 
-            showToast('UI Siswa Mutasi siap — fitur simpan akan aktif setelah integrasi database.', 'error');
+            const btn = document.getElementById('btnSimpan');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const payloads = toInsert.map(r => ({
+                    id: r.generatedId,
+                    nisn, nama_siswa: nama, kelas,
+                    tahun_pelajaran: tahun,
+                    bulan_bayar: r.bulan,
+                    tanggal_bayar: r.tanggal,
+                    nominal: r.jumlah,
+                    keterangan
+                }));
+
+                const { error } = await db.from('pemasukantik').insert(payloads);
+                if (error) throw error;
+
+                showToast(`✅ ${payloads.length} transaksi berhasil disimpan!`, 'success');
+
+                // Tampilkan struk
+                const nominal = parseFloat(document.getElementById('sbNominal').value) || 0;
+                showStruk({ nisn, nama, kelas, tahun, nominal }, payloads, riwayatBulanStateSb);
+
+                closeModal();
+                await loadData();
+
+            } catch (err) {
+                showToast('Gagal menyimpan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Simpan Transaksi';
+            }
         }
 
         // =================================================================
@@ -3406,7 +3423,7 @@
 
         function resetMappingMutasiForm() {
             document.getElementById('mmId').value = generateIdMappingMutasi();
-            document.getElementById('mmNamaSiswa').innerHTML = '<option value="">— Data siswa akan dimuat setelah database tersambung —</option>';
+            document.getElementById('mmNamaSiswa').innerHTML = '<option value="">— Memuat data siswa... —</option>';
             document.getElementById('mmNisn').value = '';
             document.getElementById('mmKelas').value = '';
             document.getElementById('mmTahunPelajaran').value = '';
@@ -3414,9 +3431,57 @@
             document.getElementById('mmBulanMasuk').value = '';
         }
 
+        // =============================================
+        // Dropdown Nama Siswa (Modal Maping Siswa Mutasi) — tabel: mappingsiswa
+        // =============================================
+        let mmSiswaCacheList = null; // cache setelah pertama load
+
+        async function loadSiswaMappingMutasi() {
+            if (mmSiswaCacheList !== null) return mmSiswaCacheList;
+            try {
+                const { data, error } = await db
+                    .from('mappingsiswa')
+                    .select('kode_maping, nisn, nama_siswa, kelas')
+                    .order('nama_siswa', { ascending: true });
+                if (error) throw error;
+                mmSiswaCacheList = data || [];
+            } catch (err) {
+                console.error('Gagal memuat data siswa dari mappingsiswa:', err);
+                mmSiswaCacheList = [];
+            }
+            return mmSiswaCacheList;
+        }
+
+        async function populateMappingNamaSiswaSelect() {
+            const sel = document.getElementById('mmNamaSiswa');
+            sel.innerHTML = '<option value="">— Memuat data siswa... —</option>';
+
+            const list = await loadSiswaMappingMutasi();
+
+            if (!list || list.length === 0) {
+                sel.innerHTML = '<option value="">— Belum ada data siswa di tabel mappingsiswa —</option>';
+                return;
+            }
+
+            sel.innerHTML = '<option value="">— Pilih nama siswa —</option>' +
+                list.map((s, idx) =>
+                    `<option value="${idx}">${escHtml(s.nama_siswa || '-')} — ${escHtml(s.kelas || '-')}</option>`
+                ).join('');
+        }
+
         function onMappingNamaSiswaChange() {
-            // TODO: isi otomatis dari cache siswa (tabel 'mappingsumbangantik')
-            // setelah database tersambung.
+            const sel = document.getElementById('mmNamaSiswa');
+            const idx = sel.value;
+
+            if (idx === '' || !mmSiswaCacheList || !mmSiswaCacheList[idx]) {
+                document.getElementById('mmNisn').value  = '';
+                document.getElementById('mmKelas').value = '';
+                return;
+            }
+
+            const s = mmSiswaCacheList[idx];
+            document.getElementById('mmNisn').value  = s.nisn || '';
+            document.getElementById('mmKelas').value = s.kelas || '';
         }
 
         function openMappingMutasiModal() {
@@ -3424,28 +3489,137 @@
             resetMappingMutasiForm();
             populateBulanMasukOptionsMm();
             loadMappingMutasiTable();
+            populateMappingNamaSiswaSelect();
         }
 
         function closeMappingMutasiModal() {
             document.getElementById('modalMappingMutasi').classList.remove('active');
         }
 
-        function loadMappingMutasiTable() {
+        // =============================================
+        // Tabel Data Maping Siswa Mutasi — tabel: mappingmutasi
+        // =============================================
+        async function loadMappingMutasiTable() {
             const body = document.getElementById('mmTableBody');
-            body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">Data akan tampil setelah database tersambung</td></tr>';
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">Memuat data...</td></tr>';
+
+            try {
+                const { data, error } = await db
+                    .from('mappingmutasi')
+                    .select('*')
+                    .order('nama_siswa', { ascending: true });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px;">Belum ada data maping siswa mutasi.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = data.map(r => `
+                    <tr>
+                        <td>${escHtml(r.id || '-')}</td>
+                        <td>${escHtml(r.nama_siswa || '-')}</td>
+                        <td>${escHtml(r.nisn != null ? String(r.nisn) : '-')}</td>
+                        <td>${escHtml(r.kelas || '-')}</td>
+                        <td>${escHtml(r.tahun_pelajaran || '-')}</td>
+                        <td>Rp ${(parseFloat(r.nominal) || 0).toLocaleString('id-ID')}</td>
+                        <td>${escHtml(r.bulan_masuk || '-')}</td>
+                        <td>
+                            <button class="btn-danger" style="padding:5px 10px;font-size:0.8rem;" onclick="deleteMappingMutasi('${r.id}')" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Gagal memuat data mappingmutasi:', err);
+                body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#ef4444;padding:20px;">Gagal memuat data: ${escHtml(err.message)}</td></tr>`;
+            }
         }
 
-        function saveMappingMutasi() {
-            const nama = document.getElementById('mmNamaSiswa').value;
-            if (!nama) {
+        async function saveMappingMutasi() {
+            const selIdx = document.getElementById('mmNamaSiswa').value;
+            if (selIdx === '' || !mmSiswaCacheList || !mmSiswaCacheList[selIdx]) {
                 showToast('Pilih nama siswa terlebih dahulu!', 'error');
                 return;
             }
-            showToast('UI Maping Siswa Mutasi siap — fitur simpan akan aktif setelah integrasi database.', 'error');
+            const siswa = mmSiswaCacheList[selIdx];
+
+            const id              = document.getElementById('mmId').value.trim();
+            const nisnVal         = document.getElementById('mmNisn').value.trim();
+            const kelas            = document.getElementById('mmKelas').value.trim();
+            const tahunPelajaran   = document.getElementById('mmTahunPelajaran').value.trim();
+            const nominal          = document.getElementById('mmNominal').value.trim();
+            const bulanMasuk       = document.getElementById('mmBulanMasuk').value;
+
+            if (!kelas) {
+                showToast('Kelas belum terisi!', 'error');
+                return;
+            }
+            if (!tahunPelajaran) {
+                showToast('Isi Tahun Pelajaran terlebih dahulu!', 'error');
+                return;
+            }
+            if (!nominal) {
+                showToast('Isi Nominal/Bulan terlebih dahulu!', 'error');
+                return;
+            }
+            if (!bulanMasuk) {
+                showToast('Pilih Bulan Masuk Sekolah terlebih dahulu!', 'error');
+                return;
+            }
+
+            const payload = {
+                id: id,
+                nama_siswa: siswa.nama_siswa,
+                nisn: nisnVal ? Number(nisnVal) : null,
+                kelas: kelas,
+                tahun_pelajaran: tahunPelajaran,
+                nominal: nominal,
+                bulan_masuk: bulanMasuk
+            };
+
+            const btn = document.getElementById('btnMmKonfirmasi');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Menyimpan...';
+
+            try {
+                const { error } = await db.from('mappingmutasi').insert([payload]);
+                if (error) throw error;
+
+                showToast('Data maping siswa mutasi berhasil disimpan!', 'success');
+                mmMutasiCacheList = null; // invalidasi cache dropdown Nama Siswa di tab Siswa Mutasi
+                resetMappingMutasiForm();
+                populateMappingNamaSiswaSelect();
+                loadMappingMutasiTable();
+
+            } catch (err) {
+                console.error('Gagal menyimpan mapping mutasi:', err);
+                showToast('Gagal menyimpan data: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
         }
 
-        function deleteMappingMutasi(id) {
-            showToast('Fitur hapus akan aktif setelah integrasi database.', 'error');
+        async function deleteMappingMutasi(id) {
+            if (!confirm('Hapus data maping siswa mutasi ini? Data tidak dapat dikembalikan.')) return;
+
+            try {
+                const { error } = await db.from('mappingmutasi').delete().eq('id', id);
+                if (error) throw error;
+
+                showToast('Data maping siswa mutasi berhasil dihapus.', 'success');
+                mmMutasiCacheList = null; // invalidasi cache dropdown Nama Siswa di tab Siswa Mutasi
+                loadMappingMutasiTable();
+
+            } catch (err) {
+                console.error('Gagal menghapus mapping mutasi:', err);
+                showToast('Gagal menghapus data: ' + err.message, 'error');
+            }
         }
 
         // =============================================
@@ -4144,8 +4318,6 @@
                 if (deleteTargetSource === 'sebelumnya') {
                     tsLoaded = false;
                     await loadDataTS();
-                } else if (deleteTargetSource === 'baru') {
-                    await loadDataBaru();
                 } else {
                     await loadData();
                 }
@@ -4532,7 +4704,7 @@
             loadSchoolIdentity();
             loadData();
             loadDataTS();
-            loadDataBaru();
+            loadSisaSaldoTunai();
 
             document.getElementById('fNisn').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') lookupNisn();
