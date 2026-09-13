@@ -231,6 +231,38 @@
             padding: 20px 0;
         }
 
+        /* --- Tabs Absensi Datang / Pulang --- */
+        .tabs-header {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            padding: 12px 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--navbar-bg); }
+        .tab-btn.active {
+            color: var(--navbar-bg);
+            border-bottom-color: var(--navbar-bg);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         @media (max-width: 600px) {
             .btn-row .btn { min-width: 100%; }
         }
@@ -364,27 +396,65 @@
                 <span>Lokasi &amp; Jarak ke Sekolah</span>
             </div>
 
-            <div class="map-wrapper">
-                <iframe id="mapFrame" loading="lazy"
-                    src="https://www.google.com/maps?q=-2.0619535895881476,105.1643078650724&z=17&output=embed"
-                    allowfullscreen></iframe>
+            <div class="tabs-header">
+                <button class="tab-btn active" id="tabBtnDatang" type="button">
+                    <i class="fas fa-sign-in-alt"></i> Absensi Datang
+                </button>
+                <button class="tab-btn" id="tabBtnPulang" type="button">
+                    <i class="fas fa-sign-out-alt"></i> Absensi Pulang
+                </button>
             </div>
 
-            <div id="statusBox" class="status-box status-idle">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    Tekan tombol "Ambil Lokasi Saya" untuk mengukur jarak Anda ke sekolah.
-                    <span class="status-detail">Radius absensi yang diizinkan: 50 meter dari titik sekolah.</span>
+            <!-- Tab: Absensi Datang -->
+            <div class="tab-content active" id="tabDatang">
+                <div class="map-wrapper">
+                    <iframe id="mapFrameDatang" loading="lazy"
+                        src="https://www.google.com/maps?q=-2.0619535895881476,105.1643078650724&z=17&output=embed"
+                        allowfullscreen></iframe>
+                </div>
+
+                <div id="statusBoxDatang" class="status-box status-idle">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        Tekan tombol "Ambil Lokasi Saya" untuk mengukur jarak Anda ke sekolah.
+                        <span class="status-detail">Radius absensi yang diizinkan: 50 meter dari titik sekolah.</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button id="btnAmbilLokasiDatang" class="btn btn-primary">
+                        <i class="fas fa-location-crosshairs"></i> Ambil Lokasi Saya
+                    </button>
+                    <button id="btnAbsenDatang" class="btn btn-success" disabled>
+                        <i class="fas fa-check-circle"></i> Absen Datang
+                    </button>
                 </div>
             </div>
 
-            <div class="btn-row">
-                <button id="btnAmbilLokasi" class="btn btn-primary">
-                    <i class="fas fa-location-crosshairs"></i> Ambil Lokasi Saya
-                </button>
-                <button id="btnAbsen" class="btn btn-success" disabled>
-                    <i class="fas fa-check-circle"></i> Absen Sekarang
-                </button>
+            <!-- Tab: Absensi Pulang -->
+            <div class="tab-content" id="tabPulang">
+                <div class="map-wrapper">
+                    <iframe id="mapFramePulang" loading="lazy"
+                        src="https://www.google.com/maps?q=-2.0619535895881476,105.1643078650724&z=17&output=embed"
+                        allowfullscreen></iframe>
+                </div>
+
+                <div id="statusBoxPulang" class="status-box status-idle">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        Tekan tombol "Ambil Lokasi Saya" untuk mengukur jarak Anda ke sekolah.
+                        <span class="status-detail">Radius absensi yang diizinkan: 50 meter dari titik sekolah.</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button id="btnAmbilLokasiPulang" class="btn btn-primary">
+                        <i class="fas fa-location-crosshairs"></i> Ambil Lokasi Saya
+                    </button>
+                    <button id="btnAbsenPulang" class="btn btn-success" disabled>
+                        <i class="fas fa-check-circle"></i> Absen Pulang
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -393,8 +463,26 @@
                 <i class="fas fa-history"></i>
                 <span>Riwayat Absensi Terakhir</span>
             </div>
-            <div id="riwayatContainer">
-                <p class="empty-note">Memuat riwayat absensi...</p>
+
+            <div class="tabs-header">
+                <button class="tab-btn active" id="riwayatTabBtnDatang" type="button">
+                    <i class="fas fa-sign-in-alt"></i> Riwayat Absensi Datang
+                </button>
+                <button class="tab-btn" id="riwayatTabBtnPulang" type="button">
+                    <i class="fas fa-sign-out-alt"></i> Riwayat Absensi Pulang
+                </button>
+            </div>
+
+            <div class="tab-content active" id="riwayatTabDatang">
+                <div id="riwayatDatangContainer">
+                    <p class="empty-note">Memuat riwayat absensi datang...</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="riwayatTabPulang">
+                <div id="riwayatPulangContainer">
+                    <p class="empty-note">Memuat riwayat absensi pulang...</p>
+                </div>
             </div>
         </div>
 
@@ -415,6 +503,20 @@
         </div>
     </div>
 
+    <!-- Modal Notifikasi Waktu Pulang Belum Tiba -->
+    <div class="modal-overlay" id="waktuBelumTibaModal">
+        <div class="modal-box">
+            <div class="modal-icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 8px 22px rgba(245, 158, 11, 0.4);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3>Maaf, Waktu Pulang Belum Tiba</h3>
+            <p id="waktuBelumTibaText">Anda tidak dapat melakukan Absensi Pulang sebelum waktu pulang tiba.</p>
+            <button class="modal-btn-close" id="btnTutupWaktuBelumTiba">
+                <i class="fas fa-times"></i> Tutup
+            </button>
+        </div>
+    </div>
+
     <script>
         // --- Supabase Integration ---
         const supabaseUrl = 'https://ttorwlqsoioiwhscbqfu.supabase.co';
@@ -427,7 +529,7 @@
         // --- Titik Koordinat Sekolah & Radius yang Diizinkan ---
         const SCHOOL_LAT = -2.0619535895881476;
         const SCHOOL_LNG = 105.1643078650724;
-        const RADIUS_METER = 50;
+        const RADIUS_METER = 50; // 50 meter dari titik koordinat sekolah
 
         let currentPosition = null; // { lat, lng, distance }
         let session = null;
@@ -454,7 +556,7 @@
             }
         }
 
-        // --- Info Sesi TU, Tanggal & Jam ---
+        // --- Info Sesi TU, Tanggal & Jam (mengikuti waktu di perangkat pengguna) ---
         function updateLiveInfo() {
             const now = new Date();
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -492,21 +594,47 @@
         }
 
         // --- Update Peta Google Maps (rute dari lokasi user ke sekolah) ---
-        function updateMap(lat, lng) {
-            const mapFrame = document.getElementById('mapFrame');
-            mapFrame.src = `https://www.google.com/maps?saddr=${lat},${lng}&daddr=${SCHOOL_LAT},${SCHOOL_LNG}&output=embed`;
+        function updateMapEl(iframeEl, lat, lng) {
+            iframeEl.src = `https://www.google.com/maps?saddr=${lat},${lng}&daddr=${SCHOOL_LAT},${SCHOOL_LNG}&output=embed`;
         }
 
-        // --- Tombol Ambil Lokasi ---
-        const btnAmbilLokasi = document.getElementById('btnAmbilLokasi');
-        const btnAbsen = document.getElementById('btnAbsen');
-        const statusBox = document.getElementById('statusBox');
-
-        function setStatusBox(type, html) {
-            statusBox.className = 'status-box status-' + type;
+        function setStatusBoxEl(el, type, html) {
+            el.className = 'status-box status-' + type;
             const icon = type === 'ok' ? 'fa-check-circle' : (type === 'out' ? 'fa-times-circle' : (type === 'loading' ? 'fa-spinner fa-spin' : 'fa-info-circle'));
-            statusBox.innerHTML = `<i class="fas ${icon}"></i><div>${html}</div>`;
+            el.innerHTML = `<i class="fas ${icon}"></i><div>${html}</div>`;
         }
+
+        // --- Tab Switching: Absensi Datang / Absensi Pulang ---
+        const tabBtnDatang = document.getElementById('tabBtnDatang');
+        const tabBtnPulang = document.getElementById('tabBtnPulang');
+        const tabDatang = document.getElementById('tabDatang');
+        const tabPulang = document.getElementById('tabPulang');
+
+        function switchTab(tab) {
+            const isDatang = tab === 'datang';
+            tabBtnDatang.classList.toggle('active', isDatang);
+            tabBtnPulang.classList.toggle('active', !isDatang);
+            tabDatang.classList.toggle('active', isDatang);
+            tabPulang.classList.toggle('active', !isDatang);
+        }
+        tabBtnDatang.addEventListener('click', () => switchTab('datang'));
+        tabBtnPulang.addEventListener('click', () => switchTab('pulang'));
+
+        // --- Tab Switching: Riwayat Absensi Datang / Pulang ---
+        const riwayatTabBtnDatang = document.getElementById('riwayatTabBtnDatang');
+        const riwayatTabBtnPulang = document.getElementById('riwayatTabBtnPulang');
+        const riwayatTabDatang = document.getElementById('riwayatTabDatang');
+        const riwayatTabPulang = document.getElementById('riwayatTabPulang');
+
+        function switchRiwayatTab(tab) {
+            const isDatang = tab === 'datang';
+            riwayatTabBtnDatang.classList.toggle('active', isDatang);
+            riwayatTabBtnPulang.classList.toggle('active', !isDatang);
+            riwayatTabDatang.classList.toggle('active', isDatang);
+            riwayatTabPulang.classList.toggle('active', !isDatang);
+        }
+        riwayatTabBtnDatang.addEventListener('click', () => switchRiwayatTab('datang'));
+        riwayatTabBtnPulang.addEventListener('click', () => switchRiwayatTab('pulang'));
 
         // --- Modal Notifikasi Di Luar Radius ---
         const outOfRangeModal = document.getElementById('outOfRangeModal');
@@ -526,59 +654,160 @@
         outOfRangeModal.addEventListener('click', (e) => {
             if (e.target === outOfRangeModal) closeOutOfRangeModal();
         });
+
+        // --- Modal Notifikasi Waktu Pulang Belum Tiba ---
+        const waktuBelumTibaModal = document.getElementById('waktuBelumTibaModal');
+        const waktuBelumTibaText = document.getElementById('waktuBelumTibaText');
+        const btnTutupWaktuBelumTiba = document.getElementById('btnTutupWaktuBelumTiba');
+
+        function showWaktuBelumTibaModal(jamText) {
+            waktuBelumTibaText.textContent = `Anda tidak dapat melakukan Absensi Pulang sebelum waktu pulang tiba pukul ${jamText} WIB.`;
+            waktuBelumTibaModal.classList.add('active');
+        }
+
+        function closeWaktuBelumTibaModal() {
+            waktuBelumTibaModal.classList.remove('active');
+        }
+
+        btnTutupWaktuBelumTiba.addEventListener('click', closeWaktuBelumTibaModal);
+        waktuBelumTibaModal.addEventListener('click', (e) => {
+            if (e.target === waktuBelumTibaModal) closeWaktuBelumTibaModal();
+        });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeOutOfRangeModal();
-        });
-
-        btnAmbilLokasi.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                setStatusBox('out', 'Perangkat/browser Anda tidak mendukung fitur GPS (Geolocation).');
-                return;
+            if (e.key === 'Escape') {
+                closeOutOfRangeModal();
+                closeWaktuBelumTibaModal();
             }
-
-            setStatusBox('loading', 'Sedang mengambil lokasi Anda, mohon tunggu...');
-            btnAmbilLokasi.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const { latitude, longitude, accuracy } = pos.coords;
-                    const jarak = hitungJarak(latitude, longitude, SCHOOL_LAT, SCHOOL_LNG);
-                    currentPosition = { lat: latitude, lng: longitude, distance: jarak };
-
-                    updateMap(latitude, longitude);
-
-                    if (jarak <= RADIUS_METER) {
-                        setStatusBox('ok', `Anda berada dalam radius sekolah. Jarak: <b>${formatJarak(jarak)}</b>.
-                            <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Silakan tekan "Absen Sekarang".</span>`);
-                        btnAbsen.disabled = false;
-                    } else {
-                        setStatusBox('out', `Anda berada di luar radius yang diizinkan. Jarak: <b>${formatJarak(jarak)}</b> (maks. ${formatJarak(RADIUS_METER)}).
-                            <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Mendekatlah ke lokasi sekolah untuk bisa absen.</span>`);
-                        btnAbsen.disabled = true;
-                        showOutOfRangeModal(jarak);
-                    }
-                    btnAmbilLokasi.disabled = false;
-                },
-                (err) => {
-                    let pesan = 'Gagal mengambil lokasi. ';
-                    if (err.code === err.PERMISSION_DENIED) pesan += 'Anda menolak izin akses lokasi. Aktifkan izin lokasi pada browser/perangkat Anda.';
-                    else if (err.code === err.POSITION_UNAVAILABLE) pesan += 'Informasi lokasi tidak tersedia.';
-                    else if (err.code === err.TIMEOUT) pesan += 'Waktu pengambilan lokasi habis. Coba lagi.';
-                    else pesan += err.message;
-                    setStatusBox('out', pesan);
-                    btnAmbilLokasi.disabled = false;
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
         });
 
-        // --- Tombol Absen Sekarang ---
-        btnAbsen.addEventListener('click', async () => {
+        // --- Jadwal Absensi Pulang per Hari ---
+        // Senin-Kamis (dan hari lain yang tidak disebutkan): mulai 14.30
+        // Jumat: mulai 11.30
+        function getBatasPulangHariIni(refDate) {
+            const hari = refDate.getDay(); // 0=Minggu, 1=Senin, ..., 5=Jumat, 6=Sabtu
+            if (hari === 5) return { jam: 11, menit: 30 }; // Jumat
+            return { jam: 14, menit: 30 }; // Senin-Kamis
+        }
+
+        function formatJamBatas(batas) {
+            return `${String(batas.jam).padStart(2, '0')}.${String(batas.menit).padStart(2, '0')}`;
+        }
+
+        function cekWaktuPulangBoleh(now) {
+            const batas = getBatasPulangHariIni(now);
+            const batasDate = new Date(now);
+            batasDate.setHours(batas.jam, batas.menit, 0, 0);
+            return { boleh: now >= batasDate, jamText: formatJamBatas(batas) };
+        }
+
+        // --- State posisi terpisah untuk Datang & Pulang ---
+        let currentPositionDatang = null; // { lat, lng, distance }
+        let currentPositionPulang = null; // { lat, lng, distance }
+
+        function setupAmbilLokasi(btnId, mapId, statusId, btnAbsenId, posSetter, preCheck) {
+            const btn = document.getElementById(btnId);
+            const mapEl = document.getElementById(mapId);
+            const statusEl = document.getElementById(statusId);
+            const btnAbsen = document.getElementById(btnAbsenId);
+
+            btn.addEventListener('click', () => {
+                if (preCheck) {
+                    const cek = preCheck();
+                    if (!cek.boleh) {
+                        showWaktuBelumTibaModal(cek.jamText);
+                        return;
+                    }
+                }
+
+                if (!navigator.geolocation) {
+                    setStatusBoxEl(statusEl, 'out', 'Perangkat/browser Anda tidak mendukung fitur GPS (Geolocation).');
+                    return;
+                }
+
+                setStatusBoxEl(statusEl, 'loading', 'Sedang mengambil lokasi Anda, mohon tunggu...');
+                btn.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const { latitude, longitude, accuracy } = pos.coords;
+                        const jarak = hitungJarak(latitude, longitude, SCHOOL_LAT, SCHOOL_LNG);
+                        posSetter({ lat: latitude, lng: longitude, distance: jarak });
+
+                        updateMapEl(mapEl, latitude, longitude);
+
+                        if (jarak <= RADIUS_METER) {
+                            setStatusBoxEl(statusEl, 'ok', `Anda berada dalam radius sekolah. Jarak: <b>${formatJarak(jarak)}</b>.
+                                <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Silakan tekan tombol Absen.</span>`);
+                            btnAbsen.disabled = false;
+                        } else {
+                            setStatusBoxEl(statusEl, 'out', `Anda berada di luar radius yang diizinkan. Jarak: <b>${formatJarak(jarak)}</b> (maks. ${formatJarak(RADIUS_METER)}).
+                                <span class="status-detail">Akurasi GPS: ± ${Math.round(accuracy)} m. Mendekatlah ke lokasi sekolah untuk bisa absen.</span>`);
+                            btnAbsen.disabled = true;
+                            showOutOfRangeModal(jarak);
+                        }
+                        btn.disabled = false;
+                    },
+                    (err) => {
+                        let pesan = 'Gagal mengambil lokasi. ';
+                        if (err.code === err.PERMISSION_DENIED) pesan += 'Anda menolak izin akses lokasi. Aktifkan izin lokasi pada browser/perangkat Anda.';
+                        else if (err.code === err.POSITION_UNAVAILABLE) pesan += 'Informasi lokasi tidak tersedia.';
+                        else if (err.code === err.TIMEOUT) pesan += 'Waktu pengambilan lokasi habis. Coba lagi.';
+                        else pesan += err.message;
+                        setStatusBoxEl(statusEl, 'out', pesan);
+                        btn.disabled = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            });
+        }
+
+        setupAmbilLokasi('btnAmbilLokasiDatang', 'mapFrameDatang', 'statusBoxDatang', 'btnAbsenDatang', (p) => currentPositionDatang = p);
+        setupAmbilLokasi('btnAmbilLokasiPulang', 'mapFramePulang', 'statusBoxPulang', 'btnAbsenPulang', (p) => currentPositionPulang = p, () => cekWaktuPulangBoleh(new Date()));
+
+        // --- Batas Waktu Absen Datang (waktu perangkat) ---
+        const BATAS_JAM_DATANG = { jam: 6, menit: 45 };   // Batas tepat waktu Absen Datang: 06:45
+
+        function hitungStatusDatang(now) {
+            const batasJam = new Date(now);
+            batasJam.setHours(BATAS_JAM_DATANG.jam, BATAS_JAM_DATANG.menit, 0, 0);
+            if (now > batasJam) {
+                const selisihMenit = Math.round((now - batasJam) / 60000);
+                return { statusAbsen: 'Terlambat', keteranganAbsen: `Terlambat ${selisihMenit} Menit` };
+            }
+            return { statusAbsen: 'Hadir', keteranganAbsen: 'Tepat Waktu' };
+        }
+
+        // Absensi Pulang sudah dijaga oleh gerbang jadwal (cekWaktuPulangBoleh),
+        // jadi begitu berhasil melewati gerbang, statusnya selalu dianggap tepat waktu.
+        function hitungStatusPulang(now) {
+            return { statusAbsen: 'Hadir', keteranganAbsen: 'Tepat Waktu' };
+        }
+
+        // --- Proses Absen (dipakai untuk Datang maupun Pulang) ---
+        async function prosesAbsen({ tableName, jenis, getPosisi, btnId, statusId, hitungStatus, cekWaktu }) {
+            const btn = document.getElementById(btnId);
+            const statusEl = document.getElementById(statusId);
+            const currentPosition = getPosisi();
+
             if (!currentPosition) return;
             if (currentPosition.distance > RADIUS_METER) {
                 showOutOfRangeModal(currentPosition.distance);
                 return;
             }
+
+            // --- Waktu mengikuti perangkat pengguna ---
+            const now = new Date();
+
+            // --- Gerbang Jadwal (khusus Absensi Pulang) ---
+            if (cekWaktu) {
+                const cek = cekWaktu(now);
+                if (!cek.boleh) {
+                    showWaktuBelumTibaModal(cek.jamText);
+                    return;
+                }
+            }
+
             if (!session || !session.nama) {
                 alert('Sesi tidak valid. Silakan login ulang.');
                 return;
@@ -587,36 +816,21 @@
                 alert('Koneksi database tidak tersedia.');
                 return;
             }
-
-            // --- Waktu mengikuti perangkat pengguna ---
-            const now = new Date();
             const tahun = now.getFullYear();
             const bulan = String(now.getMonth() + 1).padStart(2, '0');
             const tgl = String(now.getDate()).padStart(2, '0');
             const tanggal = `${tahun}-${bulan}-${tgl}`; // YYYY-MM-DD
-            const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\./g, ':');
 
-            // --- Batas Waktu Tepat Waktu: 06:45 ---
-            const batasJam = new Date(now);
-            batasJam.setHours(6, 45, 0, 0);
-            const statusAbsen = now > batasJam ? 'Terlambat' : 'Hadir';
+            const { statusAbsen, keteranganAbsen } = hitungStatus(now);
 
-            // --- Hitung Keterangan Otomatis ---
-            let keteranganAbsen;
-            if (now > batasJam) {
-                const selisihMenit = Math.round((now - batasJam) / 60000);
-                keteranganAbsen = `Terlambat ${selisihMenit} Menit`;
-            } else {
-                keteranganAbsen = 'Tepat Waktu';
-            }
-
-            btnAbsen.disabled = true;
-            btnAbsen.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
             try {
-                // Cek apakah sudah absen hari ini
+                // Cek apakah sudah absen (jenis ini) hari ini
                 const { data: existing, error: cekError } = await supabaseClient
-                    .from('absensitu')
+                    .from(tableName)
                     .select('id')
                     .eq('nama_tu', session.nama)
                     .eq('tanggal', tanggal)
@@ -625,14 +839,14 @@
                 if (cekError) throw cekError;
 
                 if (existing) {
-                    alert('Anda sudah melakukan absensi hari ini.');
-                    btnAbsen.innerHTML = '<i class="fas fa-check-circle"></i> Sudah Absen Hari Ini';
+                    alert(`Anda sudah melakukan Absensi ${jenis} hari ini.`);
+                    btn.innerHTML = `<i class="fas fa-check-circle"></i> Sudah Absen ${jenis} Hari Ini`;
                     loadRiwayat();
                     return;
                 }
 
                 const { error } = await supabaseClient
-                    .from('absensitu')
+                    .from(tableName)
                     .insert([{
                         nama_tu: session.nama,
                         tanggal: tanggal,
@@ -646,23 +860,45 @@
 
                 if (error) throw error;
 
-                const statusLabel = statusAbsen === 'Terlambat' ? 'Terlambat' : 'Hadir (Tepat Waktu)';
-                const statusType = statusAbsen === 'Terlambat' ? 'out' : 'ok';
-                setStatusBox(statusType, `Absensi berhasil disimpan pada pukul <b>${jam}</b>. Status: <b>${statusLabel}</b> (${keteranganAbsen}).`);
-                btnAbsen.innerHTML = '<i class="fas fa-check-circle"></i> Absen Berhasil';
+                const statusLabel = (statusAbsen === 'Terlambat' || statusAbsen === 'Pulang Cepat') ? statusAbsen : 'Hadir (Tepat Waktu)';
+                const statusType = (statusAbsen === 'Terlambat' || statusAbsen === 'Pulang Cepat') ? 'out' : 'ok';
+                setStatusBoxEl(statusEl, statusType, `Absensi ${jenis} berhasil disimpan pada pukul <b>${jam}</b>. Status: <b>${statusLabel}</b> (${keteranganAbsen}).`);
+                btn.innerHTML = `<i class="fas fa-check-circle"></i> Absen ${jenis} Berhasil`;
                 loadRiwayat();
 
             } catch (err) {
-                console.error('Error menyimpan absensi:', err);
-                alert('Gagal menyimpan absensi. Pastikan tabel "absensitu" sudah tersedia di database.');
-                btnAbsen.disabled = false;
-                btnAbsen.innerHTML = '<i class="fas fa-check-circle"></i> Absen Sekarang';
+                console.error(`Error menyimpan absensi ${jenis}:`, err);
+                alert(`Gagal menyimpan absensi ${jenis}. Pastikan tabel "${tableName}" sudah tersedia di database.`);
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-check-circle"></i> Absen ${jenis}`;
             }
+        }
+
+        document.getElementById('btnAbsenDatang').addEventListener('click', () => {
+            prosesAbsen({
+                tableName: 'absensitu',
+                jenis: 'Datang',
+                getPosisi: () => currentPositionDatang,
+                btnId: 'btnAbsenDatang',
+                statusId: 'statusBoxDatang',
+                hitungStatus: hitungStatusDatang
+            });
         });
 
-        // --- Riwayat Absensi ---
-        async function loadRiwayat() {
-            const container = document.getElementById('riwayatContainer');
+        document.getElementById('btnAbsenPulang').addEventListener('click', () => {
+            prosesAbsen({
+                tableName: 'absensitu_pulang',
+                jenis: 'Pulang',
+                getPosisi: () => currentPositionPulang,
+                btnId: 'btnAbsenPulang',
+                statusId: 'statusBoxPulang',
+                hitungStatus: hitungStatusPulang
+            });
+        });
+
+        // --- Riwayat Absensi Datang ---
+        async function loadRiwayatDatang() {
+            const container = document.getElementById('riwayatDatangContainer');
             if (!supabaseClient || !session || !session.nama) {
                 container.innerHTML = '<p class="empty-note">Riwayat tidak dapat dimuat.</p>';
                 return;
@@ -679,7 +915,7 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = '<p class="empty-note">Belum ada riwayat absensi.</p>';
+                    container.innerHTML = '<p class="empty-note">Belum ada riwayat absensi datang.</p>';
                     return;
                 }
 
@@ -701,9 +937,61 @@
                 container.innerHTML = html;
 
             } catch (err) {
-                console.error('Error memuat riwayat:', err);
+                console.error('Error memuat riwayat datang:', err);
                 container.innerHTML = '<p class="empty-note">Tabel "absensitu" belum tersedia di database.</p>';
             }
+        }
+
+        // --- Riwayat Absensi Pulang ---
+        async function loadRiwayatPulang() {
+            const container = document.getElementById('riwayatPulangContainer');
+            if (!supabaseClient || !session || !session.nama) {
+                container.innerHTML = '<p class="empty-note">Riwayat tidak dapat dimuat.</p>';
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('absensitu_pulang')
+                    .select('tanggal, jam, jarak_meter, status, keterangan')
+                    .eq('nama_tu', session.nama)
+                    .order('tanggal', { ascending: false })
+                    .order('jam', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="empty-note">Belum ada riwayat absensi pulang.</p>';
+                    return;
+                }
+
+                let html = `<table class="riwayat"><thead><tr>
+                    <th>Tanggal</th><th>Jam</th><th>Jarak</th><th>Status</th><th>Keterangan</th>
+                    </tr></thead><tbody>`;
+                data.forEach(row => {
+                    const tgl = new Date(row.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const badgeClass = row.status === 'Hadir' ? 'badge-hadir' : (row.status === 'Terlambat' ? 'badge-terlambat' : 'badge-ditolak');
+                    html += `<tr>
+                        <td>${tgl}</td>
+                        <td>${row.jam || '-'}</td>
+                        <td>${row.jarak_meter != null ? row.jarak_meter + ' m' : '-'}</td>
+                        <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                        <td>${row.keterangan || '-'}</td>
+                        </tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+            } catch (err) {
+                console.error('Error memuat riwayat pulang:', err);
+                container.innerHTML = '<p class="empty-note">Tabel "absensitu_pulang" belum tersedia di database.</p>';
+            }
+        }
+
+        // Panggil kedua riwayat sekaligus
+        function loadRiwayat() {
+            loadRiwayatDatang();
+            loadRiwayatPulang();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
