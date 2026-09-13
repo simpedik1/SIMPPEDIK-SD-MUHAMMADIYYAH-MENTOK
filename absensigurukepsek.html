@@ -175,6 +175,40 @@
             gap: 8px;
         }
 
+        /* --- Tabs Riwayat Absensi (Datang / Pulang) --- */
+        .riwayat-tabs-header {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 18px;
+            border-bottom: 2px solid #eee;
+        }
+        .riwayat-tab-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: none;
+            border: none;
+            padding: 11px 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .riwayat-tab-btn:hover:not(:disabled) { color: var(--primary-color); }
+        .riwayat-tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        .riwayat-tab-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         /* --- Filter Bar --- */
         .filter-bar {
             display: flex;
@@ -699,6 +733,16 @@
                 </button>
             </div>
 
+            <!-- Tab Riwayat Absensi Datang / Pulang -->
+            <div class="riwayat-tabs-header">
+                <button type="button" class="riwayat-tab-btn active" id="riwayatTabBtnDatang">
+                    <i class="fas fa-sign-in-alt"></i> Riwayat Absensi <span id="tabLabelDatang">Guru</span> Datang
+                </button>
+                <button type="button" class="riwayat-tab-btn" id="riwayatTabBtnPulang">
+                    <i class="fas fa-sign-out-alt"></i> Riwayat Absensi Guru Pulang
+                </button>
+            </div>
+
             <!-- Rekap Statistik Absensi -->
             <div class="recap-grid" id="recapGrid">
                 <div class="recap-card recap-total">
@@ -840,11 +884,23 @@
         };
         let kategoriAktif = 'Guru';
 
+        // --- Jenis Riwayat Absensi (Datang / Pulang) ---
+        // Tabel "..._pulang" saat ini hanya tersedia untuk Guru (absensiguru_pulang),
+        // sehingga tab "Pulang" hanya aktif ketika kategori pegawai = Guru.
+        let jenisAbsensi = 'Datang'; // 'Datang' | 'Pulang'
+        const PULANG_CONFIG = { table: 'absensiguru_pulang', namaField: 'nama_guru', label: 'Guru', icon: 'fa-chalkboard-teacher' };
+
+        // --- Ambil konfigurasi tabel yang sedang aktif (kombinasi kategori & jenis absensi) ---
+        function getActiveConfig() {
+            return jenisAbsensi === 'Pulang' ? PULANG_CONFIG : KATEGORI_CONFIG[kategoriAktif];
+        }
+
         // --- Update Teks/Label di Halaman Sesuai Kategori Terpilih ---
         function updateLabelKategori() {
             const cfg = KATEGORI_CONFIG[kategoriAktif];
             document.getElementById('labelFilterNama').textContent = `Nama ${cfg.label}`;
             document.getElementById('titleRiwayat').textContent = `Riwayat Absensi ${cfg.label}`;
+            document.getElementById('tabLabelDatang').textContent = cfg.label;
             document.getElementById('titlePembinaan').textContent = `${cfg.label} Perlu Pembinaan`;
             document.getElementById('iconPembinaan').className = `fas ${cfg.icon}`;
             document.getElementById('iconPembinaan').style.color = '#e74c3c';
@@ -852,14 +908,44 @@
                 `5 ${cfg.label} dengan durasi keterlambatan terlama (berdasarkan seluruh riwayat absensi)`;
         }
 
+        // --- Ganti Tab Riwayat Absensi (Datang / Pulang) ---
+        function switchRiwayatTab(jenis) {
+            if (jenis === jenisAbsensi) return;
+            jenisAbsensi = jenis;
+
+            const filterKategoriEl = document.getElementById('filterKategori');
+            if (jenis === 'Pulang') {
+                // Tabel pulang hanya tersedia untuk Guru, paksa kategori ke Guru
+                kategoriAktif = 'Guru';
+                filterKategoriEl.value = 'Guru';
+                filterKategoriEl.disabled = true;
+            } else {
+                filterKategoriEl.disabled = false;
+                kategoriAktif = filterKategoriEl.value;
+            }
+
+            document.getElementById('riwayatTabBtnDatang').classList.toggle('active', jenis === 'Datang');
+            document.getElementById('riwayatTabBtnPulang').classList.toggle('active', jenis === 'Pulang');
+
+            document.getElementById('filterGuru').value = '';
+            document.getElementById('filterStatus').value = '';
+
+            updateLabelKategori();
+            loadDaftarNama();
+            terapkanFilter();
+        }
+
+        document.getElementById('riwayatTabBtnDatang').addEventListener('click', () => switchRiwayatTab('Datang'));
+        document.getElementById('riwayatTabBtnPulang').addEventListener('click', () => switchRiwayatTab('Pulang'));
+
         /*
          * Ambil daftar nama (Guru/TU) unik untuk dropdown filter, sesuai kategori aktif.
          */
         async function loadDaftarNama() {
             const select = document.getElementById('filterGuru');
-            select.innerHTML = `<option value="">Semua ${KATEGORI_CONFIG[kategoriAktif].label}</option>`;
+            const cfg = getActiveConfig();
+            select.innerHTML = `<option value="">Semua ${cfg.label}</option>`;
             if (!supabaseClient) return;
-            const cfg = KATEGORI_CONFIG[kategoriAktif];
             try {
                 const { data, error } = await supabaseClient
                     .from(cfg.table)
@@ -1009,7 +1095,8 @@
         // --- Muat Riwayat Absensi dari tabel sesuai kategori aktif ("absensiguru" atau "absensitu") ---
         async function loadAbsensiGuru(filters = {}) {
             const tbody = document.getElementById('absensiGuruTableBody');
-            const cfg = KATEGORI_CONFIG[kategoriAktif];
+            const cfg = getActiveConfig();
+            const jenisLabel = jenisAbsensi === 'Pulang' ? ' Pulang' : '';
             if (!supabaseClient) {
                 tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-exclamation-triangle"></i>Koneksi database tidak tersedia.</td></tr>`;
                 return;
@@ -1032,7 +1119,7 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i>Belum ada data riwayat absensi ${cfg.label}.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i>Belum ada data riwayat absensi ${cfg.label}${jenisLabel}.</td></tr>`;
                     riwayatAbsensiData = [];
                     updateRekapStatistik([]);
                     renderPagination();
@@ -1171,6 +1258,18 @@
             document.getElementById('filterGuru').value = '';
             document.getElementById('filterTanggal').value = '';
             document.getElementById('filterStatus').value = '';
+
+            // Tab "Riwayat Absensi Pulang" hanya tersedia untuk kategori Guru
+            const riwayatTabBtnPulang = document.getElementById('riwayatTabBtnPulang');
+            if (kategoriAktif === 'TU') {
+                riwayatTabBtnPulang.disabled = true;
+                if (jenisAbsensi === 'Pulang') {
+                    switchRiwayatTab('Datang');
+                }
+            } else {
+                riwayatTabBtnPulang.disabled = false;
+            }
+
             updateLabelKategori();
             await loadDaftarNama();
             terapkanFilter();
@@ -1226,10 +1325,11 @@
                 }
 
                 // Judul Dokumen
-                const cfgPdf = KATEGORI_CONFIG[kategoriAktif];
+                const cfgPdf = getActiveConfig();
+                const jenisPdfLabel = jenisAbsensi === 'Pulang' ? ' PULANG' : ' DATANG';
                 doc.setFontSize(16);
                 doc.setTextColor(40, 40, 40);
-                doc.text(`LAPORAN RIWAYAT ABSENSI ${cfgPdf.label.toUpperCase()}`, pageWidth / 2, yPos, { align: 'center' });
+                doc.text(`LAPORAN RIWAYAT ABSENSI ${cfgPdf.label.toUpperCase()}${jenisPdfLabel}`, pageWidth / 2, yPos, { align: 'center' });
                 yPos += 8;
 
                 // Nama Sekolah
@@ -1334,7 +1434,7 @@
                 // --- Tabel Riwayat Absensi ---
                 doc.setFontSize(11);
                 doc.setTextColor(40, 40, 40);
-                doc.text(`Riwayat Absensi ${cfgPdf.label}`, 14, yPos);
+                doc.text(`Riwayat Absensi ${cfgPdf.label}${jenisPdfLabel}`, 14, yPos);
                 yPos += 4;
 
                 // Siapkan Data Tabel
@@ -1382,7 +1482,7 @@
                 doc.text(`Total Data: ${riwayatAbsensiData.length}`, 14, finalY + 10);
 
                 // Simpan File
-                const fileName = `Riwayat_Absensi_${cfgPdf.label}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.pdf`;
+                const fileName = `Riwayat_Absensi_${cfgPdf.label}_${jenisAbsensi}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.pdf`;
                 doc.save(fileName);
 
             } catch (err) {
