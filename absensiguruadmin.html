@@ -175,6 +175,36 @@
             gap: 8px;
         }
 
+        /* --- Tabs Riwayat Absensi (Datang / Pulang) --- */
+        .riwayat-tabs-header {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 18px;
+            border-bottom: 2px solid #eee;
+        }
+        .riwayat-tab-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: none;
+            border: none;
+            padding: 11px 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .riwayat-tab-btn:hover { color: var(--primary-color); }
+        .riwayat-tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
         /* --- Filter Bar --- */
         .filter-bar {
             display: flex;
@@ -692,6 +722,16 @@
                 </button>
             </div>
 
+            <!-- Tab Riwayat Absensi Datang / Pulang -->
+            <div class="riwayat-tabs-header">
+                <button type="button" class="riwayat-tab-btn active" id="riwayatTabBtnDatang">
+                    <i class="fas fa-sign-in-alt"></i> Riwayat Absensi Guru Datang
+                </button>
+                <button type="button" class="riwayat-tab-btn" id="riwayatTabBtnPulang">
+                    <i class="fas fa-sign-out-alt"></i> Riwayat Absensi Guru Pulang
+                </button>
+            </div>
+
             <!-- Rekap Statistik Absensi -->
             <div class="recap-grid" id="recapGrid">
                 <div class="recap-card recap-total">
@@ -796,6 +836,13 @@
         let halamanAktif = 1;
         let schoolData = {}; // Menyimpan data sekolah untuk keperluan export PDF
 
+        // --- Jenis Riwayat Absensi (Datang / Pulang) ---
+        let jenisAbsensi = 'Datang'; // 'Datang' | 'Pulang'
+        const TABEL_RIWAYAT = { Datang: 'absensiguru', Pulang: 'absensiguru_pulang' };
+        function getActiveTable() {
+            return TABEL_RIWAYAT[jenisAbsensi];
+        }
+
         if (typeof supabase !== 'undefined') {
             supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -827,14 +874,15 @@
         }
 
         /*
-         * Ambil daftar nama guru unik untuk dropdown filter.
+         * Ambil daftar nama guru unik untuk dropdown filter, sesuai tab (Datang/Pulang) aktif.
          */
         async function loadDaftarGuru() {
             const select = document.getElementById('filterGuru');
+            select.innerHTML = `<option value="">Semua Guru</option>`;
             if (!supabaseClient) return;
             try {
                 const { data, error } = await supabaseClient
-                    .from('absensiguru')
+                    .from(getActiveTable())
                     .select('nama_guru')
                     .not('nama_guru', 'is', null);
 
@@ -973,9 +1021,11 @@
             }
         }
 
-        // --- Muat Riwayat Absensi Guru dari tabel "absensiguru" ---
+        // --- Muat Riwayat Absensi Guru dari tabel sesuai tab aktif ("absensiguru" atau "absensiguru_pulang") ---
         async function loadAbsensiGuru(filters = {}) {
             const tbody = document.getElementById('absensiGuruTableBody');
+            const tabel = getActiveTable();
+            const jenisLabel = jenisAbsensi === 'Pulang' ? ' Pulang' : '';
             if (!supabaseClient) {
                 tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-exclamation-triangle"></i>Koneksi database tidak tersedia.</td></tr>`;
                 return;
@@ -985,7 +1035,7 @@
 
             try {
                 let query = supabaseClient
-                    .from('absensiguru')
+                    .from(tabel)
                     .select('id, nama_guru, tanggal, jam, latitude, longitude, jarak_meter, status, keterangan')
                     .order('tanggal', { ascending: false })
                     .order('jam', { ascending: false });
@@ -998,7 +1048,7 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i>Belum ada data riwayat absensi guru.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i>Belum ada data riwayat absensi guru${jenisLabel}.</td></tr>`;
                     riwayatAbsensiData = [];
                     updateRekapStatistik([]);
                     renderPagination();
@@ -1137,6 +1187,25 @@
             loadAbsensiGuru();
         });
 
+        // --- Ganti Tab Riwayat Absensi (Datang / Pulang) ---
+        function switchRiwayatTab(jenis) {
+            if (jenis === jenisAbsensi) return;
+            jenisAbsensi = jenis;
+
+            document.getElementById('riwayatTabBtnDatang').classList.toggle('active', jenis === 'Datang');
+            document.getElementById('riwayatTabBtnPulang').classList.toggle('active', jenis === 'Pulang');
+
+            document.getElementById('filterTanggal').value = '';
+            document.getElementById('filterGuru').value = '';
+            document.getElementById('filterStatus').value = '';
+
+            loadDaftarGuru();
+            terapkanFilter();
+        }
+
+        document.getElementById('riwayatTabBtnDatang').addEventListener('click', () => switchRiwayatTab('Datang'));
+        document.getElementById('riwayatTabBtnPulang').addEventListener('click', () => switchRiwayatTab('Pulang'));
+
         // --- Export PDF: Riwayat Absensi Guru ---
         document.getElementById('btnExportPdf').addEventListener('click', async () => {
             const btn = document.getElementById('btnExportPdf');
@@ -1179,9 +1248,10 @@
                 }
 
                 // Judul Dokumen
+                const jenisPdfLabel = jenisAbsensi === 'Pulang' ? ' PULANG' : ' DATANG';
                 doc.setFontSize(16);
                 doc.setTextColor(40, 40, 40);
-                doc.text('LAPORAN RIWAYAT ABSENSI GURU', pageWidth / 2, yPos, { align: 'center' });
+                doc.text(`LAPORAN RIWAYAT ABSENSI GURU${jenisPdfLabel}`, pageWidth / 2, yPos, { align: 'center' });
                 yPos += 8;
 
                 // Nama Sekolah
@@ -1286,7 +1356,7 @@
                 // --- Tabel Riwayat Absensi Guru ---
                 doc.setFontSize(11);
                 doc.setTextColor(40, 40, 40);
-                doc.text('Riwayat Absensi Guru', 14, yPos);
+                doc.text(`Riwayat Absensi Guru${jenisPdfLabel}`, 14, yPos);
                 yPos += 4;
 
                 // Siapkan Data Tabel
@@ -1334,7 +1404,7 @@
                 doc.text(`Total Data: ${riwayatAbsensiData.length}`, 14, finalY + 10);
 
                 // Simpan File
-                const fileName = `Riwayat_Absensi_Guru_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.pdf`;
+                const fileName = `Riwayat_Absensi_Guru_${jenisAbsensi}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.pdf`;
                 doc.save(fileName);
 
             } catch (err) {
