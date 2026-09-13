@@ -362,6 +362,56 @@
             filter: brightness(1.08);
             transform: translateY(-1px);
         }
+
+        /* --- Jarak Kontainer ke Tepi Layar (Mobile) --- */
+        /* Diletakkan paling akhir agar override ini benar-benar diterapkan */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        img, iframe, table, video, svg {
+            max-width: 100%;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .dashboard-card {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .card-title {
+                flex-wrap: wrap;
+            }
+            .info-row {
+                word-break: break-word;
+            }
+            table.riwayat {
+                width: 100%;
+                table-layout: fixed;
+            }
+            table.riwayat th,
+            table.riwayat td {
+                white-space: normal;
+                word-break: break-word;
+                padding: 8px 5px;
+                font-size: 0.8rem;
+            }
+            .tabs-header {
+                gap: 2px;
+            }
+            .tab-btn {
+                padding: 10px 4px;
+                font-size: 0.78rem;
+                gap: 4px;
+                text-align: center;
+            }
+            .modal-box {
+                max-width: 100%;
+                padding: 24px 16px 20px;
+            }
+        }
     </style>
 </head>
 <body>
