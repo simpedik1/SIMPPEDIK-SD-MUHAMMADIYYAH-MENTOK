@@ -676,6 +676,7 @@
                  <div style="display: flex; gap: 10px;">
                     <button id="inputAbsensiBtn" class="btn-export" style="background-color: #10b981;"><i class="fas fa-clipboard-check"></i> Input Absensi Kehadiran</button>
                     <button id="exportAbsensiPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                    <button id="refreshAbsensiBtn" class="btn-export" style="background-color: #6b7280;" title="Muat ulang data absensi"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 <div>
                     <input type="text" id="searchAbsensiInput" placeholder="Cari Nama / Ketik Status (Alpa, Sakit...)" style="padding: 8px; border: 1px solid #374151; border-radius: 4px; width: 250px; background-color: #111827; color: white;">
@@ -1338,47 +1339,68 @@
             }
         }
 
+        // Ambil SEMUA baris dari Supabase (melewati batas default 1000 baris per request)
+        async function fetchAllRows(buildQuery, pageSize = 1000) {
+            let all = [];
+            let from = 0;
+            while (true) {
+                const { data, error } = await buildQuery().range(from, from + pageSize - 1);
+                if (error) throw error;
+                if (!data || data.length === 0) break;
+                all = all.concat(data);
+                if (data.length < pageSize) break;
+                from += pageSize;
+            }
+            return all;
+        }
+
+        // Samakan penulisan status kehadiran (Hadir/Sakit/Ijin/Alpa)
+        function normalizeStatusAbsensi(raw) {
+            const v = String(raw || '').trim().toLowerCase();
+            if (v === 'hadir' || v === 'h') return 'Hadir';
+            if (v === 'sakit' || v === 's') return 'Sakit';
+            if (v === 'ijin' || v === 'izin' || v === 'i') return 'Ijin';
+            if (v === 'alpa' || v === 'alpha' || v === 'a') return 'Alpa';
+            return null;
+        }
+
         async function loadAbsensiKelas(kelas) {
             const tbody = document.querySelector('#absensiTable tbody');
 
             try {
-                const { data: students, error: studentError } = await absensiClient
+                const students = await fetchAllRows(() => absensiClient
                     .from('mappingsiswa')
                     .select('nama_siswa')
                     .eq('kelas', kelas)
-                    .order('nama_siswa', { ascending: true });
-                
-                if (studentError) throw studentError;
+                    .order('nama_siswa', { ascending: true }));
 
-                const { data: attendance, error: attendanceError } = await absensiClient
+                const attendance = await fetchAllRows(() => absensiClient
                     .from('absensiswa')
                     .select('nama_siswa, status_kehadiran')
-                    .eq('kelas', kelas);
-
-                if (attendanceError) throw attendanceError;
+                    .eq('kelas', kelas)
+                    .order('tanggal', { ascending: true })
+                    .order('kode_absen', { ascending: true }));
 
                 const stats = {};
                 let totalHadir = 0, totalSakit = 0, totalIjin = 0, totalAlpa = 0;
                 
                 if (students) {
                     students.forEach(s => {
-                        stats[s.nama_siswa] = { Hadir: 0, Sakit: 0, Ijin: 0, Alpa: 0 };
+                        stats[(s.nama_siswa || '').trim()] = { Hadir: 0, Sakit: 0, Ijin: 0, Alpa: 0 };
                     });
                 }
 
                 if (attendance) {
                     attendance.forEach(record => {
-                        const name = record.nama_siswa;
-                        let status = record.status_kehadiran;
+                        const name = (record.nama_siswa || '').trim();
+                        const status = normalizeStatusAbsensi(record.status_kehadiran);
+                        if (!name) return;
                         
                         if (!stats[name]) {
                             stats[name] = { Hadir: 0, Sakit: 0, Ijin: 0, Alpa: 0 };
                         }
 
-                        if (status === 'Izin') status = 'Ijin';
-                        if (status === 'Alpha') status = 'Alpa';
-
-                        if (stats[name][status] !== undefined) {
+                        if (status && stats[name][status] !== undefined) {
                             stats[name][status]++;
                             
                             if (status === 'Hadir') totalHadir++;
@@ -1974,6 +1996,24 @@
             doc.save(`Rekap_Piket_${kelas}.pdf`);
         });
 
+        document.getElementById('refreshAbsensiBtn').addEventListener('click', async function () {
+            const btn = this;
+            const kelas = (document.getElementById('bioKelas').textContent || '').trim();
+            if (!kelas || kelas === '-') return;
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Memuat...';
+            document.querySelector('#absensiTable tbody').innerHTML = '<tr><td colspan="6" style="text-align: center;">Memuat data absensi...</td></tr>';
+            try {
+                await loadAbsensiKelas(kelas);
+                const search = document.getElementById('searchAbsensiInput');
+                if (search && search.value) search.dispatchEvent(new Event('input'));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        });
+
         document.getElementById('exportAbsensiPdfBtn').addEventListener('click', async () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -2514,7 +2554,7 @@
                     }
                 }
 
-                const pAbsensi = absensiClient.from('absensiswa').select('status_kehadiran').eq('nama_siswa', nama).eq('kelas', kelas);
+                const pAbsensi = fetchAllRows(() => absensiClient.from('absensiswa').select('status_kehadiran').eq('nama_siswa', nama).eq('kelas', kelas).order('tanggal', { ascending: true }).order('kode_absen', { ascending: true })).then(data => ({ data })).catch(error => ({ data: null, error }));
                 const pNilai = absensiClient.from('nilaimapel').select('*').eq('nama_siswa', nama).eq('kelas', kelas);
                 const pKasus = absensiClient.from('kasussiswa').select('*').eq('nama_siswa', nama).eq('kelas', kelas);
                 const pPiket = supabaseClient.from('jurnalpiket').select('*').eq('nama_siswa', nama).eq('kelas', kelas).order('tanggal', { ascending: false });
@@ -2543,10 +2583,8 @@
                 const stats = { Hadir: 0, Sakit: 0, Ijin: 0, Alpa: 0 };
                 if (resAbsensi.data) {
                     resAbsensi.data.forEach(r => {
-                        let s = r.status_kehadiran;
-                        if (s === 'Izin') s = 'Ijin';
-                        if (s === 'Alpha') s = 'Alpa';
-                        if (stats[s] !== undefined) stats[s]++;
+                        const s = normalizeStatusAbsensi(r.status_kehadiran);
+                        if (s && stats[s] !== undefined) stats[s]++;
                     });
                 }
 
